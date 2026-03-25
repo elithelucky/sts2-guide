@@ -2,633 +2,2200 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>STS2 컴패니언</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>슬더스2 가이드</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Pretendard Variable','Noto Sans KR',-apple-system,sans-serif;background:#0f1117;color:#e8e6e3;font-size:14px;max-width:480px;margin:0 auto;min-height:100vh;-webkit-tap-highlight-color:transparent}
-.hdr{background:linear-gradient(135deg,#1a1c24,#2d1f1f);padding:14px 16px 10px;border-bottom:1px solid #2a2c34}
-.hdr h1{font-size:17px;font-weight:800;color:#fff;margin:0}
-.hdr p{font-size:11px;color:#8a8d98;margin:0}
-.tabs{display:flex;background:#1a1c24;border-bottom:1px solid #2a2c34;position:sticky;top:0;z-index:10}
-.tabs button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 0;background:none;border:none;color:#5a5d68;font-size:10px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;font-family:inherit}
-.tabs button.on{color:#e74c3c;border-bottom-color:#e74c3c}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0f1117;--surface:#1a1c24;--surface2:#12131a;
+  --border:#2a2c34;--text:#e8e6e3;--sub:#8a8d98;--dim:#5a5d68;
+  --red:#e74c3c;--green:#27ae60;--yellow:#f1c40f;--blue:#3498db;
+  --radius:12px;
+}
+body{background:var(--bg);color:var(--text);font-family:'Apple SD Gothic Neo','Noto Sans KR',-apple-system,sans-serif;font-size:15px;max-width:480px;margin:0 auto;min-height:100vh}
+
+/* ── 헤더 ── */
+.hdr{padding:14px 16px 0;background:var(--bg);position:sticky;top:0;z-index:30}
+.hdr-title{font-size:15px;font-weight:800;color:#fff;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.char-row{display:flex;gap:6px;overflow-x:auto;padding-bottom:10px;padding-right:28px;scrollbar-width:none;cursor:grab;touch-action:pan-x}
+.char-row::-webkit-scrollbar{display:none}
+.char-btn{flex-shrink:0;padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface2);color:var(--sub);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;transition:.15s}
+.char-btn.on{color:var(--cc);border-color:var(--cc);background:color-mix(in srgb,var(--cc) 15%,transparent)}
+
+/* ── 탭 ── */
+.tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:56px;z-index:20}
+.tab-btn{flex:1;padding:11px 0;background:none;border:none;color:var(--dim);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;border-bottom:2px solid transparent;transition:.15s}
+.tab-btn.on{color:var(--cc,#e74c3c);border-bottom-color:var(--cc,#e74c3c)}
+
 .ct{padding:12px 14px 80px}
-.bx{background:#1a1c24;border-radius:10px;padding:12px;margin-bottom:10px;border:1px solid #2a2c34}
-input[type=text]{width:100%;padding:10px 12px;border-radius:8px;border:1px solid #3a3d48;background:#12131a;color:#e8e6e3;font-size:13px;outline:none;font-family:inherit;box-sizing:border-box}
-.bt{padding:8px 14px;border-radius:8px;border:1px solid #2a2c34;background:#12131a;color:#8a8d98;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;text-align:center}
-.bt.p{background:#27ae60;border-color:#27ae60;color:#fff}
-.bt.d{background:none;border-color:#e74c3c33;color:#e74c3c}
-.bt.f{width:100%;padding:10px 0;font-size:12px}
-.bg{font-size:10px;font-weight:700;padding:3px 8px;border-radius:12px;display:inline-block}
-.tb{font-size:9px;font-weight:800;padding:2px 6px;border-radius:4px;display:inline-block}
-.dd{position:absolute;top:100%;left:0;right:0;background:#1e2028;border:1px solid #3a3d48;border-radius:8px;margin-top:4px;z-index:20;max-height:300px;overflow-y:auto}
-.di{display:flex;align-items:center;gap:10px;padding:8px 10px;cursor:pointer;border-bottom:1px solid #2a2c34}
-.di:hover{background:#2a2c34}
-.fb2{padding:5px 12px;border-radius:20px;border:1px solid #2a2c34;background:#12131a;color:#8a8d98;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;margin:0 3px 6px 0}
-.fb2.on{color:var(--fc);border-color:var(--fc);background:color-mix(in srgb,var(--fc) 15%,transparent)}
-.rc{border-radius:10px;padding:12px;margin-bottom:8px;background:#12131a}
-.rc.top{background:#1a2a1a;border:1px solid #2d4a2d}
-.di-img{width:44px;height:62px;border-radius:6px;overflow:hidden;flex-shrink:0;background:#12131a;border:1px solid #3a3d48}
-.di-img img{width:100%;height:100%;object-fit:cover}
-.di-fb{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800}
 
-/* 카드 플립 */
-.card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:4px}
-.card-grid.g2{grid-template-columns:repeat(2,1fr)}
-.card-item{display:flex;flex-direction:column;align-items:center;gap:4px}
-.card-item .cname{font-size:14px;font-weight:700;color:#e8e6e3;text-align:center;line-height:1.2}
-.flip-wrap{perspective:600px;cursor:pointer;width:100%;-webkit-tap-highlight-color:transparent}
-.flip-inner{position:relative;width:100%;padding-top:140%;transform-style:preserve-3d;transition:transform .4s ease}
-.flip-wrap.flipped .flip-inner{transform:rotateY(180deg)}
-.flip-front,.flip-back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:10px;overflow:hidden}
-.flip-front{background:#12131a;border:2px solid var(--rc)}
-.flip-front img{width:100%;height:100%;object-fit:cover;display:block}
-.flip-front .no-img{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:var(--rc)}
-.flip-front .cost-badge{position:absolute;top:4px;right:4px;min-width:20px;height:20px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff;background:var(--ec);text-shadow:0 1px 2px rgba(0,0,0,.8)}
-.flip-back{background:#1a1c24;border:2px solid var(--rc);transform:rotateY(180deg);display:flex;flex-direction:column;justify-content:center;align-items:center;padding:8px;gap:4px;text-align:center}
-.flip-back .b-tier{font-size:22px;font-weight:900;color:var(--tc)}
-.flip-back .b-name{font-size:11px;font-weight:800;color:#e8e6e3;line-height:1.2}
-.flip-back .b-desc{font-size:10px;color:#b0b3be;line-height:1.4}
-.flip-back .b-tip{font-size:9px;color:#f1c40f;font-style:italic;line-height:1.3}
+/* ── 섹션 ── */
+.section{background:var(--surface);border-radius:var(--radius);padding:14px;margin-bottom:10px;border:1px solid var(--border)}
+.sec-title{font-size:15px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.hint{font-size:13px;color:var(--sub);line-height:1.6}
 
-/* 완성덱 아코디언 */
-.arch-hdr{display:flex;justify-content:space-between;align-items:center;padding:12px;cursor:pointer;border-radius:10px;background:#12131a;border:1px solid #2a2c34;margin-bottom:6px}
-.arch-hdr.open{border-bottom-left-radius:0;border-bottom-right-radius:0;border-bottom:none;margin-bottom:0}
-.arch-body{background:#12131a;border:1px solid #2a2c34;border-top:none;border-radius:0 0 10px 10px;padding:12px;margin-bottom:6px;display:none}
-.arch-body.open{display:block}
+/* ── 카드 그리드 ── */
+.card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 
-/* 실시간 분석 */
-.analysis-card{background:#12131a;border-radius:10px;padding:12px;margin-bottom:8px;border-left:4px solid var(--ac)}
-.prog-bar{height:6px;border-radius:3px;background:#2a2c34;margin-top:4px;overflow:hidden}
-.prog-fill{height:100%;border-radius:3px;transition:width .3s}
+/* ── 카드 타일 ── */
+.card-tile{position:relative;aspect-ratio:2/3;border-radius:8px;overflow:hidden;cursor:pointer;border:1.5px solid var(--border);background:var(--surface2)}
+.card-tile img{width:100%;height:100%;object-fit:cover;display:block}
+.card-tile .no-img{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:var(--sub)}
+.card-tile .card-name{position:absolute;bottom:0;left:0;right:0;padding:12px 4px 5px;background:linear-gradient(transparent,rgba(0,0,0,.88));font-size:12px;font-weight:700;color:#fff;text-align:center;line-height:1.2}
+.card-tile .cost-dot{position:absolute;top:3px;right:3px;background:var(--surface);border-radius:6px;font-size:9px;font-weight:900;color:#fff;padding:1px 4px;min-width:16px;text-align:center}
+/* 빌드 태그 */
+.card-tile .build-dot{position:absolute;top:3px;left:3px;border-radius:4px;font-size:8px;font-weight:800;padding:1px 4px;line-height:1.4}
+/* 목표덱 미보유 카드 */
+.card-tile.missing{opacity:.55;filter:grayscale(20%)}
+.card-tile.missing::after{content:'';position:absolute;inset:0;border:2px dashed rgba(255,255,255,.4);border-radius:8px}
+/* 선택됨 */
+.card-tile.selected{border-color:var(--green) !important;box-shadow:0 0 0 2px var(--green)}
+/* 오버레이 (정보/제거) */
+.card-tile .card-overlay{position:absolute;inset:0;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;opacity:0;transition:.18s;border-radius:8px;pointer-events:none}
+.card-tile.show-remove .card-overlay{opacity:1;pointer-events:all}
+.card-overlay .ov-btn{display:flex;align-items:center;gap:5px;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;width:90px;justify-content:center}
+.card-overlay .ov-info{background:rgba(52,152,219,.9);color:#fff}
+.card-overlay .ov-del{background:rgba(231,76,60,.9);color:#fff}
+.card-overlay .ov-cancel{font-size:10px;color:rgba(255,255,255,.5);margin-top:2px}
+
+/* ── 카드 추가하기 타일 ── */
+.add-tile{aspect-ratio:2/3;border-radius:8px;border:1.5px dashed var(--border);background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;transition:.15s}
+.add-tile:hover{border-color:var(--sub);background:var(--surface2)}
+.add-tile .plus{font-size:20px;color:var(--dim)}
+.add-tile .add-txt{font-size:9px;font-weight:700;color:var(--dim);text-align:center;line-height:1.3}
+
+/* ── 상태 뱃지 ── */
+.status-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.badge{padding:4px 9px;border-radius:10px;font-size:12px;font-weight:700;background:var(--surface2);color:var(--sub)}
+.badge.warn{background:rgba(241,196,15,.12);color:var(--yellow)}
+.badge.good{background:rgba(39,174,96,.12);color:var(--green)}
+.badge.info{background:rgba(52,152,219,.12);color:var(--blue)}
+
+/* ── 방향 분석 ── */
+.direction-box{background:var(--surface2);border-radius:8px;padding:10px 12px;margin-bottom:8px;border-left:3px solid var(--cc,#555)}
+.direction-title{font-size:15px;font-weight:800;color:var(--cc,#e8e6e3);margin-bottom:4px}
+.direction-sub{font-size:12px;color:var(--sub);line-height:1.5}
+.prog-bar{height:4px;border-radius:2px;background:var(--border);overflow:hidden;margin-top:6px}
+.prog-fill{height:100%;border-radius:2px;transition:width .4s}
+
+/* ── 콤보 컨테이너 ── */
+.combo-wrap{border:1px solid rgba(255,255,255,.08);border-radius:12px;overflow:hidden;background:#12161d;margin-top:14px}
+.combo-wrap.open{border-color:rgba(255,255,255,.14);background:#10141a}
+.combo-head{padding:12px 14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;background:#161b23;transition:.15s}
+.combo-head:hover{background:#1a2029}
+.combo-head.open{background:#1b222c;border-bottom:1px solid rgba(255,255,255,.08)}
+.combo-head-left h3{font-size:16px;font-weight:800;line-height:1.2;color:var(--text)}
+.combo-head-left p{font-size:12px;color:var(--sub);margin-top:4px;line-height:1.5}
+.combo-body{background:#12161d;padding:12px 12px 10px}
+.combo-box{background:#171c24;border-radius:10px;padding:12px;margin-bottom:10px;border:1px solid rgba(255,255,255,.08)}
+.combo-title-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.combo-title{font-size:14px;font-weight:800;margin:0}
+.combo-meta{font-size:11px;color:var(--sub);padding:4px 8px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);white-space:nowrap}
+.combo-desc{font-size:12px;color:var(--sub);margin-bottom:10px;line-height:1.5}
+.combo-cards-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.combo-cards-3{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.combo-cards-n{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+
+/* ── 목표덱 ── */
+.goal-toggle{width:100%;background:none;border:1px dashed var(--border);border-radius:8px;padding:10px;color:var(--sub);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;text-align:center;transition:.15s;margin-top:4px}
+.goal-toggle:hover{border-color:var(--sub);color:var(--text)}
+.goal-active{background:var(--surface2);border-radius:8px;padding:10px;margin-top:8px;border:1px solid var(--border)}
+.goal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.goal-name{font-size:13px;font-weight:800}
+.goal-clear{background:none;border:none;color:var(--dim);font-size:11px;cursor:pointer;font-family:inherit;padding:2px 6px}
+.goal-minimal{background:var(--surface2);border-radius:12px;padding:12px;margin-top:10px;border:1.5px solid var(--border)}
+.goal-topline{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.goal-meta{display:flex;flex-direction:column;gap:4px;min-width:0}
+.goal-caption{font-size:11px;color:var(--dim);font-weight:700;letter-spacing:.02em;text-transform:uppercase}
+.goal-subcopy{font-size:12px;color:var(--sub);line-height:1.5}
+.goal-chip-row{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 10px}
+.goal-chip{padding:5px 9px;border-radius:999px;font-size:11px;font-weight:800;background:var(--surface);border:1px solid var(--border)}
+.goal-chip.red,.goal-chip.orange,.goal-chip.ghost{color:var(--text);border-color:rgba(255,255,255,.12);background:rgba(255,255,255,.03)}
+.goal-legend{font-size:11px;color:var(--dim);margin-bottom:8px}
+.goal-blueprint-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.goal-card{position:relative;aspect-ratio:2/3;border-radius:8px;overflow:hidden;border:1.5px solid var(--border);background:var(--surface);cursor:pointer}
+.goal-card img{width:100%;height:100%;object-fit:cover;display:block}
+.goal-card .no-img{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--sub);font-size:13px;font-weight:800}
+.goal-card .card-name{position:absolute;bottom:0;left:0;right:0;padding:12px 4px 5px;background:linear-gradient(transparent,rgba(0,0,0,.88));font-size:11px;font-weight:700;color:#fff;text-align:center;line-height:1.2}
+.goal-card.pending{opacity:.38;filter:grayscale(22%)}
+.goal-card.pending::after{content:'';position:absolute;inset:0;border:2px dashed rgba(255,255,255,.34);border-radius:8px}
+.goal-card.owned{box-shadow:0 0 0 1px rgba(39,174,96,.25) inset}
+.goal-card .goal-badge{position:absolute;top:4px;left:4px;padding:2px 5px;border-radius:5px;font-size:8px;font-weight:800;line-height:1.35}
+.goal-card .goal-badge.must{background:rgba(231,76,60,.88);color:#fff}
+.goal-card .goal-badge.key{background:rgba(243,156,18,.88);color:#fff}
+.goal-card .goal-check{position:absolute;top:4px;right:4px;background:rgba(39,174,96,.92);color:#fff;border-radius:999px;font-size:9px;font-weight:900;padding:2px 5px}
+.goal-actions{display:flex;gap:8px;margin-top:10px}
+.goal-ghost-btn{flex:1;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:13px;font-weight:800;cursor:pointer;font-family:inherit}
+.goal-ghost-btn.secondary{color:var(--sub);font-weight:700}
+
+/* ── 모달 ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;display:none;align-items:flex-end}
+.modal-bg.open{display:flex}
+.modal-center{align-items:center;justify-content:center;padding:20px}
+.modal{background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;max-width:480px;margin:0 auto}
+.modal-mid{border-radius:16px;max-height:82vh}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:12px auto 0}
+.modal-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.modal-head h2{font-size:16px;font-weight:800}
+.modal-close{background:none;border:none;color:var(--sub);font-size:22px;cursor:pointer;padding:2px 6px;line-height:1}
+.modal-close-big{background:var(--surface2);border:none;color:var(--text);font-size:16px;font-weight:700;cursor:pointer;padding:7px 12px;line-height:1;border-radius:8px}
+.modal-close-big:hover{background:var(--border)}
+.modal-body{overflow-y:auto;flex:1;padding:14px 16px 20px}
+
+/* 카드 추가 모달 탭 */
+.modal-tabs{display:flex;gap:0;margin-bottom:12px;border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+.modal-tab{flex:1;padding:8px;background:none;border:none;color:var(--sub);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s}
+.modal-tab.on{background:var(--surface2);color:var(--text)}
+
+/* 검색 */
+.search-box{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:13px;outline:none;font-family:inherit;margin-bottom:12px}
+.add-sticky{position:sticky;top:0;z-index:12;background:var(--surface);padding-top:14px;padding-bottom:2px}
+#addModal .modal-body{padding-top:0;overscroll-behavior:contain;min-height:0}
+#addModal .modal{overscroll-behavior:contain;height:88vh}
+#addModal .modal-tabs{margin-bottom:12px}
+
+/* 카드 상세 패널 (모달 내) */
+.card-detail{background:var(--surface2);border-radius:10px;padding:12px;margin-bottom:12px;border:1px solid var(--border)}
+.detail-top{display:flex;gap:10px;margin-bottom:10px}
+.detail-img{width:60px;height:84px;border-radius:6px;overflow:hidden;flex-shrink:0;border:1.5px solid var(--border)}
+.detail-img img{width:100%;height:100%;object-fit:cover}
+.detail-info h3{font-size:15px;font-weight:800;margin-bottom:4px}
+.detail-info p{font-size:11px;color:var(--sub);line-height:1.5}
+.detail-builds{margin-bottom:8px}
+.build-tag-row{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.build-tag{font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px}
+.detail-combo-label{font-size:11px;font-weight:700;color:var(--sub);margin-bottom:6px}
+.add-btn{width:100%;padding:12px;background:var(--green);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit}
+
+/* 목표덱 선택 모달 */
+.build-card{background:var(--surface2);border-radius:10px;padding:12px;margin-bottom:8px;border:1.5px solid var(--border);cursor:pointer;transition:.15s}
+.build-card:hover{border-color:var(--cc,#555)}
+.build-card.selected{border-color:var(--green);background:rgba(39,174,96,.08)}
+.build-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.build-card-name{font-size:15px;font-weight:800;color:var(--cc,#e8e6e3)}
+.build-card-desc{font-size:12px;color:var(--sub);margin-bottom:8px}
+.build-key-cards{display:flex;gap:5px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.build-key-cards::-webkit-scrollbar{display:none}
+.build-key-card{width:44px;flex-shrink:0}
+.select-build-btn{width:100%;padding:11px;background:var(--green);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:10px}
+
+/* 완성덱 탭 */
+.arch-card{border-radius:var(--radius);overflow:hidden;margin-bottom:14px;border:1px solid var(--border);background:var(--surface)}
+.arch-card.open{border-color:rgba(255,255,255,.16);background:#11151d;box-shadow:0 0 0 1px rgba(255,255,255,.03) inset}
+.arch-head{padding:12px 14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;background:var(--surface2);border-bottom:1px solid transparent;transition:.15s}
+.arch-head.open{border-bottom-color:rgba(255,255,255,.12);background:#171c25}
+.arch-head-left h3{font-size:18px;font-weight:850;letter-spacing:-0.02em;line-height:1.2;color:var(--text)}
+.arch-head-left p{font-size:12.5px;color:var(--sub);margin-top:4px;line-height:1.55;max-width:56ch}
+.arch-body{background:#151821;padding:14px 14px 16px;border-top:1px solid rgba(255,255,255,.06)}
+.arch-section-label{font-size:15px;font-weight:800;color:var(--text);margin-bottom:8px;margin-top:14px;letter-spacing:-0.01em}
+.arch-section-label:first-child{margin-top:0}
+.guide-build-head{background:linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.012));border:1.5px solid var(--border);border-radius:14px;padding:14px 15px;margin-bottom:12px}
+.guide-build-title{font-size:20px;font-weight:850;display:flex;align-items:center;gap:8px;letter-spacing:-0.025em;line-height:1.2}
+.guide-build-desc{font-size:13px;color:var(--sub);margin-top:6px;line-height:1.6;max-width:58ch}
+.guide-chip-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.guide-chip{padding:6px 10px;border-radius:999px;font-size:11px;font-weight:800;border:1px solid var(--border);background:var(--surface);letter-spacing:-0.01em}
+.guide-chip.red,.guide-chip.orange,.guide-chip.blue,.guide-chip.green,.guide-chip.warn{background:rgba(255,255,255,.03);color:var(--text);border-color:rgba(255,255,255,.12)}
+
+
+
+
+.guide-alert{margin:10px 0 8px;padding:10px 12px;border-radius:10px;border:1px solid var(--border);font-size:12px;line-height:1.55}
+.guide-alert.warn{background:rgba(241,196,15,.08);color:#f7d36b;border-color:rgba(241,196,15,.18)}
+.guide-alert.info{background:rgba(52,152,219,.08);color:#9dd6ff;border-color:rgba(52,152,219,.18)}
+.guide-alert.good{background:rgba(39,174,96,.08);color:#92e0b0;border-color:rgba(39,174,96,.18)}
+.guide-group{border:2.5px solid rgba(255,255,255,.18);border-radius:14px;padding:12px;margin-top:12px;background:rgba(255,255,255,.022)}
+.guide-group.core{border-color:#ff4d4f;background:rgba(255,77,79,.14)}
+.guide-group.key{border-color:#faad14;background:rgba(250,173,20,.12)}
+.guide-group.flex{border-color:#4096ff;background:rgba(64,150,255,.10)}
+.ref-mini-desc{font-size:12px;color:var(--sub);margin:-2px 0 10px;line-height:1.55}
+.ref-tip-list{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+.ref-tip-item{font-size:12px;color:var(--sub);line-height:1.6;padding-left:2px}
+.ref-chip.ghost{border-color:rgba(255,255,255,.16);color:var(--sub)}
+.relic-list{display:flex;flex-direction:column;gap:4px;margin-top:4px}
+.relic-item{font-size:12px;color:var(--sub);padding:6px 10px;background:var(--surface2);border-radius:6px}
+.relic-item strong{color:var(--text)}
+
+/* 카드 탭 */
+.rarity-section{margin-bottom:14px}
+.rarity-label{font-size:14px;font-weight:800;margin-bottom:7px;padding-left:2px}
+
+/* 푸터 */
+.footer{text-align:center;padding:16px;font-size:10px;color:var(--dim);border-top:1px solid var(--surface)}
 </style>
 </head>
 <body>
+
 <div class="hdr">
-  <div style="display:flex;justify-content:space-between;align-items:center">
-    <div style="display:flex;align-items:center;gap:10px">
-      <span style="font-size:24px">⚔️</span>
-      <div><h1>STS2 컴패니언</h1><p>Ironclad · <span id="nc"></span>장</p></div>
-    </div>
-    <div id="hb"></div>
-  </div>
+  <div class="hdr-title">⚔️ 슬더스2 가이드</div>
+  <div class="char-row" id="charRow"></div>
 </div>
 <div class="tabs" id="tabs"></div>
-<div class="ct" id="mn"></div>
+<div class="ct" id="ct"></div>
+<div class="footer">제작자: 무적득구 &nbsp;·&nbsp; elithelucky&#64;gmail.com</div>
+
+<!-- 카드 정보 모달 (중앙) -->
+<div class="modal-bg modal-center" id="cardInfoModal">
+  <div class="modal modal-mid">
+    <div class="modal-head">
+      <h2 id="cardInfoTitle">카드 정보</h2>
+      <button class="modal-close-big" onclick="closeModal('cardInfoModal')">✕</button>
+    </div>
+    <div class="modal-body" id="cardInfoBody"></div>
+  </div>
+</div>
+
+<!-- 카드 추가 모달 -->
+<div class="modal-bg" id="addModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-head">
+      <h2>카드 추가하기</h2>
+      <button class="modal-close" onclick="closeModal('addModal')">×</button>
+    </div>
+    <div class="modal-body" id="addModalBody">
+      <div class="add-sticky">
+        <div class="modal-tabs">
+          <button class="modal-tab on" onclick="switchAddTab('all')">전체 카드</button>
+          <button class="modal-tab" onclick="switchAddTab('combo')">콤보</button>
+        </div>
+        <input class="search-box" id="cardSearch" placeholder="카드 이름 검색..." oninput="renderAddTab()">
+      </div>
+      <div id="cardDetailPanel"></div>
+      <div id="addTabContent"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 목표덱 선택 모달 -->
+<div class="modal-bg" id="goalModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-head">
+      <h2>목표 덱 선택</h2>
+      <button class="modal-close" onclick="closeModal('goalModal')">×</button>
+    </div>
+    <div class="modal-body" id="goalModalBody"></div>
+  </div>
+</div>
+
+<!-- 목표덱 상세 모달 -->
+<div class="modal-bg modal-center" id="goalDetailModal">
+  <div class="modal modal-mid">
+    <div class="modal-head">
+      <h2 id="goalDetailTitle">빌드 상세</h2>
+      <button class="modal-close-big" onclick="closeModal('goalDetailModal')">✕</button>
+    </div>
+    <div class="modal-body" id="goalDetailBody"></div>
+  </div>
+</div>
 
 <script>
-const B="https://raw.githubusercontent.com/elithelucky/sts2-cards/main/";
-const ei=n=>B+encodeURIComponent(n)+".webp";
-const I={
-  strike:ei("타격"),bash:ei("강타"),defend:ei("수비"),anger:ei("분노"),
-  molten_fist:ei("녹아내리는주먹"),headbutt:ei("박치기"),
-  sword_boomerang:ei("부메랑칼날"),setup_strike:ei("사전타격"),
-  twin_strike:ei("이중타격"),breakthrough:ei("정면돌파"),thunderclap:ei("천둥"),
-  iron_wave:ei("철의파동"),pommel_strike:ei("폼멜타격"),perfected_strike:ei("완벽한타격"),
-  cinder:ei("잿불"),bloodletting:ei("사혈"),tremble:ei("떨림"),
-  armaments:ei("전투장비"),true_grit:ei("진정한끈기"),havoc:ei("파괴"),
-  shrug_it_off:ei("흘려보내기"),blood_wall:ei("피의벽"),whirlwind:ei("소용돌이"),
-  spite:ei("악의"),bully:ei("협박"),pillage:ei("갈취"),rampage:ei("광란"),
-  grapple:ei("그래플링"),ashen_strike:ei("잿빛타격"),dismantle:ei("해체"),
-  hemokinesis:ei("혈류"),fight_me:ei("덤벼라"),unrelenting:ei("무자비"),
-  uppercut:ei("어퍼컷"),bludgeon:ei("몽둥이질"),howl_beyond:ei("저편의울음소리"),
-  stomp:ei("짓밟기"),rage:ei("격노"),battle_trance:ei("전투최면"),
-  second_wind:ei("기사회생"),taunt:ei("도발"),burning_pact:ei("불타는조약"),
-  evil_eye:ei("악마의눈"),forgotten_ritual:ei("잊힌의식"),dominate:ei("제압"),
-  infernal_blade:ei("지옥검"),expect_fight:ei("싸움준비"),flame_barrier:ei("화염장벽"),
-  drum_battle:ei("전투의북소리"),stone_armor:ei("돌갑옷"),feel_no_pain:ei("무감각"),
-  inflame:ei("발화"),inferno:ei("불바다"),juggling:ei("저글링"),rupture:ei("파열"),
-  vicious:ei("포악함"),stampede:ei("쇄도"),pacts_end:ei("조약의끝"),pummel:ei("난타"),
-  conflagration:ei("대화재"),feed:ei("포식"),tear_asunder:ei("갈가리찢기"),
-  fiend_fire:ei("지옥불"),mangle:ei("난도질"),brand:ei("낙인"),cascade:ei("연쇄"),
-  primal_force:ei("원시의힘"),offering:ei("제물"),colossus:ei("거상"),
-  one_two_punch:ei("원투펀치"),stoke:ei("화력증폭"),impervious:ei("무적"),
-  aggression:ei("공격성"),cruelty:ei("악랄함"),crimson_mantle:ei("핏빛망토"),
-  pyre:ei("불의심장"),dark_embrace:ei("어둠의포옹"),unmovable:ei("요지부동"),
-  juggernaut:ei("절대적인힘"),hellraiser:ei("지옥검무"),barricade:ei("바리케이드"),
-  demon_form:ei("악마의형상"),break_card:ei("박살"),corruption:ei("타락"),
-  demonic_shield:ei("악마의방패"),tank:ei("탱커")
+// ═══════════════════════════════════════════
+// 데이터
+// ═══════════════════════════════════════════
+const BASE = 'https://raw.githubusercontent.com/elithelucky/sts2-cards/main/';
+const CHAR_CAP = {ironclad:'Ironclad',silent:'Silent',defect:'Defect',necro:'Necro',regent:'Regent'};
+
+const CLASS_FILE_SUFFIX = {
+  ironclad: ['Ironclad','ironclad'],
+  silent:   ['Silent','silent'],
+  defect:   ['Defect','defect'],
+  necro:    ['Necrobinder','necrobinder','Necro','necro'],
+  regent:   ['Regent','regent'],
 };
 
-const C=[
-  {id:"strike",n:"타격",c:1,t:"공격",r:"시작",d:"6뎀",tier:"D",tip:"기본카드. 소멸 우선"},
-  {id:"bash",n:"강타",c:2,t:"공격",r:"시작",d:"8뎀, 취약+2",tier:"C",tip:"취약덱 아니면 떨림으로 대체"},
-  {id:"defend",n:"수비",c:1,t:"스킬",r:"시작",d:"방어+5",tier:"D",tip:"소멸 제물로 활용"},
-  {id:"anger",n:"분노",c:0,t:"공격",r:"일반",d:"6뎀, 복사본추가",tier:"C",tip:"덱 비대해짐. 후반 소멸 필수"},
-  {id:"molten_fist",n:"녹아내리는주먹",c:1,t:"공격",r:"일반",d:"10뎀, 취약2중첩, 소멸",tier:"B",tip:"취약덱 키카드. 소멸이라 덱 압축도 됨"},
-  {id:"body_slam",n:"몸통박치기",c:1,t:"공격",r:"일반",d:"방어도=피해",tier:"B",tip:"강화하면 0코. 방어도덱 핵심딜"},
-  {id:"headbutt",n:"박치기",c:1,t:"공격",r:"일반",d:"9뎀, 버린 카드 덱 상단 이동",tier:"B",tip:"파괴와 콤보. 원하는 카드 반복 사용"},
-  {id:"sword_boomerang",n:"부메랑칼날",c:1,t:"공격",r:"일반",d:"무작위 적에게 3뎀×3",tier:"C",tip:"힘 3중 적용. 단일전 약함"},
-  {id:"setup_strike",n:"사전타격",c:1,t:"공격",r:"일반",d:"7뎀, 이번 턴 힘+2",tier:"B",tip:"타격/힘 덱에서 효율 좋음"},
-  {id:"twin_strike",n:"이중타격",c:1,t:"공격",r:"일반",d:"5뎀×2",tier:"B",tip:"타격덱 필수. 지옥검무와 시너지"},
-  {id:"breakthrough",n:"정면돌파",c:1,t:"공격",r:"일반",d:"HP 1 감소, 전체 9뎀",tier:"A",tip:"자해덱 준필수. 불바다 트리거"},
-  {id:"thunderclap",n:"천둥",c:1,t:"공격",r:"일반",d:"전체 4뎀 + 취약1",tier:"B",tip:"취약 광역 뿌리기. 취약덱 초반 핵심"},
-  {id:"iron_wave",n:"철의파동",c:1,t:"공격",r:"일반",d:"방어 5, 피해 5",tier:"C",tip:"1막 임시카드. 이후 교체 추천"},
-  {id:"pommel_strike",n:"폼멜타격",c:1,t:"공격",r:"일반",d:"9뎀 + 드로우 1",tier:"S",tip:"모든 덱에 2장. 지옥검무 루프 핵심"},
-  {id:"perfected_strike",n:"완벽한타격",c:2,t:"공격",r:"일반",d:"타격 카드 1장당 피해 증가",tier:"B",tip:"타격덱 집중시 폭딜. 강화 필수"},
-  {id:"cinder",n:"잿불",c:2,t:"공격",r:"일반",d:"18뎀, 패에서 무작위 소멸",tier:"C",tip:"패 소멸 리스크. 소멸덱 아니면 비추"},
-  {id:"bloodletting",n:"사혈",c:0,t:"스킬",r:"일반",d:"HP 3 감소, 에너지 +2",tier:"S",tip:"어느 덱에나 1~2장. 자해덱 핵심 엔진"},
-  {id:"tremble",n:"떨림",c:1,t:"스킬",r:"일반",d:"적에게 취약 3 부여",tier:"B",tip:"강타 절반 비용으로 더 강한 취약"},
-  {id:"armaments",n:"전투장비",c:1,t:"스킬",r:"일반",d:"방어 5, 패에서 카드 1장 강화",tier:"B",tip:"1~2막 강화 수단. 강화 후 소멸 가능"},
-  {id:"true_grit",n:"진정한끈기",c:1,t:"스킬",r:"일반",d:"방어 7, 패에서 무작위 소멸",tier:"A",tip:"강화하면 원하는 카드 소멸 선택 가능"},
-  {id:"havoc",n:"파괴",c:1,t:"스킬",r:"일반",d:"드로우 더미 맨 위 카드 사용 후 소멸",tier:"B",tip:"강화하면 0코. 박치기와 콤보"},
-  {id:"shrug_it_off",n:"흘려보내기",c:1,t:"스킬",r:"일반",d:"방어 8, 카드 1장 드로우",tier:"S",tip:"1코로 방어+드로우. 어느 덱에나 1~2장"},
-  {id:"blood_wall",n:"피의벽",c:2,t:"스킬",r:"일반",d:"HP 2 감소, 방어 16",tier:"B",tip:"자해덱 핵심 방어. 파열 트리거"},
-  {id:"whirlwind",n:"소용돌이",c:"X",t:"공격",r:"고급",d:"모든 적에게 5뎀×X",tier:"A",tip:"에너지 많을수록 강함. 사혈과 시너지"},
-  {id:"spite",n:"악의",c:0,t:"공격",r:"고급",d:"5뎀, 이번 턴 자해 횟수당 추가 발동",tier:"C",tip:"자해덱 서브딜. 단독으론 약함"},
-  {id:"bully",n:"협박",c:0,t:"공격",r:"고급",d:"4뎀 + 적 취약 중첩당 2뎀 추가",tier:"B",tip:"취약덱 0코 주딜. 취약 5이상이면 폭딜"},
-  {id:"pillage",n:"갈취",c:1,t:"공격",r:"고급",d:"6뎀, 카드 드로우",tier:"B",tip:"드로우 + 딜. 타격덱에서 흐름 유지"},
-  {id:"rampage",n:"광란",c:1,t:"공격",r:"고급",d:"9뎀, 이 카드 사용할 때마다 +5",tier:"B",tip:"공격성과 시너지. 장기전 스노우볼"},
-  {id:"grapple",n:"그래플링",c:1,t:"공격",r:"고급",d:"7뎀, 이번 턴 방어도 획득시 추가 딜",tier:"B",tip:"방어도덱 서브딜. 격노와 찰떡"},
-  {id:"ashen_strike",n:"잿빛타격",c:1,t:"공격",r:"고급",d:"6뎀 + 소멸 카드 장당 추가 피해",tier:"A",tip:"소멸덱 핵심 딜러. 소멸 많을수록 강함"},
-  {id:"dismantle",n:"해체",c:1,t:"공격",r:"고급",d:"8뎀, 적 취약 상태면 2회 발동",tier:"A",tip:"취약 상태에서 실질 16뎀. 최고 효율"},
-  {id:"hemokinesis",n:"혈류",c:1,t:"공격",r:"고급",d:"HP 2 감소, 15뎀",tier:"B",tip:"자해 서브딜. 파열 트리거로 힘도 올림"},
-  {id:"fight_me",n:"덤벼라!",c:2,t:"공격",r:"고급",d:"5뎀×2, 적에게 힘 부여",tier:"C",tip:"적 힘 상승 리스크. 상황 봐서만"},
-  {id:"unrelenting",n:"무자비",c:2,t:"공격",r:"고급",d:"12뎀, 다음 공격 0코",tier:"B",tip:"빅덱 전용. 강화하면 진가"},
-  {id:"uppercut",n:"어퍼컷",c:2,t:"공격",r:"고급",d:"12뎀, 약화+취약 동시 부여",tier:"A",tip:"게임 내 유일 약화 수단. 보스전 가치"},
-  {id:"bludgeon",n:"몽둥이질",c:3,t:"공격",r:"고급",d:"32뎀",tier:"B",tip:"깡딜. 에너지 충분할 때만"},
-  {id:"howl_beyond",n:"저편의울음소리",c:3,t:"공격",r:"고급",d:"전체 16뎀",tier:"B",tip:"소멸 제물로도 좋음"},
-  {id:"stomp",n:"짓밟기",c:3,t:"공격",r:"고급",d:"전체 12뎀 (타격 카드 장당 증가)",tier:"B",tip:"타격덱 광역 피니셔"},
-  {id:"rage",n:"격노",c:0,t:"스킬",r:"고급",d:"이번 턴 공격 카드 사용시 방어 +3",tier:"A",tip:"타격덱 핵심 방어. 공격=방어"},
-  {id:"battle_trance",n:"전투최면",c:0,t:"스킬",r:"고급",d:"카드 3장 드로우, 이번 턴 카드 추가 불가",tier:"B",tip:"1막 버티기 필수. 후반엔 제약이 걸림"},
-  {id:"second_wind",n:"기사회생",c:1,t:"스킬",r:"고급",d:"패 비공격 카드 전부 소멸, 장당 방어 5",tier:"C",tip:"소멸덱 방어. 공격 카드가 많으면 효율 저하"},
-  {id:"taunt",n:"도발",c:1,t:"스킬",r:"고급",d:"방어 7, 적에게 취약 1",tier:"A",tip:"취약+방어. 포악함과 콤보로 드로우 연결"},
-  {id:"burning_pact",n:"불타는조약",c:1,t:"스킬",r:"고급",d:"카드 1장 소멸 후 2장 드로우",tier:"A",tip:"소멸덱 핵심 엔진. 잊힌의식과 조합 필수"},
-  {id:"evil_eye",n:"악마의눈",c:1,t:"스킬",r:"고급",d:"방어 8, 소멸 카드 장당 추가 방어",tier:"A",tip:"소멸덱 방어 효율 최고. 소멸 많을수록 강함"},
-  {id:"forgotten_ritual",n:"잊힌의식",c:1,t:"스킬",r:"고급",d:"이번 턴 소멸시 에너지 +3",tier:"A",tip:"불타는조약+잊힌의식 = 소멸 후 에너지 폭발"},
-  {id:"dominate",n:"제압",c:1,t:"스킬",r:"고급",d:"적 취약 중첩당 힘 +1 (이번 전투)",tier:"S",tip:"취약덱 핵심. 취약 5겹이면 힘+5"},
-  {id:"infernal_blade",n:"지옥검",c:1,t:"스킬",r:"고급",d:"패에 무작위 공격 카드 추가 (0코)",tier:"C",tip:"초반 에너지 보완. 후반 덱 압축 방해"},
-  {id:"expect_fight",n:"싸움준비",c:2,t:"스킬",r:"고급",d:"이번 턴 공격카드 사용마다 에너지 +1",tier:"D",tip:"너프 후 효율 최악. 거의 안 씀"},
-  {id:"flame_barrier",n:"화염장벽",c:2,t:"스킬",r:"고급",d:"방어 12, 이번 턴 피격시 적에게 반사 4",tier:"B",tip:"고비용이지만 방어+반사. 보스전 유용"},
-  {id:"drum_battle",n:"전투의북소리",c:0,t:"파워",r:"고급",d:"매 턴 시작 카드 2장 드로우, 1장 소멸",tier:"B",tip:"드로우 좋지만 소멸 리스크. 소멸덱과 시너지"},
-  {id:"stone_armor",n:"돌갑옷",c:1,t:"파워",r:"고급",d:"매 턴 판금 +4 (매 턴 1씩 감소)",tier:"D",tip:"함정카드. 방어도는 격노/흘려보내기로"},
-  {id:"feel_no_pain",n:"무감각",c:1,t:"파워",r:"고급",d:"카드 소멸시마다 방어 +3",tier:"A",tip:"소멸덱 방어 효자. 전투북소리/진정한끈기와"},
-  {id:"inflame",n:"발화",c:1,t:"파워",r:"고급",d:"힘 +2",tier:"B",tip:"1~2막 힘 보완. 악마의형상 없을 때 대체"},
-  {id:"inferno",n:"불바다",c:1,t:"파워",r:"고급",d:"이번 전투 자해시마다 전체 6뎀",tier:"S",tip:"자해덱 광역의 핵심. 불바다+파열이면 자동 스케일"},
-  {id:"juggling",n:"저글링",c:1,t:"파워",r:"고급",d:"이번 전투 3번째 공격마다 복사본 자동 발동",tier:"B",tip:"폼멜타격 복제로 드로우 폭발"},
-  {id:"rupture",n:"파열",c:1,t:"파워",r:"고급",d:"HP를 잃을 때마다 힘 +1",tier:"S",tip:"자해덱 심장. 사혈/피의벽 매 턴 힘 스택"},
-  {id:"vicious",n:"포악함",c:1,t:"파워",r:"고급",d:"취약 적 공격시마다 카드 1장 드로우",tier:"S",tip:"취약덱 순환의 핵심. 취약 뿌리면 패 안 마름"},
-  {id:"stampede",n:"쇄도",c:2,t:"파워",r:"고급",d:"매 턴 종료시 무작위 공격 카드 자동 발동",tier:"B",tip:"에너지 쓰고도 공격 가능. 무료 사용감"},
-  {id:"pacts_end",n:"조약의끝",c:0,t:"공격",r:"희귀",d:"소멸 카드 3장 이상시 전체 17뎀",tier:"S",tip:"0코 전체 17딜. 소멸덱 광역 피니셔"},
-  {id:"pummel",n:"난타",c:1,t:"공격",r:"희귀",d:"소멸된 카드 장수만큼 반복 타격",tier:"A",tip:"쓸수록 강해짐. 소멸 많은 덱에서 극딜"},
-  {id:"conflagration",n:"대화재",c:1,t:"공격",r:"희귀",d:"전체 8뎀, 이번 전투 공격 카드 사용마다 +2",tier:"B",tip:"타격덱 광역딜. 공격 많을수록 강해짐"},
-  {id:"feed",n:"포식",c:1,t:"공격",r:"희귀",d:"10뎀, 적 처치시 최대 HP +3 (영구)",tier:"S",tip:"영구 HP 증가. 무조건 픽. 우선순위 1위"},
-  {id:"tear_asunder",n:"갈가리찢기",c:2,t:"공격",r:"희귀",d:"이번 전투 잃은 HP 횟수 × 5뎀",tier:"A",tip:"자해덱 피니셔. 자해 10번이면 50뎀"},
-  {id:"fiend_fire",n:"지옥불",c:2,t:"공격",r:"희귀",d:"손패 전부 소멸, 소멸 장당 7뎀",tier:"A",tip:"소멸덱 피니셔. 손패 7장이면 49뎀"},
-  {id:"mangle",n:"난도질",c:3,t:"공격",r:"희귀",d:"15뎀, 적 힘 -10",tier:"B",tip:"힘 높은 적 카운터. 연타형 적 상대로"},
-  {id:"brand",n:"낙인",c:0,t:"스킬",r:"희귀",d:"HP 1 감소, 패에서 카드 소멸, 힘 +1",tier:"B",tip:"자해+소멸+힘 모두. 팔방미인 지원카드"},
-  {id:"cascade",n:"연쇄",c:"X",t:"스킬",r:"희귀",d:"드로우 더미 위에서 X장 사용",tier:"A",tip:"빅덱 핵심. 남은 에너지만큼 연쇄 발동"},
-  {id:"primal_force",n:"원시의힘",c:0,t:"스킬",r:"희귀",d:"이번 전투 공격 사용시 드로우 더미에 바위 추가",tier:"B",tip:"0코 스노우볼. 방어도 덱에서 특히 강함"},
-  {id:"offering",n:"제물",c:0,t:"스킬",r:"희귀",d:"HP 6 감소, 에너지 +2, 카드 3장 드로우",tier:"S",tip:"자해덱 심장. 어느 덱에도 무조건 픽"},
-  {id:"colossus",n:"거상",c:1,t:"스킬",r:"희귀",d:"이번 전투 취약 적에게 받는 피해 50% 감소",tier:"A",tip:"취약덱 핵심 방어. 취약 뿌리면 피해 절반"},
-  {id:"one_two_punch",n:"원투펀치",c:1,t:"스킬",r:"희귀",d:"다음 공격 카드 1회 추가 발동",tier:"A",tip:"극딜 콤보. 어퍼컷이나 지옥불 앞에 사용"},
-  {id:"stoke",n:"화력증폭",c:1,t:"스킬",r:"희귀",d:"패 카드 소멸 후 새 카드로 교체",tier:"C",tip:"밸류 불안정. 소멸덱에서 예외적으로 사용"},
-  {id:"impervious",n:"무적",c:2,t:"스킬",r:"희귀",d:"방어 30, 소멸",tier:"B",tip:"1회성 빅 방어. 연쇄 빅덱에서 재활용"},
-  {id:"aggression",n:"공격성",c:1,t:"파워",r:"희귀",d:"매 턴 공격 카드 1장 무작위 강화",tier:"A",tip:"광란과 시너지 폭발. 긴 전투일수록 강함"},
-  {id:"cruelty",n:"악랄함",c:1,t:"파워",r:"희귀",d:"취약 적에게 주는 피해 25% 증가",tier:"A",tip:"취약덱 딜 증폭기. 제압+악랄함이면 배율 폭발"},
-  {id:"crimson_mantle",n:"핏빛망토",c:1,t:"파워",r:"희귀",d:"매 턴 HP 1 감소, 방어 8 획득",tier:"S",tip:"자동 자해+방어. 파열 트리거. 어디든 유용"},
-  {id:"pyre",n:"불의심장",c:2,t:"파워",r:"희귀",d:"매 턴 에너지 +1",tier:"A",tip:"강화하면 진가. 에너지 여유=모든 카드 강화"},
-  {id:"dark_embrace",n:"어둠의포옹",c:2,t:"파워",r:"희귀",d:"카드 소멸시마다 카드 1장 드로우",tier:"S",tip:"소멸덱 핵심 드로우 엔진. 불타는조약과 무한 순환"},
-  {id:"unmovable",n:"요지부동",c:2,t:"파워",r:"희귀",d:"턴 첫 방어 카드 효과 2배",tier:"S",tip:"흘려보내기 16방어. 어디든 밥값 확실"},
-  {id:"juggernaut",n:"절대적인힘",c:2,t:"파워",r:"희귀",d:"방어도 획득시 무작위 적에게 5뎀",tier:"A",tip:"방어도덱 서브딜. 격노+절대적인힘이면 공격=딜+방어"},
-  {id:"hellraiser",n:"지옥검무",c:2,t:"파워",r:"희귀",d:"타격 카드가 카드 드로우하면 자동 발동",tier:"S",tip:"타격덱 완성. 폼멜타격→드로우→자동 무한루프"},
-  {id:"barricade",n:"바리케이드",c:3,t:"파워",r:"희귀",d:"방어도가 턴 종료 시 유지됨",tier:"A",tip:"방어도덱 심장. 몸통박치기와 조합 필수"},
-  {id:"demon_form",n:"악마의형상",c:3,t:"파워",r:"희귀",d:"매 턴 힘 +2",tier:"B",tip:"장기전 스노우볼. 3막 보스전에서 진가 발휘"},
-  {id:"break_card",n:"박살",c:2,t:"공격",r:"특수",d:"20뎀, 취약 5 부여",tier:"S",tip:"강타 완전 대체. 취약덱에선 무조건 픽"},
-  {id:"corruption",n:"타락",c:3,t:"파워",r:"특수",d:"스킬 카드 0코, 사용시 소멸",tier:"S",tip:"소멸덱 궁극기. 0코 소멸 = 무한 불타는조약"},
-  {id:"demonic_shield",n:"악마의방패",c:0,t:"스킬",r:"특수",d:"모든 아군에게 방어 분배",tier:"A",tip:"멀티 전투 핵심. 싱글전엔 효율 낮음"},
-  {id:"tank",n:"탱커",c:1,t:"파워",r:"특수",d:"받는 피해 2배, 아군에게 절반 분배",tier:"D",tip:"멀티 전용. 싱글전 절대 사용 금지"}
-];
-
-const ARCHS=[
-  {
-    name:"취약 덱",color:"#2ecc71",emoji:"💚",
-    desc:"취약을 쌓아 제압으로 힘 전환, 악랄함으로 배율 폭발",
-    deckSize:12, idealSize:"10~14장",
-    must:["dominate","vicious"],
-    rec:["break_card","molten_fist","thunderclap","dismantle","uppercut","bully","tremble","taunt","colossus","cruelty"],
-    relics:["취약 관련 유물 우선","오닉스의 힘 (힘 보너스)","호기심 넘치는 병 (소멸 보조)"],
-    tips:["취약 5겹 = 힘 +5 (제압)", "악랄함 있으면 취약 딜 25% 추가", "몸통박치기보다 협박이 0코로 더 효율", "보스전: 어퍼컷 약화 필수"],
-    pro:"해금 빠름, 안정성 높음",con:"인공물/무적 적에게 취약"
-  },
-  {
-    name:"타격 덱",color:"#e67e22",emoji:"🔶",
-    desc:"지옥검무+폼멜타격으로 드로우 루프, 저글링으로 복제",
-    deckSize:14, idealSize:"12~16장",
-    must:["hellraiser","pommel_strike"],
-    rec:["perfected_strike","twin_strike","setup_strike","ashen_strike","pillage","stomp","conflagration","rage","juggling"],
-    relics:["타격 계열 강화 유물","사냥꾼의 표창 (타격 추가)","호화로운 꼼수 (0코 카드)"],
-    tips:["폼멜타격 2장이 루프의 최소 조건", "지옥검무 전: 타격 카드 최대한 모으기", "격노 있으면 공격=방어 자동 해결", "완벽한타격은 강화 후 타격 8장이면 +32뎀"],
-    pro:"완성 후 무한 루프, 높은 파괴력",con:"지옥검무 레어. 완성 전 불안정"
-  },
-  {
-    name:"소멸 덱",color:"#8e44ad",emoji:"💜",
-    desc:"불타는조약+어둠의포옹으로 소멸할수록 드로우+에너지",
-    deckSize:10, idealSize:"8~12장",
-    must:["burning_pact","dark_embrace"],
-    rec:["ashen_strike","evil_eye","forgotten_ritual","feel_no_pain","pacts_end","pummel","fiend_fire","corruption","true_grit"],
-    relics:["죽은 가지 (소멸시 랜덤 카드 추가)","데드 브랜치","요정의 병 (부활 보조)"],
-    tips:["불타는조약+잊힌의식 = 소멸 후 에너지 +3", "어둠의포옹 있으면 소멸할수록 패가 늘어남", "타락 획득하면 스킬 전부 0코 소멸로 극한 효율", "덱 10장 이하가 이상적"],
-    pro:"높은 밸류, 덱 압축 동시",con:"핵심 카드 소멸 실수 위험"
-  },
-  {
-    name:"자해 덱",color:"#e74c3c",emoji:"❤️",
-    desc:"파열로 자해=힘, 불바다로 자해=광역딜 동시 달성",
-    deckSize:13, idealSize:"11~15장",
-    must:["rupture","inferno"],
-    rec:["bloodletting","offering","crimson_mantle","blood_wall","hemokinesis","breakthrough","brand","tear_asunder","spite"],
-    relics:["붉은 해골 (HP 절반 이하 힘+3)","부러진 시계 (자해 면역 유물)","철의 열쇠 (유물 보조)"],
-    tips:["파열+사혈 = 매 턴 힘 +1 무료", "불바다+정면돌파 = 매 턴 전체 6뎀 자동", "핏빛망토는 매 턴 자동 파열 트리거", "HP 관리 중요: 70% 이하 유지가 최적"],
-    pro:"자동 스케일, 광역딜",con:"HP 관리 실패시 순삭"
-  },
-  {
-    name:"방어도 덱",color:"#3498db",emoji:"💙",
-    desc:"바리케이드로 방어도 유지, 몸통박치기로 방어=딜 전환",
-    deckSize:15, idealSize:"13~17장",
-    must:["barricade","body_slam"],
-    rec:["shrug_it_off","rage","grapple","armaments","crimson_mantle","unmovable","juggernaut","cascade","flame_barrier"],
-    relics:["토소 (방어도 30% 증가)","케토스키의 흉상","빙하의 심장 (방어도 보너스)"],
-    tips:["바리케이드 없으면 방어도덱 성립 안 됨", "몸통박치기 강화 필수 (0코)", "격노: 공격 카드 사용마다 방어+3", "절대적인힘 있으면 방어도 쌓을수록 딜까지"],
-    pro:"높은 안정성, 보스전 강함",con:"적은 공격카드, 완성까지 오래"
-  }
-];
-
-const COMBOS=[
-  {name:"자해 엔진",cards:["rupture","bloodletting"],desc:"HP잃으면 힘+1 + 에너지",cat:"자해"},
-  {name:"자해 광역",cards:["inferno","breakthrough"],desc:"자해마다 전체 6뎀 자동",cat:"자해"},
-  {name:"자해 피니셔",cards:["rupture","tear_asunder"],desc:"파열 힘 누적 → 갈가리 폭딜",cat:"자해"},
-  {name:"소멸 엔진",cards:["burning_pact","forgotten_ritual"],desc:"소멸+드로우2+에너지3",cat:"소멸"},
-  {name:"소멸 방어",cards:["feel_no_pain","true_grit"],desc:"소멸마다 방어+3",cat:"소멸"},
-  {name:"소멸 드로우",cards:["dark_embrace","burning_pact"],desc:"소멸할수록 패 안 마름",cat:"소멸"},
-  {name:"소멸 광역",cards:["pacts_end","burning_pact"],desc:"0코 전체 17딜",cat:"소멸"},
-  {name:"덱 조작",cards:["headbutt","havoc"],desc:"원하는 카드 반복 사용",cat:"범용"},
-  {name:"취약 성장",cards:["dominate","vicious"],desc:"취약→힘+1+드로우",cat:"취약"},
-  {name:"취약 방어",cards:["taunt","vicious"],desc:"방어7+취약+드로우",cat:"취약"},
-  {name:"취약 극딜",cards:["dismantle","dominate"],desc:"취약 상태 16뎀+힘",cat:"취약"},
-  {name:"타격 무한",cards:["hellraiser","pommel_strike"],desc:"드로우→자동발동 루프",cat:"타격"},
-  {name:"공격 성장",cards:["aggression","rampage"],desc:"매 턴 강화→광란 폭딜",cat:"범용"},
-  {name:"방어→딜",cards:["unmovable","body_slam"],desc:"방어 2배→딜 전환",cat:"방밀"},
-  {name:"방어 반사",cards:["juggernaut","shrug_it_off"],desc:"방어 획득시 자동 5뎀",cat:"방밀"},
-  {name:"에너지 폭발",cards:["offering","bloodletting"],desc:"에너지+드로우 대량 확보",cat:"범용"}
-];
-
-const TS={S:95,A:80,B:65,C:45,D:25};
-const TC={S:"#e74c3c",A:"#e67e22",B:"#f1c40f",C:"#3498db",D:"#95a5a6"};
-const RC={"시작":"#9e9e9e","일반":"#8a8d98","고급":"#3d7dd4","희귀":"#daa520","특수":"#9b59b6"};
-const EC={"시작":"#555","일반":"#666","고급":"#2563a8","희귀":"#b8860b","특수":"#7d3c98"};
-const CC={자해:"#e74c3c",소멸:"#8e44ad",취약:"#2ecc71",타격:"#e67e22",방밀:"#3498db",범용:"#95a5a6"};
-
-let S={tab:"live",act:1,deck:[],rw:[],q:"",sdk:false,cf:"전체",pick:false};
-let flipped={};
-let openArch=null;
-
-function cardFlip(id,ev){
-  if(ev)ev.stopPropagation();
-  flipped[id]=!flipped[id];
-  const el=document.getElementById("fw_"+id);
-  if(el)el.classList.toggle("flipped",!!flipped[id]);
+function cleanCardName(name) {
+  return name.replace(/\s+/g,'').replace(/['']/g,'').trim();
 }
 
-function flipCard(card){
-  const rc=RC[card.r]||"#555";
-  const ec=EC[card.r]||"#555";
-  const tc=TC[card.tier]||"#888";
-  const src=I[card.id];
-  const isFlipped=!!flipped[card.id];
-  return`<div class="flip-wrap${isFlipped?" flipped":""}" id="fw_${card.id}" onclick="cardFlip('${card.id}',event)" style="--rc:${rc};--ec:${ec};--tc:${tc}">
-    <div class="flip-inner">
-      <div class="flip-front">
-        ${src?`<img src="${src}" loading="lazy" onerror="this.style.display='none';this.nextSibling.style.display='flex'"><div class="no-img">${card.n.slice(0,2)}</div>`:`<div class="no-img">${card.n.slice(0,2)}</div>`}
-        <div class="cost-badge">${card.c}</div>
-      </div>
-      <div class="flip-back">
-        <div class="b-tier">${card.tier}</div>
-        <div class="b-name">${card.n}</div>
-        <div style="display:flex;gap:3px;justify-content:center;flex-wrap:wrap">
-          <span class="tb" style="background:${card.t==="공격"?"#e74c3c":card.t==="파워"?"#8e44ad":"#3498db"}22;color:${card.t==="공격"?"#e74c3c":card.t==="파워"?"#8e44ad":"#3498db"}">${card.t}</span>
-          <span class="tb" style="background:${rc}22;color:${rc}">${card.r}</span>
-        </div>
-        <div class="b-desc">${card.d}</div>
-        <div class="b-tip">💡${card.tip.length>30?card.tip.slice(0,30)+"…":card.tip}</div>
+function getImageCandidates(cardName, charKey) {
+  const clean = cleanCardName(cardName);
+  const cleanNoSpec = clean.replace(/[!?]/g,'');
+  const suffixes = CLASS_FILE_SUFFIX[charKey] || [charKey];
+  const candidates = [];
+  const isSharedBasic = ['타격','수비'].includes(cardName);
+
+  if (isSharedBasic) {
+    for (const suf of suffixes) {
+      candidates.push(`${clean}_${suf}.webp`);
+      if (cleanNoSpec !== clean) candidates.push(`${cleanNoSpec}_${suf}.webp`);
+    }
+  }
+
+  candidates.push(`${clean}.webp`);
+  if (cleanNoSpec !== clean) candidates.push(`${cleanNoSpec}.webp`);
+
+  if (!isSharedBasic) {
+    for (const suf of suffixes) {
+      candidates.push(`${clean}_${suf}.webp`);
+      if (cleanNoSpec !== clean) candidates.push(`${cleanNoSpec}_${suf}.webp`);
+    }
+  }
+
+  return [...new Set(candidates)].map(n => BASE + encodeURIComponent(n));
+}
+
+function imgUrl(cardName, charKey) {
+  return getImageCandidates(cardName, charKey)[0];
+}
+
+function handleImgErr(img, cardName, charKey) {
+  const candidates = getImageCandidates(cardName, charKey);
+  const tried = Number(img.dataset.tried || 0) + 1;
+  if (tried < candidates.length) {
+    img.dataset.tried = tried;
+    img.src = candidates[tried];
+    return;
+  }
+  img.style.display = 'none';
+  const sib = img.nextElementSibling;
+  if (sib) sib.style.display = 'flex';
+}
+
+const CHARS = {
+  ironclad: { name:'아이언클래드', emoji:'🔥', color:'#e74c3c' },
+  silent:   { name:'사일런트',     emoji:'🗡️', color:'#2ecc71' },
+  defect:   { name:'디펙트',       emoji:'⚡', color:'#3498db' },
+  necro:    { name:'네크로바인더', emoji:'💀', color:'#8e44ad' },
+  regent:   { name:'리젠트',       emoji:'⭐', color:'#f1c40f' },
+};
+
+// ── 직업별 시작 덱 ──
+const START_DECKS = {
+  ironclad: ['타격','타격','타격','타격','타격','수비','수비','수비','수비','강타'],
+  silent:   ['타격','타격','타격','타격','타격','수비','수비','수비','수비','무력화','생존자'],
+  defect:   ['타격','타격','타격','타격','수비','수비','수비','수비','이중 시전','파지직'],
+  necro:    ['타격','타격','타격','타격','수비','수비','수비','수비','풀어놓기','호위'],
+  regent:   ['타격','타격','타격','타격','수비','수비','수비','수비','별똥별','추앙'],
+};
+
+const BASIC_CARDS = {
+  ironclad: ['타격','수비','강타'],
+  silent:   ['타격','수비','무력화','생존자'],
+  defect:   ['타격','수비','이중 시전','파지직'],
+  necro:    ['타격','수비','풀어놓기','호위'],
+  regent:   ['타격','수비','별똥별','추앙'],
+};
+
+const IRONCLAD_START = START_DECKS.ironclad;
+
+const IRONCLAD_CARDS = [
+  // 시작
+  {n:'타격',  c:1, t:'공격', r:'시작', d:'6뎀', tier:'D', tip:'소멸 우선'},
+  {n:'강타',  c:2, t:'공격', r:'시작', d:'8뎀+취약2', tier:'C', tip:'취약덱 아니면 떨림으로'},
+  {n:'수비',  c:1, t:'스킬', r:'시작', d:'방어+5', tier:'D', tip:'소멸 제물'},
+  // 일반 공격
+  {n:'분노',  c:0, t:'공격', r:'일반', d:'6뎀+복사본', tier:'C', tip:'후반 소멸 필수'},
+  {n:'녹아내리는주먹', c:1, t:'공격', r:'일반', d:'10뎀+취약2중첩+소멸', tier:'B', tip:'취약덱 키카드'},
+  {n:'몸통박치기', c:1, t:'공격', r:'일반', d:'방어도=피해', tier:'B', tip:'강화→0코 필수'},
+  {n:'박치기', c:1, t:'공격', r:'일반', d:'9뎀+덱 상단 조작', tier:'B', tip:'파괴와 콤보'},
+  {n:'부메랑칼날', c:1, t:'공격', r:'일반', d:'3뎀×3', tier:'C', tip:'힘 3배'},
+  {n:'사전타격', c:1, t:'공격', r:'일반', d:'7뎀+힘+2', tier:'B', tip:'타격/힘덱'},
+  {n:'이중타격', c:1, t:'공격', r:'일반', d:'5뎀×2', tier:'B', tip:'타격덱 필수'},
+  {n:'정면돌파', c:1, t:'공격', r:'일반', d:'HP1감소+전체9뎀', tier:'A', tip:'불바다 트리거'},
+  {n:'천둥', c:1, t:'공격', r:'일반', d:'전체4뎀+취약1', tier:'B', tip:'취약 광역'},
+  {n:'철의파동', c:1, t:'공격', r:'일반', d:'방어5+피해5', tier:'C', tip:'1막 임시'},
+  {n:'폼멜타격', c:1, t:'공격', r:'일반', d:'9뎀+드로우1', tier:'S', tip:'모든 덱에 2장'},
+  {n:'완벽한타격', c:2, t:'공격', r:'일반', d:'타격카드당+2뎀', tier:'B', tip:'타격덱 폭딜'},
+  {n:'잿불', c:2, t:'공격', r:'일반', d:'18뎀+무작위소멸', tier:'C', tip:'소멸 리스크'},
+  // 일반 스킬
+  {n:'사혈', c:0, t:'스킬', r:'일반', d:'HP3감소+에너지+2', tier:'S', tip:'어느 덱에나'},
+  {n:'떨림', c:1, t:'스킬', r:'일반', d:'적 취약3', tier:'B', tip:'강타 절반 비용'},
+  {n:'전투장비', c:1, t:'스킬', r:'일반', d:'방어5+카드강화', tier:'B', tip:'초반 강화용'},
+  {n:'진정한끈기', c:1, t:'스킬', r:'일반', d:'방어7+소멸', tier:'A', tip:'강화→선택 소멸'},
+  {n:'파괴', c:1, t:'스킬', r:'일반', d:'덱 상단 사용+소멸', tier:'B', tip:'강화→0코 필수'},
+  {n:'흘려보내기', c:1, t:'스킬', r:'일반', d:'방어8+드로우1', tier:'S', tip:'항상 무난'},
+  {n:'피의벽', c:2, t:'스킬', r:'일반', d:'HP2감소+방어16', tier:'B', tip:'자해 핵심방어'},
+  // 고급 공격
+  {n:'소용돌이', c:'X', t:'공격', r:'고급', d:'전체5뎀×X', tier:'A', tip:'에너지펌핑'},
+  {n:'악의', c:0, t:'공격', r:'고급', d:'5뎀+자해시추가', tier:'C', tip:'자해 서브딜'},
+  {n:'협박', c:0, t:'공격', r:'고급', d:'4뎀+취약당+2', tier:'B', tip:'취약덱 0코딜'},
+  {n:'갈취', c:1, t:'공격', r:'고급', d:'6뎀+드로우', tier:'B', tip:'타격덱 흐름유지'},
+  {n:'광란', c:1, t:'공격', r:'고급', d:'9뎀+매사용+5', tier:'B', tip:'공격성 시너지'},
+  {n:'그래플링', c:1, t:'공격', r:'고급', d:'7뎀+방어획득시딜', tier:'B', tip:'방어도덱 서브딜'},
+  {n:'잿빛타격', c:1, t:'공격', r:'고급', d:'6뎀+소멸장당+3', tier:'A', tip:'소멸덱 핵심딜'},
+  {n:'해체', c:1, t:'공격', r:'고급', d:'8뎀+취약시2회', tier:'A', tip:'취약 최고효율'},
+  {n:'혈류', c:1, t:'공격', r:'고급', d:'HP2감소+15뎀', tier:'B', tip:'자해 서브딜'},
+  {n:'덤벼라!', c:2, t:'공격', r:'고급', d:'5뎀×2+힘+3(적도)', tier:'C', tip:'적 힘 리스크'},
+  {n:'무자비', c:2, t:'공격', r:'고급', d:'12뎀+다음공격0코', tier:'B', tip:'빅덱용'},
+  {n:'어퍼컷', c:2, t:'공격', r:'고급', d:'12뎀+약화+취약', tier:'A', tip:'유일 약화수단'},
+  {n:'몽둥이질', c:3, t:'공격', r:'고급', d:'32뎀', tier:'B', tip:'깡딜'},
+  {n:'저편의울음소리', c:3, t:'공격', r:'고급', d:'전체16뎀+소멸제물', tier:'B', tip:'소멸 제물'},
+  {n:'짓밟기', c:3, t:'공격', r:'고급', d:'전체12뎀+타격당-1코', tier:'B', tip:'타격덱 광역'},
+  // 고급 스킬
+  {n:'격노', c:0, t:'스킬', r:'고급', d:'공격사용시방어+3', tier:'A', tip:'타격덱 방어'},
+  {n:'전투최면', c:0, t:'스킬', r:'고급', d:'드로우3+이후드로우불가', tier:'B', tip:'1막버티기'},
+  {n:'기사회생', c:1, t:'스킬', r:'고급', d:'비공격소멸+장당방어5', tier:'C', tip:'소멸 방어'},
+  {n:'도발', c:1, t:'스킬', r:'고급', d:'방어7+취약1', tier:'A', tip:'포악함 콤보'},
+  {n:'불타는조약', c:1, t:'스킬', r:'고급', d:'소멸+드로우2', tier:'A', tip:'소멸 핵심엔진'},
+  {n:'악마의눈', c:1, t:'스킬', r:'고급', d:'방어8+소멸시+8', tier:'A', tip:'소멸 핵심방어'},
+  {n:'잊힌의식', c:1, t:'스킬', r:'고급', d:'소멸시에너지+3+소멸', tier:'A', tip:'불타는조약 조합'},
+  {n:'제압', c:1, t:'스킬', r:'고급', d:'취약+취약당힘+1+소멸', tier:'S', tip:'취약덱 핵심'},
+  {n:'지옥검', c:1, t:'스킬', r:'고급', d:'무작위공격0코패추가', tier:'C', tip:'초반 에너지'},
+  {n:'싸움준비', c:2, t:'스킬', r:'고급', d:'공격카드당에너지', tier:'D', tip:'너프후 비추'},
+  {n:'화염장벽', c:2, t:'스킬', r:'고급', d:'방어12+피격시반사4', tier:'B', tip:'보스전 방어'},
+  // 고급 파워
+  {n:'전투의북소리', c:0, t:'파워', r:'고급', d:'드로우+2+매턴소멸', tier:'B', tip:'소멸 리스크'},
+  {n:'돌갑옷', c:1, t:'파워', r:'고급', d:'판금+4', tier:'D', tip:'함정카드'},
+  {n:'무감각', c:1, t:'파워', r:'고급', d:'소멸시방어+3', tier:'A', tip:'소멸 방어효자'},
+  {n:'발화', c:1, t:'파워', r:'고급', d:'힘+2', tier:'B', tip:'1막 힘보완'},
+  {n:'불바다', c:1, t:'파워', r:'고급', d:'자해시전체6뎀', tier:'S', tip:'자해덱 심장'},
+  {n:'저글링', c:1, t:'파워', r:'고급', d:'3번째공격복사', tier:'B', tip:'폼멜 복제'},
+  {n:'파열', c:1, t:'파워', r:'고급', d:'HP잃을때마다힘+1', tier:'S', tip:'자해덱 핵심'},
+  {n:'포악함', c:1, t:'파워', r:'고급', d:'취약부여시드로우+1', tier:'S', tip:'취약 순환'},
+  {n:'쇄도', c:2, t:'파워', r:'고급', d:'턴종료무작위공격', tier:'B', tip:'에너지절약'},
+  // 희귀
+  {n:'조약의끝', c:0, t:'공격', r:'희귀', d:'소멸3+조건전체17뎀', tier:'S', tip:'0코 전체딜'},
+  {n:'난타', c:1, t:'공격', r:'희귀', d:'소멸카드당뎀누적', tier:'A', tip:'쓸수록강해짐'},
+  {n:'대화재', c:1, t:'공격', r:'희귀', d:'전체8뎀+공격당+2', tier:'B', tip:'타격덱 광역'},
+  {n:'포식', c:1, t:'공격', r:'희귀', d:'10뎀+처치시MaxHP+3', tier:'S', tip:'무조건픽'},
+  {n:'갈가리찢기', c:2, t:'공격', r:'희귀', d:'잃은HP횟수×5뎀', tier:'A', tip:'자해 피니셔'},
+  {n:'지옥불', c:2, t:'공격', r:'희귀', d:'손패소멸+장당7뎀', tier:'A', tip:'소멸 피니셔'},
+  {n:'난도질', c:3, t:'공격', r:'희귀', d:'15뎀+적힘-10', tier:'B', tip:'연타 카운터'},
+  {n:'낙인', c:0, t:'스킬', r:'희귀', d:'HP1감소+소멸+힘+1', tier:'B', tip:'팔방미인'},
+  {n:'연쇄', c:'X', t:'스킬', r:'희귀', d:'더미위X장연속발동', tier:'A', tip:'빅덱 핵심'},
+  {n:'원시의힘', c:0, t:'스킬', r:'희귀', d:'공격→바위16뎀', tier:'B', tip:'0코 스노우볼'},
+  {n:'제물', c:0, t:'스킬', r:'희귀', d:'HP6감소+E+2+드로우3+소멸', tier:'S', tip:'무조건픽'},
+  {n:'거상', c:1, t:'스킬', r:'희귀', d:'방어5+취약피해50%감소', tier:'A', tip:'취약 핵심방어'},
+  {n:'원투펀치', c:1, t:'스킬', r:'희귀', d:'다음공격+1회', tier:'A', tip:'극딜'},
+  {n:'화력증폭', c:1, t:'스킬', r:'희귀', d:'손패소멸+무작위교체', tier:'C', tip:'패밸류불안정'},
+  {n:'무적', c:2, t:'스킬', r:'희귀', d:'방어30+소멸', tier:'B', tip:'연쇄 빅덱'},
+  {n:'공격성', c:1, t:'파워', r:'희귀', d:'매턴공격카드강화', tier:'A', tip:'광란 시너지'},
+  {n:'악랄함', c:1, t:'파워', r:'희귀', d:'취약피해25%증가', tier:'A', tip:'취약덱 핵심'},
+  {n:'핏빛망토', c:1, t:'파워', r:'희귀', d:'매턴HP1감소+방어8', tier:'S', tip:'파열트리거+방어'},
+  {n:'불의심장', c:2, t:'파워', r:'희귀', d:'매턴에너지+1', tier:'A', tip:'강화필수'},
+  {n:'어둠의포옹', c:2, t:'파워', r:'희귀', d:'소멸시드로우+1', tier:'S', tip:'소멸 드로우엔진'},
+  {n:'요지부동', c:2, t:'파워', r:'희귀', d:'첫방어2배', tier:'S', tip:'어디든밥값'},
+  {n:'절대적인힘', c:2, t:'파워', r:'희귀', d:'방어획득시5뎀', tier:'A', tip:'방어도덱 딜'},
+  {n:'지옥검무', c:2, t:'파워', r:'희귀', d:'타격드로우시자동발동', tier:'S', tip:'타격덱 완성'},
+  {n:'바리케이드', c:3, t:'파워', r:'희귀', d:'방어도유지', tier:'A', tip:'방어도덱 심장'},
+  {n:'악마의형상', c:3, t:'파워', r:'희귀', d:'매턴힘+2', tier:'B', tip:'장기전'},
+  // 특수
+  {n:'박살', c:2, t:'공격', r:'특수', d:'20뎀+취약5', tier:'S', tip:'강타 대체'},
+  {n:'타락', c:3, t:'파워', r:'특수', d:'스킬0코+소멸', tier:'S', tip:'소멸 궁극기'},
+];
+
+// ── 아이언클래드 완성덱 ──
+const IRONCLAD_ARCHS = [
+  {
+    id:'vuln', name:'취약 덱', color:'#2ecc71', emoji:'💚',
+    desc:'취약 쌓기 → 제압으로 힘 전환. 첫 런 추천.',
+    size:'10~14장',
+    must:['제압','포악함'],
+    rec:['박살','녹아내리는주먹','천둥','해체','어퍼컷','협박','떨림','도발','거상','악랄함'],
+    conditions:['제압 강화 필수 — 소멸 후에도 취약+힘 동시 부여','포악함 강화 필수 — 취약 부여마다 드로우2','취약 5겹 = 힘+5 → 악랄함으로 25% 딜 추가'],
+    relics:['종이 게구리 — 취약 피해 75% 증가 (아이언클래드 전용)','구슬 주머니 — 전투 시작 취약1','핸드 드릴 — 방어도 파괴시 취약2'],
+    pro:'해금 빠름, 안정성 높음', con:'인공물/무적 적에게 취약'
+  },
+  {
+    id:'strike', name:'타격 덱', color:'#e67e22', emoji:'🔶',
+    desc:'지옥검무+폼멜타격으로 무한 루프. 덱 10장 이하가 목표.',
+    size:'10~14장',
+    must:['지옥검무','폼멜타격'],
+    rec:['완벽한타격','이중타격','사전타격','잿빛타격','갈취','짓밟기','대화재','격노','저글링'],
+    conditions:['무한루프 조건: 지옥검무+폼멜타격 2장+덱 10장 이하','소멸 카드로 스킬/파워 제거 → 타격만 남기기','짓밟기는 에너지 소비로 무한루프 방해 → 주의'],
+    relics:['타격용 인형 — 타격카드 피해+3','날카로운 이빨 — 공격카드 사용마다 강화','쌍절곤 — 공격10장마다 에너지+1'],
+    pro:'완성 후 원턴킬 가능', con:'지옥검무 레어, 완성 전 불안정'
+  },
+  {
+    id:'exhaust', name:'소멸 덱', color:'#8e44ad', emoji:'💜',
+    desc:'소멸할수록 드로우+에너지. 불타는조약+어둠의포옹 핵심.',
+    size:'8~12장',
+    must:['불타는조약','어둠의포옹'],
+    rec:['잿빛타격','악마의눈','잊힌의식','무감각','조약의끝','난타','지옥불','타락'],
+    conditions:['핵심루프: 불타는조약→소멸+드로우2→잊힌의식→에너지+3','어둠의포옹: 소멸=드로우로 무한순환 성립','타락 획득시 스킬 전부 0코+소멸 → 극한 효율'],
+    relics:['카론의 유골 — 소멸마다 전체3뎀 (아이언클래드 전용)','향지 — 소멸5장마다 드로우1','잊힌 영혼 — 소멸마다 딜1'],
+    pro:'높은 밸류, 덱 압축 동시', con:'핵심 카드 실수 소멸 위험'
+  },
+  {
+    id:'bleed', name:'자해 덱', color:'#e74c3c', emoji:'❤️',
+    desc:'파열+불바다+사혈. 자해할수록 힘+광역딜 동시 상승.',
+    size:'11~15장',
+    must:['파열','불바다'],
+    rec:['사혈','제물','핏빛망토','피의벽','혈류','정면돌파','낙인','갈가리찢기','악의'],
+    conditions:['완성 최소 조건: 파열+불바다+사혈','핏빛망토: 매턴 자동 자해+방어 → 파열 자동 트리거','갈가리찢기: 잃은HP횟수×5뎀 = 보스 피니셔'],
+    relics:['붉은 해골 — HP50% 이하 힘+3 (아이언클래드 전용)','고동치는 잔여물 — 한턴 최대20만 잃음','텅스텐 막대 — 피해마다 1감소'],
+    pro:'자동 스케일, 광역딜', con:'HP 관리 실패시 순삭'
+  },
+  {
+    id:'block', name:'방어도 덱', color:'#3498db', emoji:'💙',
+    desc:'바리케이드+몸통박치기. 방어도가 쌓일수록 딜도 올라감.',
+    size:'13~17장',
+    must:['바리케이드','몸통박치기'],
+    rec:['흘려보내기','격노','그래플링','전투장비','핏빛망토','요지부동','절대적인힘','연쇄','화염장벽'],
+    conditions:['바리케이드 없으면 방어도가 매턴 사라짐 → 성립 불가','몸통박치기 강화 필수 (0코화)','절대적인힘: 방어도 획득마다 5뎀 자동'],
+    relics:['완갑 — 첫 방어 2배','소리굽쇠 — 스킬10장마다 방어+7','찰랑이는 대야 — 공격안한 턴 방어+4'],
+    pro:'높은 안정성', con:'공격카드 부족, 완성까지 오래'
+  },
+];
+
+// ── 아이언클래드 콤보 ──
+const IRONCLAD_COMBOS = [
+  {name:'자해 엔진', cards:['파열','사혈'], desc:'HP 잃을 때마다 힘+1, 에너지무한'},
+  {name:'자해 광역', cards:['불바다','정면돌파'], desc:'자해마다 전체6뎀 자동 발동'},
+  {name:'자해 피니셔', cards:['파열','갈가리찢기'], desc:'힘 누적 → 잃은HP횟수×5뎀'},
+  {name:'소멸 엔진', cards:['불타는조약','잊힌의식'], desc:'소멸+드로우2+에너지+3'},
+  {name:'소멸 드로우', cards:['어둠의포옹','불타는조약'], desc:'소멸할수록 패가 늘어남'},
+  {name:'타격 루프', cards:['지옥검무','폼멜타격'], desc:'타격드로우→자동발동 무한루프'},
+  {name:'취약 성장', cards:['제압','포악함'], desc:'취약→힘+1+드로우 연결'},
+  {name:'방어→딜', cards:['요지부동','몸통박치기'], desc:'첫방어2배→딜전환'},
+  {name:'방어 반사', cards:['절대적인힘','흘려보내기'], desc:'방어 획득마다 5뎀 자동'},
+  {name:'에너지 폭발', cards:['제물','사혈'], desc:'에너지+드로우 대량확보'},
+];
+
+// ═══════════════════════════════════════════
+// 사일런트 데이터
+// ═══════════════════════════════════════════
+const SILENT_CARDS = [
+  // 시작
+  {n:'무력화', c:0, t:'공격', r:'시작', d:'피해3+약화1', tier:'B', tip:'강화하면 약화2, 우선 강화'},
+  {n:'타격',   c:1, t:'공격', r:'시작', d:'6뎀', tier:'D', tip:'소멸 우선'},
+  {n:'생존자', c:1, t:'스킬', r:'시작', d:'방어8+버리기1', tier:'B', tip:'교활 트리거 가능'},
+  {n:'수비',   c:1, t:'스킬', r:'시작', d:'방어5', tier:'D', tip:'소멸 우선'},
+  // 일반
+  {n:'칼질',        c:0, t:'공격', r:'일반', d:'6뎀',                   tier:'B', tip:'0코 딜, 드로우 충분하면 OK'},
+  {n:'단검 분사',   c:1, t:'공격', r:'일반', d:'전체4뎀×2',             tier:'B', tip:'힘/예리 시너지 높음'},
+  {n:'단검 투척',   c:1, t:'공격', r:'일반', d:'9뎀+드로우1+버리기1',   tier:'A', tip:'교활 트리거+딜 둘 다'},
+  {n:'독 찌르기',   c:1, t:'공격', r:'일반', d:'6뎀+중독3',             tier:'C', tip:'1막 깡딜용'},
+  {n:'불의의 일격', c:1, t:'공격', r:'일반', d:'8뎀+약화1',             tier:'B', tip:'공방일체, 범용'},
+  {n:'선제 타격',   c:1, t:'공격', r:'일반', d:'7뎀+단도1',             tier:'B', tip:'단도 시너지'},
+  {n:'재주넘기',    c:1, t:'공격', r:'일반', d:'교활. 전체6뎀',         tier:'A', tip:'교활덱 핵심'},
+  {n:'도탄',        c:2, t:'공격', r:'일반', d:'교활. 무작위3뎀×4',     tier:'A', tip:'교활 발동시 0코, 힘 4배'},
+  {n:'예비',        c:0, t:'스킬', r:'일반', d:'버리기2+다음턴에너지+1', tier:'S', tip:'교활덱 핵심, 강화시 에너지+2'},
+  {n:'예측',        c:0, t:'스킬', r:'일반', d:'이번턴 민첩+2',         tier:'B', tip:'방어카드와 함께'},
+  {n:'튕겨내기',    c:0, t:'스킬', r:'일반', d:'방어4',                 tier:'B', tip:'0코 방어, 잔상 시너지'},
+  {n:'검무',        c:1, t:'스킬', r:'일반', d:'단도3+소멸',            tier:'B', tip:'소멸형 딜. 장기전 주의'},
+  {n:'곡예',        c:1, t:'스킬', r:'일반', d:'드로우3+버리기1',       tier:'A', tip:'교활 트리거+순환'},
+  {n:'공중제비',    c:1, t:'스킬', r:'일반', d:'방어5+드로우2',         tier:'B', tip:'방어+드로우 공방일체'},
+  {n:'귀를 찢는 비명', c:1, t:'스킬', r:'일반', d:'적 힘-6+소멸',      tier:'S', tip:'다수전/연타 몹 카운터'},
+  {n:'망토와 단검', c:1, t:'스킬', r:'일반', d:'방어6+단도1',          tier:'B', tip:'단도 공방일체'},
+  {n:'맹독',        c:1, t:'스킬', r:'일반', d:'중독5',                 tier:'C', tip:'독덱에서만'},
+  {n:'범접 불가',   c:2, t:'스킬', r:'일반', d:'교활. 방어7',           tier:'A', tip:'교활 발동시 무료 방어'},
+  // 고급
+  {n:'꼬챙이',   c:'X', t:'공격', r:'고급', d:'8뎀×X',                     tier:'B', tip:'에너지 많을수록 강함'},
+  {n:'배신',     c:0,   t:'공격', r:'고급', d:'선천성. 11뎀+소멸',          tier:'A', tip:'초반 딜 보충'},
+  {n:'정밀한 베기', c:0, t:'공격', r:'고급', d:'13뎀-손패수×2',             tier:'B', tip:'패 비울수록 강함'},
+  {n:'마무리',   c:1,   t:'공격', r:'고급', d:'이번턴 공격카드수×6뎀',      tier:'B', tip:'단도덱 피니셔'},
+  {n:'메멘토 모리', c:1, t:'공격', r:'고급', d:'8뎀+버린카드×4뎀',          tier:'A', tip:'교활+버리기 피니셔'},
+  {n:'목 조르기', c:1,  t:'공격', r:'고급', d:'8뎀+카드사용시 적HP-2',       tier:'B', tip:'사용 많을수록 강함'},
+  {n:'완수',     c:1,   t:'공격', r:'고급', d:'전체6뎀+조건 약화1',          tier:'B', tip:'스킬 후 약화 부여'},
+  {n:'프레췌',   c:1,   t:'공격', r:'고급', d:'손패 스킬수×5뎀',             tier:'B', tip:'스킬 많을수록'},
+  {n:'덮치기',   c:2,   t:'공격', r:'고급', d:'12뎀+다음스킬0코',            tier:'B', tip:'강화시 18뎀'},
+  {n:'돌진',     c:2,   t:'공격', r:'고급', d:'방어10+딜10',                 tier:'A', tip:'공방일체, 범용'},
+  {n:'포식자',   c:2,   t:'공격', r:'고급', d:'15뎀+다음턴드로우2',          tier:'A', tip:'강화시 20뎀'},
+  {n:'정밀 사격', c:3,  t:'공격', r:'고급', d:'15뎀, 스킬사용마다-1코',      tier:'A', tip:'스킬덱에서 0코 가능'},
+  {n:'계산된 도박', c:0, t:'스킬', r:'고급', d:'손패전부버리기+동수드로우+소멸', tier:'A', tip:'교활 대량 트리거'},
+  {n:'들춰내기',  c:0,  t:'스킬', r:'고급', d:'적 인공물+방어도제거+취약2+소멸', tier:'S', tip:'인공물 카운터'},
+  {n:'숨겨진 단검', c:0, t:'스킬', r:'고급', d:'버리기2+단도2',              tier:'A', tip:'교활+단도 동시'},
+  {n:'탈출구',   c:0,   t:'스킬', r:'고급', d:'드로우1, 스킬이면 방어3 추가', tier:'A', tip:'0코 드로우+방어'},
+  {n:'손기술',   c:1,   t:'스킬', r:'고급', d:'방어7+스킬1장에 교활 추가',   tier:'B', tip:'강화시 방어10'},
+  {n:'흐릿함',   c:1,   t:'스킬', r:'고급', d:'방어5+다음턴 방어유지',        tier:'A', tip:'방어 지속 효과'},
+  {n:'다리 걸기', c:2,  t:'스킬', r:'고급', d:'약화2+방어11',                tier:'A', tip:'공방일체 고효율'},
+  {n:'반사신경',  c:3,  t:'스킬', r:'고급', d:'교활. 드로우2',                tier:'A', tip:'교활 발동시 0코 드로우2'},
+  {n:'전략가',   c:3,   t:'스킬', r:'고급', d:'교활. 에너지+1',               tier:'S', tip:'교활 발동시 0코 에너지+1'},
+  {n:'괜찮은 전략', c:1, t:'파워', r:'고급', d:'매턴 보존1장',               tier:'A', tip:'콤보카드 보존'},
+  {n:'무한의 검날', c:1, t:'파워', r:'고급', d:'매턴 단도1 생성',             tier:'A', tip:'강화시 선천성'},
+  {n:'발놀림',   c:1,   t:'파워', r:'고급', d:'민첩+2',                       tier:'A', tip:'방어도 전반 상승'},
+  {n:'유독 가스', c:1,  t:'파워', r:'고급', d:'매턴 적전체 중독+2',           tier:'A', tip:'독덱 핵심'},
+  {n:'환영검',   c:1,   t:'파워', r:'고급', d:'단도 보존+첫 단도 피해+9',     tier:'B', tip:'정밀과 비교'},
+  // 희귀
+  {n:'아드레날린',  c:0,  t:'스킬', r:'희귀', d:'에너지+1+드로우2+소멸',         tier:'S', tip:'제물급, 무조건픽'},
+  {n:'대단원의 막', c:0,  t:'공격', r:'희귀', d:'더미 비면 전체50뎀',             tier:'A', tip:'드로우덱 피니셔'},
+  {n:'살해',        c:3,  t:'공격', r:'희귀', d:'1뎀+전투내 드로우수×1뎀',        tier:'A', tip:'강화시 2코. 성장형 딜'},
+  {n:'설계의 대가', c:2,  t:'파워', r:'희귀', d:'스킬 사용시 교활 부여',           tier:'S', tip:'교활덱 완성카드'},
+  {n:'촉진제',      c:1,  t:'파워', r:'희귀', d:'중독 추가 발동',                  tier:'S', tip:'독덱 폭딜'},
+  {n:'추적',        c:2,  t:'파워', r:'희귀', d:'약화적 공격카드 피해2배',          tier:'S', tip:'약화덱 피해 폭발'},
+  {n:'칼날 부채',   c:2,  t:'파워', r:'희귀', d:'단도 전체공격화+단도4 생성',       tier:'A', tip:'단도 광역화'},
+  {n:'칼날 함정',   c:2,  t:'스킬', r:'희귀', d:'소멸된 단도 전부 재사용',          tier:'A', tip:'단도덱 피니셔'},
+  {n:'잔상',        c:1,  t:'파워', r:'희귀', d:'카드 사용마다 방어+1',             tier:'S', tip:'강화시 선천성. 모든덱'},
+  {n:'작업 도구',   c:1,  t:'파워', r:'희귀', d:'매턴 드로우1+버리기1',             tier:'A', tip:'강화시 0코. 교활 지속'},
+  {n:'부식성 파도', c:1,  t:'파워', r:'희귀', d:'이번턴 드로우마다 전체 중독+2',    tier:'S', tip:'드로우=독. 교활+독 융합'},
+];
+
+const SILENT_ARCHS = [
+  {
+    id:'sly', name:'교활 덱', color:'#2ecc71', emoji:'🃏',
+    desc:'버리기로 교활 트리거 반복. 드로우-버리기 순환이 핵심.',
+    size:'10~14장',
+    must:['예비','설계의 대가'],
+    rec:['재주넘기','도탄','범접 불가','반사신경','전략가','단검 투척','곡예','계산된 도박','잔상','작업 도구'],
+    conditions:['예비 강화 필수 (버리기2+에너지+2)','설계의 대가: 스킬 전부 교활화 → 버리면 무료','교활 트리거 = 카드 소모 없이 방어/딜/에너지 생성'],
+    relics:['편지 칼 — 스킬3장마다 전체5뎀','팅샤 — 버릴때마다 딜3','도박용 칩 — 매턴 원하는만큼 교체'],
+    pro:'완성 후 원턴킬 가능, 키카드 일반등급', con:'카드 사용 제한 적에 취약'
+  },
+  {
+    id:'poison', name:'중독 덱', color:'#8e44ad', emoji:'☠️',
+    desc:'중독 누적 후 촉진제로 폭발. 방어도 무시 피해.',
+    size:'12~16장',
+    must:['촉진제','유독 가스'],
+    rec:['맹독','차오르는 독','독 찌르기','탄성 플라스크','발병','부식성 파도','귀를 찢는 비명'],
+    conditions:['촉진제 강화 필수 (중독 2회 발동)','유독 가스: 매턴 자동 중독 누적','방어도 무시 = 인공물/방어형 몹 카운터'],
+    relics:['스네코의 해골 — 중독 부여+1','뒤틀린 깔때기 — 매전투 전체 중독+4','뱀의 반지 — 드로우+2'],
+    pro:'방어도 무시, 다수전 강함', con:'1막이 느림, 즉발딜 부족'
+  },
+];
+
+const SILENT_COMBOS = [
+  {name:'교활 루프',    cards:['예비','설계의 대가'],   desc:'버리기 = 스킬 무료 발동, 무한 순환'},
+  {name:'교활 드로우',  cards:['곡예','재주넘기'],      desc:'드로우하며 교활 트리거 반복'},
+  {name:'교활 에너지',  cards:['예비','전략가'],        desc:'버리기로 에너지 무한 공급'},
+  {name:'단도 폭발',    cards:['칼날 부채','칼날 함정'], desc:'단도 전체공격→소멸된 단도 재사용'},
+  {name:'독 폭발',      cards:['촉진제','유독 가스'],   desc:'매턴 자동 중독 + 2배 발동'},
+  {name:'약화 2배',     cards:['추적','다리 걸기'],     desc:'약화+공격2배 = 실질 딜 4배'},
+  {name:'버리기 딜',    cards:['메멘토 모리','단검 투척'], desc:'버릴수록 피해 폭증'},
+];
+
+// ═══════════════════════════════════════════
+// 디펙트 데이터
+// ═══════════════════════════════════════════
+const DEFECT_CARDS = [
+  // 시작
+  {n:'이중 시전', c:1, t:'스킬', r:'시작', d:'오른쪽 구체 2번 발현', tier:'B', tip:'강화시 0코. 구체덱 핵심'},
+  {n:'파지직',    c:1, t:'스킬', r:'시작', d:'전기 1영창',            tier:'B', tip:'강화시 0코'},
+  {n:'타격',      c:1, t:'공격', r:'시작', d:'6뎀',                    tier:'D', tip:'소멸 우선'},
+  {n:'수비',      c:1, t:'스킬', r:'시작', d:'방어5',                  tier:'D', tip:'소멸 우선'},
+  // 일반
+  {n:'눈 할퀴기',   c:0, t:'공격', r:'일반', d:'3뎀+조건 약화1',         tier:'B', tip:'0코 약화, 하위모 연계'},
+  {n:'레이저 포인터', c:0, t:'공격', r:'일반', d:'3뎀+취약1',             tier:'B', tip:'0코 취약, 유일한 취약카드'},
+  {n:'후벼 파기',   c:0, t:'공격', r:'일반', d:'3뎀+전투내 모든 후벼파기+2뎀', tier:'A', tip:'하위모덱 핵심'},
+  {n:'광선 휩쓸기', c:1, t:'공격', r:'일반', d:'전체6뎀+드로우1',         tier:'B', tip:'초반 광역기'},
+  {n:'꽃샘추위',    c:1, t:'공격', r:'일반', d:'6뎀+냉기1영창',           tier:'B', tip:'공방일체'},
+  {n:'밀집 타격',   c:1, t:'공격', r:'일반', d:'9뎀+이번턴 밀집+1',       tier:'B', tip:'구체덱 밀집 보충'},
+  {n:'번개 구체',   c:1, t:'공격', r:'일반', d:'7뎀+전기1영창',           tier:'B', tip:'구체덱 전기 공급'},
+  {n:'일제 사격',   c:1, t:'공격', r:'일반', d:'구체수×5뎀',              tier:'B', tip:'구체 많을수록 강함'},
+  {n:'추진 타격',   c:1, t:'공격', r:'일반', d:'10뎀+비용0으로 감소',      tier:'A', tip:'사용할수록 0코'},
+  {n:'컴파일 드라이버', c:1, t:'공격', r:'일반', d:'7뎀+구체종류당 드로우1', tier:'A', tip:'다양한 구체=드로우 폭발'},
+  {n:'냉정함',      c:1, t:'스킬', r:'일반', d:'냉기1영창+드로우1',        tier:'S', tip:'모든덱 필수, 강화시 드로우2'},
+  {n:'도약',        c:1, t:'스킬', r:'일반', d:'방어9',                    tier:'A', tip:'손상 면역, 범용'},
+  {n:'홀로그램',    c:1, t:'스킬', r:'일반', d:'방어3+버린더미 카드1개 회수+소멸', tier:'A', tip:'강화시 소멸제거'},
+  {n:'핫픽스',      c:0, t:'스킬', r:'일반', d:'이번턴 밀집+2',            tier:'A', tip:'하위모 연계, 강화시 소멸제거'},
+  {n:'터보',        c:0, t:'스킬', r:'일반', d:'에너지+1+공허생성',         tier:'A', tip:'0코 에너지, 강화시 에너지+2'},
+  // 고급
+  {n:'긁어내기',  c:1, t:'공격', r:'고급', d:'7뎀+드로우4(0코만유지)',  tier:'A', tip:'하위모 드로우 엔진'},
+  {n:'테슬라 코일',c:0, t:'공격', r:'고급', d:'3뎀+전기전부발동',        tier:'B', tip:'전기덱 즉발딜'},
+  {n:'Null',      c:2, t:'공격', r:'고급', d:'10뎀+약화2+암흑1영창',    tier:'A', tip:'약화+암흑 공방'},
+  {n:'어둠',      c:1, t:'스킬', r:'고급', d:'암흑1영창+모든암흑지속발동', tier:'A', tip:'암흑덱 핵심'},
+  {n:'오버클럭',  c:0, t:'스킬', r:'고급', d:'드로우2+화상생성',         tier:'A', tip:'0코 드로우, 상태이상 시너지'},
+  {n:'오한',      c:0, t:'스킬', r:'고급', d:'적수만큼 냉기영창+소멸',   tier:'A', tip:'광역 방어, 강화시 소멸제거'},
+  {n:'압축',      c:1, t:'스킬', r:'고급', d:'방어6+상태이상→연료 변환', tier:'A', tip:'상태이상 카운터'},
+  {n:'걷어내기',  c:1, t:'스킬', r:'고급', d:'드로우3',                  tier:'A', tip:'범용 드로우'},
+  {n:'융합',      c:2, t:'스킬', r:'고급', d:'플라즈마1영창',             tier:'B', tip:'강화시 1코'},
+  {n:'반복',      c:1, t:'파워', r:'고급', d:'매턴 오른쪽 구체 지속발동', tier:'A', tip:'냉기/전기 지속 활용'},
+  {n:'서브루틴',  c:1, t:'파워', r:'고급', d:'파워사용마다 에너지+1',     tier:'S', tip:'강화시 0코. 창공지능덱 핵심'},
+  {n:'우박 폭풍', c:1, t:'파워', r:'고급', d:'냉기 보유시 매턴 전체6뎀',  tier:'A', tip:'냉기덱 지속딜'},
+  {n:'축전기',    c:1, t:'파워', r:'고급', d:'구체 슬롯+2',               tier:'A', tip:'구체덱 슬롯 확장'},
+  {n:'폭풍',      c:1, t:'파워', r:'고급', d:'파워사용마다 전기1영창',     tier:'A', tip:'강화시 2영창'},
+  {n:'야성',      c:2, t:'파워', r:'고급', d:'매턴 첫 0코 공격 손으로 복귀', tier:'S', tip:'하위모덱 핵심'},
+  // 희귀
+  {n:'하나를 위한 모두', c:2, t:'공격', r:'희귀', d:'10뎀+버린더미 0코카드 전부 회수', tier:'S', tip:'하위모 완성카드'},
+  {n:'파괴광선',         c:2, t:'공격', r:'희귀', d:'전체26뎀+밀집-3',                  tier:'A', tip:'강력 광역, 전투 마무리용'},
+  {n:'산산조각',         c:1, t:'공격', r:'희귀', d:'전체11뎀+모든구체 발현',             tier:'A', tip:'구체 전부 발현'},
+  {n:'메아리의 형상',    c:3, t:'파워', r:'희귀', d:'매턴 첫 카드 1번 추가사용',           tier:'S', tip:'모든덱 고점 폭발'},
+  {n:'창의적인 인공지능', c:3, t:'파워', r:'희귀', d:'매턴 무작위 파워 카드 생성',          tier:'A', tip:'서브루틴과 시너지'},
+  {n:'조각모음',         c:1, t:'파워', r:'희귀', d:'밀집+1',                             tier:'S', tip:'영구 밀집, 구체덱 필수'},
+  {n:'임계 초과',        c:0, t:'스킬', r:'희귀', d:'에너지+4+소멸',                       tier:'S', tip:'0코 에너지4. X코스트와 조합'},
+];
+
+const DEFECT_ARCHS = [
+  {
+    id:'orb', name:'구체 덱', color:'#3498db', emoji:'🔵',
+    desc:'냉기+암흑+전기 구체 조합. 밀집 쌓고 구체 폭발.',
+    size:'11~15장',
+    must:['냉정함','조각모음'],
+    rec:['핫픽스','축전기','이중 시전','우박 폭풍','반복','산산조각','파지직','번개 구체','어둠'],
+    conditions:['냉정함 강화 필수 (드로우2)','조각모음으로 영구 밀집 확보','밀집=구체 효과 증폭 → 냉기방어+전기딜 동시'],
+    relics:['판금 케이블 — 오른쪽 구체 지속발동 추가','감정 칩 — 피해받으면 모든 구체 발동','데이터 디스크 — 매전투 밀집+1'],
+    pro:'힘/민첩 무관계, 반사형 몹 면역', con:'높은 밀집 카드 의존도'
+  },
+  {
+    id:'zeromod', name:'하위모 덱', color:'#e67e22', emoji:'⚡',
+    desc:'0코 카드 반복 사용. 야성+하나를위한모두 무한루프.',
+    size:'10~14장',
+    must:['야성','하나를 위한 모두'],
+    rec:['후벼 파기','긁어내기','핫픽스','터보','오버클럭','홀로그램','임계 초과','레이저 포인터'],
+    conditions:['야성: 매턴 첫 0코 공격 손으로 복귀 → 무한 사용','하나를위한모두: 버린더미 0코 전부 회수','긁어내기: 드로우4 (0코만 유지)'],
+    relics:['룬 축전기 — 슬롯+3','게임용 말 — 파워사용마다 드로우1','메트로놈 — 구체7번 영창시 전체30뎀'],
+    pro:'높은 저점, 범용', con:'야성+하나를위한모두 필수'
+  },
+  {
+    id:'powerai', name:'창공지능 덱', color:'#9b59b6', emoji:'🤖',
+    desc:'창의적인 인공지능으로 파워 카드 무한 생성. 서브루틴으로 코스트 해결.',
+    size:'9~13장',
+    must:['창의적인 인공지능','서브루틴'],
+    rec:['메아리의 형상','폭풍','걷어내기','오버클럭','임계 초과'],
+    conditions:['서브루틴+파워카드 = 에너지 펌핑','메아리의 형상: 첫 카드 2배 → 창의적인AI 2배 효과','느린 예열 → 1막 생존이 관건'],
+    relics:['미라의 손 — 파워사용시 무작위 0코카드','게임용 말 — 파워사용마다 드로우1','공생 바이러스 — 매전투 암흑1영창'],
+    pro:'완성 후 무한성장', con:'느린 예열, 드로우 의존'
+  },
+];
+
+const DEFECT_COMBOS = [
+  {name:'0코 루프',  cards:['야성','후벼 파기'],         desc:'야성 발동 → 후벼파기 복귀 → 피해 무한 누적'},
+  {name:'회수 루프', cards:['하나를 위한 모두','터보'],   desc:'0코 전부 회수 + 에너지 확보'},
+  {name:'냉기 방어', cards:['냉정함','반복'],             desc:'매턴 냉기 지속 + 반복으로 방어도 누적'},
+  {name:'파워 에너지', cards:['서브루틴','창의적인 인공지능'], desc:'파워 = 에너지 → 무한 파워'},
+  {name:'구체 발현', cards:['이중 시전','축전기'],         desc:'슬롯 확장 + 이중발현으로 구체 폭발'},
+  {name:'상태이상 딜', cards:['압축','오버클럭'],          desc:'상태이상 → 연료(에너지+드로우)로 변환'},
+];
+
+// ═══════════════════════════════════════════
+// 네크로바인더 데이터
+// ═══════════════════════════════════════════
+const NECRO_CARDS = [
+  // 시작
+  {n:'풀어놓기', c:1, t:'공격', r:'시작', d:'6뎀+골골이현재HP만큼+뎀', tier:'B', tip:'소환 많을수록 강함'},
+  {n:'호위',     c:1, t:'스킬', r:'시작', d:'소환5',                    tier:'B', tip:'강화시 7. 풀어놓기 강화'},
+  {n:'타격',     c:1, t:'공격', r:'시작', d:'6뎀',                      tier:'D', tip:'소멸 우선'},
+  {n:'수비',     c:1, t:'스킬', r:'시작', d:'방어5',                    tier:'D', tip:'소멸 우선'},
+  // 일반
+  {n:'쑤시기',      c:0, t:'공격', r:'일반', d:'골골이 6뎀',              tier:'B', tip:'0코 골골이 딜'},
+  {n:'강탈',        c:1, t:'공격', r:'일반', d:'9뎀+영혼1장 더미추가',    tier:'B', tip:'폼멜타격 변형'},
+  {n:'두려움',      c:1, t:'공격', r:'일반', d:'휘발성. 7뎀+취약1',       tier:'B', tip:'휘발성+취약 시너지'},
+  {n:'모독',        c:1, t:'공격', r:'일반', d:'휘발성. 13뎀',            tier:'A', tip:'1막 최고 딜카드'},
+  {n:'역병 타격',   c:1, t:'공격', r:'일반', d:'8뎀+피해만큼 종말부여',   tier:'B', tip:'종말덱에서 효과'},
+  {n:'파종',        c:1, t:'공격', r:'일반', d:'보존. 전체8뎀',           tier:'B', tip:'광역기, 보존'},
+  {n:'무덤지기',    c:1, t:'스킬', r:'일반', d:'방어8+영혼1장 더미추가',  tier:'S', tip:'방어+드로우 동시'},
+  {n:'반항',        c:1, t:'스킬', r:'일반', d:'휘발성. 방어6+약화1',     tier:'A', tip:'휘발성+방어+약화'},
+  {n:'부름',        c:1, t:'스킬', r:'일반', d:'소환2+다음턴에너지+2',    tier:'A', tip:'에너지 펌핑'},
+  {n:'징벌',        c:1, t:'스킬', r:'일반', d:'종말13+드로우1',          tier:'A', tip:'강화시 드로우2'},
+  {n:'비관적인 맥박', c:1, t:'스킬', r:'일반', d:'방어5+전체 종말7',       tier:'B', tip:'방어+종말 동시'},
+  // 고급
+  {n:'장막 관통자', c:1, t:'공격', r:'고급', d:'10뎀+다음 휘발성 카드 0코', tier:'A', tip:'고코 휘발성 무료화'},
+  {n:'끌어내리기',  c:1, t:'공격', r:'고급', d:'이번전투 사용한 휘발성×5뎀', tier:'A', tip:'휘발성덱 피니셔'},
+  {n:'뼛조각',      c:1, t:'공격', r:'고급', d:'골골이희생→전체9뎀+방어9', tier:'A', tip:'소환덱 아니면 범용'},
+  {n:'죽음의 행진', c:1, t:'공격', r:'고급', d:'8뎀+이번턴 드로우수×3뎀', tier:'A', tip:'영혼덱 피니셔'},
+  {n:'덜그럭대기',  c:1, t:'공격', r:'고급', d:'골골이 7뎀+이번턴 골골이공격수만큼 반복', tier:'A', tip:'골골이덱 피니셔'},
+  {n:'매장',        c:4, t:'공격', r:'고급', d:'52뎀',                    tier:'B', tip:'휘발성 or 장막관통자와'},
+  {n:'장송가',      c:'X', t:'스킬', r:'고급', d:'소환X×3+영혼X장 추가+소멸', tier:'S', tip:'소환+영혼 동시, 변형 시너지'},
+  {n:'분석',        c:1, t:'스킬', r:'고급', d:'휘발성. 드로우3',          tier:'A', tip:'즉발 드로우'},
+  {n:'도망칠 수 없다', c:1, t:'스킬', r:'고급', d:'종말10+기존종말×50% 추가', tier:'A', tip:'종말 폭발적 누적'},
+  {n:'무덤 폭발',   c:1, t:'공격', r:'고급', d:'4뎀+버린더미 카드1개 회수+소멸', tier:'B', tip:'키카드 회수'},
+  {n:'연명',        c:0, t:'스킬', r:'고급', d:'자신 종말6 부여+에너지+1',  tier:'S', tip:'0코 에너지. 사실상 무패널티'},
+  {n:'서류 폭풍',   c:1, t:'파워', r:'고급', d:'휘발성 드로우시 드로우+1',  tier:'S', tip:'강화시 0코. 휘발성덱 드로우엔진'},
+  {n:'우정',        c:1, t:'파워', r:'고급', d:'힘-2. 매턴 에너지+1',       tier:'A', tip:'네크로는 힘 중요하지않음'},
+  {n:'출몰',        c:1, t:'파워', r:'고급', d:'영혼 사용시 무작위적 HP-6', tier:'A', tip:'영혼덱 딜 추가'},
+  {n:'치사성',      c:1, t:'파워', r:'고급', d:'휘발성. 매턴 첫 공격카드 피해+50%', tier:'A', tip:'강화시 75%. 한방딜'},
+  {n:'카운트다운',  c:1, t:'파워', r:'고급', d:'매턴 무작위적 종말+6',      tier:'A', tip:'종말 자동 누적'},
+  // 희귀
+  {n:'척결',   c:'X', t:'공격', r:'희귀', d:'보존. 11뎀×X',               tier:'S', tip:'변형 시너지 최고. X코 = 무한확장'},
+  {n:'매달기', c:1,   t:'공격', r:'희귀', d:'10뎀+모든매달기 피해2배',     tier:'S', tip:'사용할수록 지수증가'},
+  {n:'밴시의 외침', c:6, t:'공격', r:'희귀', d:'전체33뎀+휘발성사용수×-2코', tier:'S', tip:'휘발성많으면 0코'},
+  {n:'변형',  c:1,   t:'스킬', r:'희귀', d:'카드1장에 재사용+1, 비용+1',   tier:'S', tip:'X코카드와 환상시너지'},
+  {n:'불사',  c:0,   t:'스킬', r:'희귀', d:'방어7+복사본 버린더미추가',    tier:'A', tip:'방어도 지속 확보'},
+  {n:'망각',  c:0,   t:'스킬', r:'희귀', d:'이번턴 카드사용마다 종말+3',   tier:'A', tip:'살점재주 시너지'},
+  {n:'정신 폭주', c:0, t:'파워', r:'희귀', d:'에너지+3+드로우2+자신종말+3', tier:'S', tip:'제물급 에너지카드'},
+  {n:'잿빛 혼령', c:1, t:'파워', r:'희귀', d:'휘발성 사용마다 방어+4',      tier:'S', tip:'휘발성덱 방어 해결'},
+  {n:'사신의 형상', c:3, t:'파워', r:'희귀', d:'공격카드 피해=종말로도 부여', tier:'A', tip:'보존시 장막관통자로'},
+];
+
+const NECRO_ARCHS = [
+  {
+    id:'soul', name:'영혼 덱', color:'#8e44ad', emoji:'👻',
+    desc:'영혼 카드로 드로우 누적. 죽음의행진+출몰로 딜.',
+    size:'11~15장',
+    must:['무덤지기','장송가'],
+    rec:['강탈','분리','죽음의 행진','출몰','연명','부름','정신 폭주'],
+    conditions:['영혼: 미래턴 드로우 예약 카드','장송가 변형 시너지 → 영혼 대량 생성','출몰: 영혼 사용시 자동딜'],
+    relics:['장례용 가면 — 매전투 영혼3장 추가','책갈피 — 보존카드 비용감소','상아 패 — 고코카드 에너지+1'],
+    pro:'드로우 풍족, 안정적', con:'즉발 딜 느림'
+  },
+  {
+    id:'doom', name:'종말 덱', color:'#e74c3c', emoji:'💀',
+    desc:'종말 대량 부여 → 적 자동 즉사. 방어도 무시.',
+    size:'12~16장',
+    must:['카운트다운','도망칠 수 없다'],
+    rec:['징벌','비관적인 맥박','역병 타격','망각','사신의 형상','죽음 인도자','수의'],
+    conditions:['종말은 적 턴종료시 체력<종말이면 즉사','카운트다운: 매턴 자동 종말 누적','방어도/인공물 완전 무시'],
+    relics:['책 수리용 칼 — 종말처치마다 HP+3','불멸의 인장 — 종말초과적 피해50%감소','수의 — 종말부여마다 방어+2'],
+    pro:'방어도 무시 즉사, 다수전 강함', con:'1턴 버텨야 발동'
+  },
+  {
+    id:'volatile', name:'휘발성 덱', color:'#f39c12', emoji:'💥',
+    desc:'휘발성 카드 대량 사용 → 밴시의외침 0코 전체딜.',
+    size:'10~14장',
+    must:['서류 폭풍','장막 관통자'],
+    rec:['모독','두려움','반항','치사성','끌어내리기','잿빛 혼령','밴시의 외침','조각 타격'],
+    conditions:['서류 폭풍: 휘발성 드로우마다 드로우+1 (강화시 0코)','장막 관통자: 다음 휘발성 0코화','밴시의 외침: 휘발성×-2코 → 빠르게 0코'],
+    relics:['커다란 모자 — 매전투 휘발성2장 생성','공허의 부름 — 매턴 무작위카드 휘발성화'],
+    pro:'높은 딜 고점, 빠른 전투종료', con:'코스트 부족 취약'
+  },
+  {
+    id:'osty', name:'골골이 덱', color:'#27ae60', emoji:'🦴',
+    desc:'골골이 소환 유지하며 연속 공격. 덜그럭대기 피니시.',
+    size:'12~16장',
+    must:['석회화','장송가'],
+    rec:['쑤시기','덮쳐!','덜그럭대기','회수','뼛조각','생명 삼키기','경계 태세'],
+    conditions:['석회화: 골골이 공격+4(6)','덜그럭대기: 이번턴 골골이공격수×반복','골골이 생존 유지 = 최우선'],
+    relics:['뼈 플루트 — 골골이 공격마다 방어+2','강령의 극의 — 골골이HP감소=적HP감소'],
+    pro:'딜+방어 동시, 안정적', con:'골골이 사망시 전략 붕괴'
+  },
+];
+
+
+const BUILD_GUIDES = {
+  necro: {
+    soul: {
+      key:['강탈','분리','죽음의 행진','출몰'],
+      flex:['연명','부름','정신 폭주'],
+      ops:['영혼 생성/회수 카드를 2~3장 더 확보하세요.','즉발 방어 카드 2~3장을 유지해서 준비 턴을 버티세요.','타격·수비를 줄여 장송가와 영혼 카드가 더 자주 잡히게 하세요.']
+    },
+    doom: {
+      key:['징벌','비관적인 맥박','죽음 인도자','망각'],
+      flex:['역병 타격','사신의 형상','수의'],
+      ops:['종말 카드가 터질 때까지 버텨야 하므로 방어 카드 2~3장이 꼭 필요합니다.','종말을 꾸준히 쌓는 카드와 한 번에 많이 쌓는 카드를 같이 챙기세요.','타격·수비를 제거해 카운트다운과 도망칠 수 없다를 더 빨리 찾으세요.']
+    },
+    volatile: {
+      key:['모독','두려움','반항','잿빛 혼령'],
+      flex:['치사성','끌어내리기','밴시의 외침','조각 타격'],
+      ops:['휘발성 카드를 안정적으로 쓰려면 에너지 카드나 0코 카드 비중을 높이세요.','서류 폭풍이 잡히기 전까지 버틸 방어 카드 2~3장을 유지하세요.','코스트가 무거운 카드보다 즉시 쓰기 좋은 휘발성 카드를 우선하세요.']
+    },
+    osty: {
+      key:['쑤시기','회수','덜그럭대기','덮쳐!'],
+      flex:['뼛조각','생명 삼키기','경계 태세'],
+      ops:['골골이 체력을 지키는 카드와 소환 카드를 2~3장 더 확보하세요.','초반에는 쑤시기·회수 같은 저코 골골이 공격 카드부터 우선하세요.','타격 위주 카드보다 골골이 공격 횟수를 늘리는 카드를 더 높게 평가하세요.']
+    }
+  }
+};
+
+function getBuildGuide(ar) {
+  const manual = (BUILD_GUIDES[S.char] && BUILD_GUIDES[S.char][ar.id]) || null;
+  const key = manual?.key || ar.rec.slice(0, Math.min(4, ar.rec.length));
+  const flex = manual?.flex || ar.rec.slice(Math.min(4, ar.rec.length));
+  const ops = manual?.ops || [
+    '드로우/순환 카드 2~3장을 확보하세요.',
+    '방어 카드 2~3장을 유지해서 핵심 카드가 잡힐 때까지 버티세요.',
+    '타격·수비 같은 시작 카드는 상점·이벤트에서 우선적으로 줄이세요.'
+  ];
+  return {
+    coreLabel: '이 카드가 없으면 빌드 완성 불가',
+    keyLabel: '이 카드들이 모이면 빌드가 제대로 굴러가기 시작',
+    flexLabel: '없어도 되지만, 있으면 훨씬 편해지는 카드',
+    opsLabel: '다음 보상/상점에서 우선해서 챙길 운영 가이드',
+    key,
+    flex,
+    ops,
+  };
+}
+
+function getBuildProgressMeta(ar, deck, basics) {
+  const guide = getBuildGuide(ar);
+  const mustHave = ar.must.filter(n => deck.includes(n)).length;
+  const keyHave = guide.key.filter(n => deck.includes(n)).length;
+  const basicCount = deck.filter(n => basics.includes(n)).length;
+  const coreDone = ar.must.length ? mustHave === ar.must.length : false;
+  const keyTarget = Math.max(2, Math.min(guide.key.length, 3));
+  let stage = '초입';
+  let message = '지금은 필수 카드 확보가 가장 중요해요.';
+  let tone = 'info';
+  if (coreDone && keyHave >= keyTarget) {
+    stage = '가동 시작';
+    message = '이제 빌드가 실제로 굴러가기 시작해요. 남는 자리는 방어/드로우로 채우세요.';
+    tone = 'good';
+  } else if (coreDone) {
+    stage = '전환 중';
+    message = '필수 카드는 모였어요. 이제 핵심 카드와 운영 카드를 보강할 차례예요.';
+    tone = 'info';
+  }
+  if (coreDone && basicCount >= 5) {
+    stage = '압축 타이밍';
+    message = `이제 타격/수비 같은 기본 카드 ${basicCount}장을 줄일수록 핵심 카드가 더 자주 잡혀요.`;
+    tone = 'warn';
+  } else if (!coreDone && basicCount >= 7) {
+    message = `기본 카드가 ${basicCount}장으로 많지만, 아직은 압축보다 필수 카드 확보가 먼저예요.`;
+    tone = 'warn';
+  }
+
+  let rewardText = '다음 보상에서는 필수 카드나 핵심 카드가 보이면 가장 먼저 챙기세요.';
+  let shopText = '상점에서는 핵심 카드/유물을 먼저 보고, 제거는 여유가 있을 때 하세요.';
+  let deckText = `현재 기본 카드가 ${basicCount}장이라 덱 압축 여지가 있어요.`;
+
+  if (coreDone && basicCount >= 5) {
+    rewardText = '다음 보상에서는 운영 보조 카드(방어/드로우/순환)를 우선하세요.';
+    shopText = '상점에서는 타격/수비 제거 우선순위가 높아요. 핵심 유물이 보이면 예외예요.';
+    deckText = `필수 카드가 갖춰졌고 기본 카드가 ${basicCount}장이라, 지금은 압축 효율이 높아요.`;
+  } else if (coreDone) {
+    rewardText = '다음 보상에서는 핵심 카드와 운영 보조 카드를 같이 보강하세요.';
+    shopText = '상점에서는 핵심 유물 > 운영 카드 > 제거 순서로 보면 편해요.';
+    deckText = '빌드 뼈대는 잡혔지만 아직 운영 카드가 더 필요해요.';
+  } else if (mustHave === 0) {
+    rewardText = '다음 보상에서는 이 빌드의 필수 카드가 보이는지부터 확인하세요.';
+    shopText = '상점에서는 제거보다 필수 카드/유물 확보를 우선하세요.';
+    deckText = '아직 빌드 핵심에 진입하지 못했어요. 기본 카드가 조금 많아도 당장은 버틸 수 있어요.';
+  }
+
+  return {guide, mustHave, keyHave, basicCount, coreDone, stage, message, tone, rewardText, shopText, deckText, keyTarget};
+}
+
+function buildGuideHeader(ar, deck, basics) {
+  const meta = getBuildProgressMeta(ar, deck, basics);
+  return `
+    <div class="guide-build-head">
+      <div class="guide-build-title">${ar.name}</div>
+      <div class="guide-build-desc">${ar.desc}</div>
+      <div class="guide-chip-row">
+        <span class="guide-chip red">필수 ${meta.mustHave}/${ar.must.length}</span>
+        <span class="guide-chip orange">핵심 ${meta.keyHave}/${meta.guide.key.length}</span>
+        <span class="guide-chip ${meta.tone === 'good' ? 'green' : 'blue'}">${meta.stage}</span>
+        <span class="guide-chip ${meta.basicCount>=6 ? 'warn' : 'blue'}">기본 카드 ${meta.basicCount}장</span>
       </div>
     </div>
-  </div>`;
-}
-
-function cardItem(card){
-  return`<div class="card-item">${flipCard(card)}<div class="cname">${card.n}</div></div>`;
-}
-
-function miniThumb(card){
-  const rc=RC[card.r]||"#555";
-  const src=I[card.id];
-  return`<div class="di-img" style="border-color:${rc}">${src?`<img src="${src}" loading="lazy" onerror="this.style.display='none';this.nextSibling.style.display='flex'"><div class="di-fb" style="background:${rc}33;color:${rc}">${card.n.slice(0,1)}</div>`:`<div class="di-fb" style="background:${rc}33;color:${rc}">${card.n.slice(0,1)}</div>`}</div>`;
-}
-
-function sc(cid){
-  const card=C.find(c=>c.id===cid);if(!card)return{s:50,r:"?"};
-  let s=TS[card.tier]||50,rs=[card.tier+"티어"];
-  const a=S.act,d=S.deck;
-  if(a===1&&card.t==="공격"&&d.filter(c=>C.find(x=>x.id===c)?.t==="공격").length<3){s+=12;rs.push("Act1:딜필요")}
-  if(a===2&&(card.d||"").includes("전체")){s+=10;rs.push("Act2:AoE")}
-  if(a===3&&d.length>14){s-=8;rs.push("Act3:압축")}
-  const combos=COMBOS.filter(cb=>cb.cards.includes(cid)&&cb.cards.some(c2=>c2!==cid&&d.includes(c2)));
-  if(combos.length>0){s+=15;rs.push("🔗"+combos.map(cb=>cb.name).join(","))}
-  const deckArchs=ARCHS.filter(ar=>ar.must.some(m=>d.includes(m))||ar.rec.filter(r=>d.includes(r)).length>=2);
-  const matchArchs=ARCHS.filter(ar=>(ar.must.includes(cid)||ar.rec.includes(cid))&&deckArchs.includes(ar));
-  if(matchArchs.length>0){s+=10;rs.push("🎯"+matchArchs.map(a=>a.name).join(","))}
-  if(d.includes(cid)){s-=10;rs.push("이미보유")}
-  return{s:Math.min(100,Math.max(0,s)),r:rs.join(" · ")};
-}
-
-// 실시간 덱 분석
-function analyzeDeck(){
-  const d=S.deck;
-  if(!d.length)return null;
-
-  // 아키타입 점수
-  const archScores=ARCHS.map(ar=>{
-    const mustHave=ar.must.filter(m=>d.includes(m)).length;
-    const recHave=ar.rec.filter(r=>d.includes(r)).length;
-    const score=mustHave*30+recHave*8;
-    return{...ar,mustHave,recHave,score};
-  }).sort((a,b)=>b.score-a.score);
-
-  const top=archScores[0];
-  const second=archScores[1];
-
-  // 콤보 현황
-  const activeC=COMBOS.filter(cb=>cb.cards.every(c=>d.includes(c)));
-  const nearC=COMBOS.filter(cb=>!cb.cards.every(c=>d.includes(c))&&cb.cards.some(c=>d.includes(c)));
-
-  // 덱 균형
-  const atkCnt=d.filter(c=>C.find(x=>x.id===c)?.t==="공격").length;
-  const sklCnt=d.filter(c=>C.find(x=>x.id===c)?.t==="스킬").length;
-  const pwrCnt=d.filter(c=>C.find(x=>x.id===c)?.t==="파워").length;
-
-  // 다음에 노려야 할 카드 (top arch 기준)
-  const wantCards=[];
-  if(top.score>0){
-    top.must.filter(m=>!d.includes(m)).forEach(m=>{const c=C.find(x=>x.id===m);if(c)wantCards.push({...c,reason:"필수카드",priority:"high"})});
-    top.rec.filter(r=>!d.includes(r)).slice(0,4).forEach(r=>{const c=C.find(x=>x.id===r);if(c)wantCards.push({...c,reason:"추천카드",priority:"med"})});
-  }
-  // 콤보 완성용
-  nearC.forEach(cb=>{
-    cb.cards.filter(cid=>!d.includes(cid)).slice(0,1).forEach(cid=>{
-      const c=C.find(x=>x.id===cid);
-      if(c&&!wantCards.find(w=>w.id===cid))wantCards.push({...c,reason:"콤보완성: "+cb.name,priority:"high"});
-    });
-  });
-
-  return{archScores,top,second,activeC,nearC,atkCnt,sklCnt,pwrCnt,wantCards:wantCards.slice(0,5),total:d.length};
-}
-
-function render(){
-  document.getElementById("nc").textContent=C.length;
-  const tabs=[{id:"live",i:"⚡",l:"실시간"},{id:"combo",i:"🔗",l:"콤보"},{id:"ref",i:"📋",l:"카드"}];
-  document.getElementById("tabs").innerHTML=tabs.map(t=>`<button class="${S.tab===t.id?"on":""}" onclick="S.tab='${t.id}';render()"><span style="font-size:16px">${t.i}</span><span>${t.l}</span></button>`).join("");
-  document.getElementById("hb").innerHTML=S.tab==="live"?`<span class="bg" style="background:#e74c3c22;color:#e74c3c">Act ${S.act}</span> <span class="bg" style="background:#e74c3c22;color:#e74c3c">${S.deck.length}장</span>`:"";
-  document.getElementById("mn").innerHTML=S.tab==="live"?rL():S.tab==="combo"?rCo():rR();
-}
-
-function updateDD(){
-  const dd=document.getElementById("sdd"),inp=document.getElementById("si");
-  if(!dd||!inp)return;
-  S.q=inp.value;
-  const q=inp.value.toLowerCase().trim();
-  if(!q){dd.innerHTML="";dd.style.display="none";return;}
-  const fc=C.filter(c=>c.n.includes(q)||c.d.includes(q)).slice(0,6);
-  if(!fc.length){dd.innerHTML="";dd.style.display="none";return;}
-  dd.style.display="block";
-  dd.innerHTML=fc.map(c=>`<div class="di" onclick="addR('${c.id}')">${miniThumb(c)}<div style="flex:1"><div style="font-size:14px;font-weight:700">${c.n} <span class="tb" style="color:${TC[c.tier]};background:${TC[c.tier]}22">${c.tier}</span></div><div style="font-size:10px;color:#7a7d88">${c.d}</div></div></div>`).join("");
-}
-
-function toggleArch(idx){
-  openArch=openArch===idx?null:idx;
-  render();
-}
-
-function rL(){
-  let h=`<div class="bx">
-    <div style="display:flex;gap:4px;margin-bottom:8px">${[1,2,3].map(a=>`<button onclick="S.act=${a};render()" style="flex:1;padding:7px 0;border-radius:8px;border:1px solid ${S.act===a?"#e74c3c":"#2a2c34"};background:${S.act===a?"#e74c3c":"#12131a"};color:${S.act===a?"#fff":"#8a8d98"};font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Act ${a}</button>`).join("")}</div>
-    <div style="display:flex;gap:8px">
-      <button class="bt" style="flex:1" onclick="S.sdk=!S.sdk;render()">${S.sdk?"▲":"▼"} 내 덱 (${S.deck.length}장)</button>
-      <button class="bt d" onclick="S.deck=[];S.rw=[];S.act=1;S.pick=false;flipped={};render()">🔄 새런</button>
+    <div class="guide-alert ${meta.tone}">💡 ${meta.message}</div>
+    <div class="guide-state-box">
+      <div class="guide-state-title">📍 현재 내 덱 기준</div>
+      <div class="guide-action-list">
+        <div class="guide-action-item">• ${meta.deckText}</div>
+        <div class="guide-action-item">• 다음 보상: ${meta.rewardText}</div>
+        <div class="guide-action-item">• 상점: ${meta.shopText}</div>
+      </div>
     </div>
-  </div>`;
+  `;
+}
 
-  if(S.sdk){
-    h+=`<div class="bx" style="max-height:160px;overflow-y:auto">${S.deck.length===0?"<p style='text-align:center;color:#5a5d68;font-size:12px;padding:8px'>비어있음</p>":"<div style='display:flex;flex-wrap:wrap;gap:4px'>"+S.deck.map((cid,i)=>{const card=C.find(c=>c.id===cid);return card?`<span onclick="S.deck.splice(${i},1);render()" style="display:inline-flex;align-items:center;gap:3px;padding:2px 6px;background:#12131a;border:1px solid #2a2c34;border-radius:6px;font-size:11px;cursor:pointer">${card.n} <span style='color:#e74c3c88'>✕</span></span>`:""}).join("")+"</div>"}</div>`;
-  }
 
-  // 실시간 덱 분석
-  if(S.deck.length>0){
-    const analysis=analyzeDeck();
-    if(analysis){
-      const top=analysis.top;
-      h+=`<div class="bx" style="border:1px solid ${top.color}44;margin-bottom:10px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <span style="font-size:14px;font-weight:800">🔍 현재 덱 분석</span>
-          <span style="font-size:11px;color:#8a8d98">${analysis.total}장</span>
-        </div>`;
+function buildReferenceHeader(ar) {
+  const guide = getBuildGuide(ar);
+  return `
+    <div class="guide-build-head">
+      <div class="guide-build-title">${ar.name}</div>
+      <div class="guide-build-desc">${ar.desc}</div>
+      <div class="guide-chip-row">
+        <span class="guide-chip red">필수 ${ar.must.length}장</span>
+        <span class="guide-chip orange">핵심 ${guide.key.length}장</span>
+        <span class="guide-chip blue">있으면 좋은 카드 ${guide.flex.length}장</span>
+        <span class="guide-chip ghost">권장 덱 ${ar.size}</span>
+      </div>
+    </div>
+  `;
+}
 
-      // 아키타입 매칭도
-      h+=`<div style="margin-bottom:12px">`;
-      analysis.archScores.filter(a=>a.score>0).slice(0,3).forEach((ar,i)=>{
-        const pct=Math.min(100,ar.score);
-        h+=`<div style="margin-bottom:6px">
-          <div style="display:flex;justify-content:space-between;margin-bottom:3px">
-            <span style="font-size:12px;font-weight:700;color:${ar.color}">${ar.emoji} ${ar.name}</span>
-            <span style="font-size:11px;color:${ar.color}">필수 ${ar.mustHave}/${ar.must.length} · 추천 ${ar.recHave}</span>
-          </div>
+const NECRO_COMBOS = [
+  {name:'영혼 딜',    cards:['출몰','무덤지기'],       desc:'드로우마다 자동딜, 영혼으로 지속'},
+  {name:'종말 폭발',  cards:['카운트다운','도망칠 수 없다'], desc:'매턴 자동+기존×50% → 빠른 즉사'},
+  {name:'휘발성 무료', cards:['장막 관통자','서류 폭풍'], desc:'휘발성 0코화+드로우 엔진'},
+  {name:'변형 척결',  cards:['변형','척결'],           desc:'X코 재사용 → 코스트당 딜 무한확장'},
+  {name:'에너지 폭발', cards:['정신 폭주','연명'],       desc:'0코 에너지×2 → 고코카드 난사'},
+  {name:'매달기 루프', cards:['매달기','무덤 폭발'],     desc:'버린더미 회수→재사용→피해 지수증가'},
+];
+
+// ═══════════════════════════════════════════
+// 리젠트 데이터
+// ═══════════════════════════════════════════
+const REGENT_CARDS = [
+  // 시작
+  {n:'별똥별', c:0, t:'공격', r:'시작', d:'별2. 7뎀+약화1+취약1', tier:'B', tip:'별 소모 공격. 강화시 11뎀'},
+  {n:'추앙',   c:1, t:'스킬', r:'시작', d:'별+2',                  tier:'A', tip:'별 수급. 강화시 별+3'},
+  {n:'타격',   c:1, t:'공격', r:'시작', d:'6뎀',                   tier:'D', tip:'소멸 우선'},
+  {n:'수비',   c:1, t:'스킬', r:'시작', d:'방어5',                 tier:'D', tip:'소멸 우선'},
+  // 일반
+  {n:'별의 파동',     c:0, t:'공격', r:'일반', d:'별3. 전체14뎀',          tier:'A', tip:'0코 광역, 별만 소모'},
+  {n:'광채',          c:1, t:'스킬', r:'일반', d:'별+1+드로우2',            tier:'S', tip:'핵심 자원카드. 강화시 별+2'},
+  {n:'별의 망토',     c:0, t:'스킬', r:'일반', d:'별1. 방어7',              tier:'A', tip:'별1=방어7'},
+  {n:'수렴',          c:1, t:'스킬', r:'일반', d:'다음턴 에너지+1+별+1+보존', tier:'S', tip:'리젠트 최고 카드'},
+  {n:'반사',          c:1, t:'스킬', r:'일반', d:'별3. 방어17+막은피해반사', tier:'S', tip:'방어+반사딜. 모든덱 필수'},
+  {n:'네 주제를 알라', c:0, t:'스킬', r:'일반', d:'약화1+취약1+소멸',       tier:'A', tip:'0코 디버프 세팅'},
+  {n:'빅뱅',          c:0, t:'스킬', r:'고급', d:'에너지+1+별+1+드로우1+단조5+소멸', tier:'S', tip:'모든 자원 동시'},
+  {n:'돌격!!!!',      c:1, t:'스킬', r:'일반', d:'카드2장→하수인타격(0코소멸토큰)으로 변환', tier:'S', tip:'덱 압축+하수인'},
+  {n:'정렬',          c:0, t:'스킬', r:'일반', d:'별2. 에너지+2',           tier:'A', tip:'별→에너지 변환'},
+  {n:'방출',          c:0, t:'공격', r:'고급', d:'이번턴 별획득수×3뎀',     tier:'A', tip:'별 순환많을수록'},
+  {n:'막아라!!',      c:2, t:'스킬', r:'희귀', d:'손패 원하는만큼→하수인희생(0코방어9)으로 변환+소멸', tier:'A', tip:'상태이상/저주 처리'},
+  {n:'보루',          c:2, t:'스킬', r:'고급', d:'방어13+단조10',            tier:'A', tip:'방어+단조 동시'},
+  {n:'감마 세례',     c:0, t:'공격', r:'고급', d:'별3. 13뎀+약화2+취약2',   tier:'S', tip:'별똥별 상위호환'},
+  {n:'혜성',          c:0, t:'공격', r:'희귀', d:'별5. 33뎀+약화3+취약3',   tier:'S', tip:'취약시 49뎀. 핵심 딜'},
+  {n:'대령하라',      c:1, t:'스킬', r:'고급', d:'단조8+군주의칼날 회수',    tier:'A', tip:'단조덱 핵심'},
+  {n:'위대한 재련',   c:1, t:'스킬', r:'희귀', d:'별4. 단조30(40)',          tier:'A', tip:'단조대량. 단조덱 핵심'},
+  {n:'공허의 형상',   c:3, t:'파워', r:'희귀', d:'턴종료. 매턴 첫 카드2장 무료', tier:'A', tip:'고코카드 난사가능'},
+  {n:'별의 아이',     c:1, t:'파워', r:'고급', d:'별 소모마다 소모수×방어+2', tier:'A', tip:'별 사용=방어'},
+  {n:'블랙홀',        c:1, t:'파워', r:'고급', d:'별 소모/획득마다 전체3뎀',  tier:'A', tip:'별 운용=전체딜'},
+  {n:'창세',          c:2, t:'파워', r:'희귀', d:'매턴 별+2(강화시 +3)',      tier:'A', tip:'안정적 별 수급'},
+];
+
+const REGENT_ARCHS = [
+  {
+    id:'star', name:'별 덱', color:'#f1c40f', emoji:'⭐',
+    desc:'별 수급→소모 반복. 혜성+반사로 딜+방어 동시.',
+    size:'11~15장',
+    must:['광채','반사'],
+    rec:['수렴','별의 파동','별의 아이','감마 세례','혜성','정렬','블랙홀','창세','네 주제를 알라'],
+    conditions:['광채 강화 필수 (별+2+드로우2)','수렴: 에너지+별+보존 → 리젠트 최고 카드','혜성: 취약 걸면 49(66)뎀 = 단독 딜플랜'],
+    relics:['은하 먼지 — 별10소모마다 방어+10','달 모양 페스츄리 — 매턴 별+1','봉인된 왕좌 — 카드사용마다 별+1'],
+    pro:'딜+방어 동시, 높은 밸류', con:'별 균형 맞추기 어려움'
+  },
+  {
+    id:'forge', name:'단조 덱', color:'#e67e22', emoji:'⚔️',
+    desc:'군주의칼날에 단조 누적. 강력한 한방 딜.',
+    size:'12~16장',
+    must:['보루','대령하라'],
+    rec:['위대한 재련','빅뱅','수렴','정복자','날 세우기','반사','수렴'],
+    conditions:['군주의칼날: 단조누적당 피해+1, 비용2 보존','보루: 방어13+단조10 동시','대령하라: 어디서든 군주의칼날 즉시 회수'],
+    relics:['검술 안내서 — 매전투 단조10','날카로운 이빨 — 공격카드사용마다 강화'],
+    pro:'반사형 몹 완전 면역, 한방딜', con:'느린 예열, 유령기사 취약'
+  },
+];
+
+const REGENT_COMBOS = [
+  {name:'별 순환',   cards:['광채','수렴'],           desc:'별+드로우+에너지+보존 → 완전 자원'},
+  {name:'별 폭발',   cards:['방출','블랙홀'],          desc:'별 획득/소모마다 전체딜 자동 누적'},
+  {name:'방어+딜',   cards:['반사','별의 아이'],       desc:'별 소모 = 방어도 + 반사딜 동시'},
+  {name:'취약 폭딜', cards:['혜성','네 주제를 알라'], desc:'취약 설정 → 혜성 49(66)뎀'},
+  {name:'단조 폭발', cards:['보루','대령하라'],        desc:'단조 누적 + 즉시 회수 반복'},
+  {name:'하수인 압축', cards:['돌격!!!!','막아라!!'], desc:'불필요 카드 → 0코 소멸 토큰으로'},
+];
+
+// ── 빌드별 카드 태그 (직업별) ──
+const SILENT_BUILD_TAGS = {
+  '예비':         {build:'교활덱', role:'핵심'},
+  '설계의 대가':  {build:'교활덱', role:'핵심'},
+  '재주넘기':     {build:'교활덱', role:'추천'},
+  '도탄':         {build:'교활덱', role:'추천'},
+  '전략가':       {build:'교활덱', role:'핵심'},
+  '촉진제':       {build:'중독덱', role:'핵심'},
+  '유독 가스':    {build:'중독덱', role:'핵심'},
+};
+const DEFECT_BUILD_TAGS = {
+  '야성':           {build:'하위모덱', role:'핵심'},
+  '하나를 위한 모두': {build:'하위모덱', role:'핵심'},
+  '후벼 파기':      {build:'하위모덱', role:'추천'},
+  '냉정함':         {build:'구체덱',  role:'핵심'},
+  '조각모음':       {build:'구체덱',  role:'핵심'},
+  '서브루틴':       {build:'창공지능덱', role:'핵심'},
+  '창의적인 인공지능': {build:'창공지능덱', role:'핵심'},
+};
+const NECRO_BUILD_TAGS = {
+  '무덤지기':     {build:'영혼덱', role:'핵심'},
+  '장송가':       {build:'영혼덱', role:'핵심'},
+  '출몰':         {build:'영혼덱', role:'추천'},
+  '카운트다운':   {build:'종말덱', role:'핵심'},
+  '도망칠 수 없다': {build:'종말덱', role:'핵심'},
+  '서류 폭풍':    {build:'휘발성덱', role:'핵심'},
+  '장막 관통자':  {build:'휘발성덱', role:'핵심'},
+  '잿빛 혼령':    {build:'휘발성덱', role:'핵심'},
+  '석회화':       {build:'골골이덱', role:'핵심'},
+  '척결':         {build:'공용', role:'핵심'},
+  '변형':         {build:'공용', role:'핵심'},
+  '연명':         {build:'공용', role:'핵심'},
+  '정신 폭주':    {build:'공용', role:'핵심'},
+};
+const REGENT_BUILD_TAGS = {
+  '광채':    {build:'별덱',  role:'핵심'},
+  '반사':    {build:'별덱',  role:'핵심'},
+  '수렴':    {build:'별덱',  role:'핵심'},
+  '혜성':    {build:'별덱',  role:'핵심'},
+  '보루':    {build:'단조덱', role:'핵심'},
+  '대령하라': {build:'단조덱', role:'핵심'},
+  '위대한 재련': {build:'단조덱', role:'핵심'},
+};
+
+// ── 직업별 빌드 색상 ──
+const BUILD_COLORS_BY_CHAR = {
+  ironclad: {'타격덱':'#e67e22','취약덱':'#2ecc71','자해덱':'#e74c3c','소멸덱':'#8e44ad','방어도덱':'#3498db','공용':'#95a5a6'},
+  silent:   {'교활덱':'#2ecc71','중독덱':'#8e44ad','공용':'#95a5a6'},
+  defect:   {'구체덱':'#3498db','하위모덱':'#e67e22','창공지능덱':'#9b59b6','공용':'#95a5a6'},
+  necro:    {'영혼덱':'#8e44ad','종말덱':'#e74c3c','휘발성덱':'#f39c12','골골이덱':'#27ae60','공용':'#95a5a6'},
+  regent:   {'별덱':'#f1c40f','단조덱':'#e67e22','공용':'#95a5a6'},
+};
+
+// ── 아이언클래드 빌드 태그 ──
+const BUILD_TAGS = {
+  '지옥검무':   {build:'타격덱',  role:'핵심'},
+  '폼멜타격':   {build:'타격덱',  role:'핵심'},
+  '완벽한타격': {build:'타격덱',  role:'추천'},
+  '이중타격':   {build:'타격덱',  role:'추천'},
+  '격노':       {build:'타격덱',  role:'추천'},
+  '제압':       {build:'취약덱',  role:'핵심'},
+  '포악함':     {build:'취약덱',  role:'핵심'},
+  '악랄함':     {build:'취약덱',  role:'핵심'},
+  '해체':       {build:'취약덱',  role:'추천'},
+  '거상':       {build:'취약덱',  role:'추천'},
+  '파열':       {build:'자해덱',  role:'핵심'},
+  '불바다':     {build:'자해덱',  role:'핵심'},
+  '사혈':       {build:'공용',    role:'핵심'},
+  '제물':       {build:'공용',    role:'핵심'},
+  '포식':       {build:'공용',    role:'핵심'},
+  '흘려보내기': {build:'공용',    role:'추천'},
+  '핏빛망토':   {build:'공용',    role:'추천'},
+  '요지부동':   {build:'공용',    role:'추천'},
+  '불타는조약': {build:'소멸덱',  role:'핵심'},
+  '어둠의포옹': {build:'소멸덱',  role:'핵심'},
+  '바리케이드': {build:'방어도덱',role:'핵심'},
+  '몸통박치기': {build:'방어도덱',role:'핵심'},
+};
+
+const BUILD_COLORS = {
+  '타격덱':'#e67e22','취약덱':'#2ecc71','자해덱':'#e74c3c',
+  '소멸덱':'#8e44ad','방어도덱':'#3498db','공용':'#95a5a6',
+};
+const ROLE_COLORS = {'핵심':'#f1c40f','추천':'#8a8d98'};
+
+// ═══════════════════════════════════════════
+// 앱 상태
+// ═══════════════════════════════════════════
+const S = {
+  char: 'ironclad',
+  tab: 'live',
+  deck: [...IRONCLAD_START],
+  goal: null,
+  _tempGoal: null,
+  addTab: 'recommend',
+  selectedCard: null,
+  openArchId: null,
+  openCombo: false,
+  removeIdx: null,
+};
+
+function cc() { return CHARS[S.char].color; }
+function archs() {
+  return {ironclad:IRONCLAD_ARCHS, silent:SILENT_ARCHS, defect:DEFECT_ARCHS, necro:NECRO_ARCHS, regent:REGENT_ARCHS}[S.char] || [];
+}
+function combos() {
+  return {ironclad:IRONCLAD_COMBOS, silent:SILENT_COMBOS, defect:DEFECT_COMBOS, necro:NECRO_COMBOS, regent:REGENT_COMBOS}[S.char] || [];
+}
+function cards() {
+  return {ironclad:IRONCLAD_CARDS, silent:SILENT_CARDS, defect:DEFECT_CARDS, necro:NECRO_CARDS, regent:REGENT_CARDS}[S.char] || [];
+}
+function buildTags() {
+  return {ironclad:BUILD_TAGS, silent:SILENT_BUILD_TAGS, defect:DEFECT_BUILD_TAGS, necro:NECRO_BUILD_TAGS, regent:REGENT_BUILD_TAGS}[S.char] || {};
+}
+function buildColors() {
+  return BUILD_COLORS_BY_CHAR[S.char] || BUILD_COLORS_BY_CHAR.ironclad;
+}
+
+// ═══════════════════════════════════════════
+// 렌더 메인
+// ═══════════════════════════════════════════
+function render() {
+  // CSS 변수 업데이트
+  document.documentElement.style.setProperty('--cc', cc());
+
+  // 직업 선택
+  document.getElementById('charRow').innerHTML = Object.entries(CHARS).map(([k,v]) =>
+    `<button class="char-btn${S.char===k?' on':''}" onclick="changeChar('${k}')">${v.emoji} ${v.name}</button>`
+  ).join('');
+
+  // 탭
+  const tabs = [{id:'live',label:'🃏 내 덱'},{id:'combo',label:'🗂️ 빌드 모음'},{id:'ref',label:'📋 카드'}];
+  document.getElementById('tabs').innerHTML = tabs.map(t =>
+    `<button class="tab-btn${S.tab===t.id?' on':''}" onclick="S.tab='${t.id}';render()">${t.label}</button>`
+  ).join('');
+
+  // 본문
+  const ct = document.getElementById('ct');
+  ct.innerHTML = S.tab==='live' ? renderLive() : S.tab==='combo' ? renderCombo() : renderCards();
+}
+
+// ═══════════════════════════════════════════
+// 실시간 탭
+// ═══════════════════════════════════════════
+function renderLive() {
+  const deck = S.deck;
+  const totalCards = deck.length;
+  // 직업별 기본 카드 목록
+  const basics = BASIC_CARDS[S.char] || ['타격','수비'];
+  const startCards = deck.filter(n => basics.includes(n)).length;
+  const needCompress = totalCards > 15;
+
+  // 상태 분석
+  const archScores = archs().map(ar => {
+    const mustHave = ar.must.filter(n => deck.includes(n)).length;
+    const recHave = ar.rec.filter(n => deck.includes(n)).length;
+    return { ...ar, mustHave, recHave, score: mustHave*25 + recHave*7 };
+  }).sort((a,b) => b.score - a.score);
+  const topArch = archScores[0];
+
+  // 활성 콤보
+  const activeCombos = combos().filter(cb => cb.cards.every(n => deck.includes(n)));
+  const nearCombos = combos().filter(cb => !cb.cards.every(n=>deck.includes(n)) && cb.cards.some(n=>deck.includes(n)));
+
+  let h = '';
+
+  // ── 상태 요약 ──
+  h += `<div class="section">`;
+  h += `<div class="status-row">`;
+  h += `<span class="badge info">덱 ${totalCards}장</span>`;
+  if (startCards > 0) h += `<span class="badge${startCards>=5?' warn':''}">기본카드 ${startCards}장</span>`;
+  if (needCompress) h += `<span class="badge warn">⚠️ 압축 필요</span>`;
+  if (topArch && topArch.score > 0) h += `<span class="badge good">${topArch.emoji} ${topArch.name} 방향</span>`;
+  h += `</div>`;
+
+  // 방향 분석
+  if (deck.length > 2) {
+    const top3 = archScores.filter(a => a.score > 0).slice(0,2);
+    if (top3.length > 0) {
+      top3.forEach((ar, i) => {
+        const pct = Math.min(100, ar.score * 1.5);
+        h += `<div class="direction-box" style="--cc:${ar.color}">
+          <div class="direction-title">${ar.name} ${i===0?'<span style="font-size:12px;font-weight:400;color:var(--sub)">← 유력</span>':''}</div>
+          <div class="direction-sub">${ar.desc}</div>
           <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${ar.color}"></div></div>
         </div>`;
       });
-      if(analysis.archScores.every(a=>a.score===0)){
-        h+=`<p style="font-size:12px;color:#8a8d98">아직 방향이 없어요. 카드를 더 추가하면 분석이 시작돼요!</p>`;
-      }
-      h+=`</div>`;
-
-      // 방향 제안
-      if(top.score>0){
-        h+=`<div style="background:${top.color}11;border-radius:8px;padding:10px;margin-bottom:10px;border:1px solid ${top.color}33">
-          <div style="font-size:13px;font-weight:800;color:${top.color};margin-bottom:4px">${top.emoji} ${top.name} 방향으로 가세요</div>
-          <div style="font-size:11px;color:#b0b3be;line-height:1.6">${top.desc}</div>
-          <div style="font-size:11px;color:#8a8d98;margin-top:4px">권장 덱 크기: ${top.idealSize}</div>
+      if (needCompress && startCards >= 3) {
+        h += `<div style="font-size:13px;color:var(--yellow);padding:8px 10px;background:rgba(241,196,15,.08);border-radius:6px;margin-top:4px">
+          💡 타격·수비 카드가 ${startCards}장 남아있어요. 상점이나 모닥불에서 제거 고려해보세요.
         </div>`;
       }
-
-      // 활성 콤보
-      if(analysis.activeC.length>0){
-        h+=`<div style="margin-bottom:10px"><div style="font-size:12px;font-weight:700;color:#27ae60;margin-bottom:4px">✅ 완성된 콤보 (${analysis.activeC.length}개)</div>
-          ${analysis.activeC.map(cb=>`<span class="bg" style="background:${CC[cb.cat]||"#555"}22;color:${CC[cb.cat]||"#555"};margin:2px">${cb.name}</span>`).join("")}
-        </div>`;
-      }
-
-      // 다음에 노려야 할 카드
-      if(analysis.wantCards.length>0){
-        h+=`<div style="margin-bottom:6px"><div style="font-size:12px;font-weight:700;color:#f1c40f;margin-bottom:6px">⭐ 지금 당장 노려야 할 카드</div>
-          ${analysis.wantCards.map(c=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #2a2c3488">
-            ${miniThumb(c)}
-            <div style="flex:1">
-              <span style="font-size:13px;font-weight:700">${c.n}</span>
-              <span class="tb" style="color:${TC[c.tier]};background:${TC[c.tier]}22;margin-left:4px">${c.tier}</span>
-              <span style="display:block;font-size:10px;color:${c.priority==="high"?"#f1c40f":"#8a8d98"};margin-top:1px">${c.reason}</span>
-            </div>
-          </div>`).join("")}
-        </div>`;
-      }
-
-      // 덱 밸런스
-      h+=`<div style="font-size:11px;color:#5a5d68;margin-top:8px;display:flex;gap:12px">
-        <span>⚔️ 공격 ${analysis.atkCnt}장</span>
-        <span>🛡️ 스킬 ${analysis.sklCnt}장</span>
-        <span>✨ 파워 ${analysis.pwrCnt}장</span>
-      </div>`;
-
-      h+=`</div>`;
+    } else {
+      h += `<div class="hint">카드를 더 추가하면 방향 분석이 시작돼요.</div>`;
     }
+  } else {
+    h += `<div class="hint">카드를 추가하면 어떤 빌드로 갈 수 있는지 알려드려요.</div>`;
   }
+  h += `</div>`;
 
-  h+=`<div class="bx"><h3 style="margin:0 0 10px;font-size:14px;font-weight:700">🎴 카드 보상 (${S.rw.length}/3)</h3>`;
-  if(S.rw.length<3){
-    h+=`<div style="position:relative;margin-bottom:8px"><input type="text" id="si" value="${S.q}" placeholder="카드 이름 검색..." oninput="updateDD()"><div class="dd" id="sdd" style="display:none"></div></div>`;
-    h+=`<button class="bt" style="width:100%;margin-bottom:8px" onclick="S.pick=!S.pick;render()">📖 ${S.pick?"선택기 닫기":"카드 선택기 열기"}</button>`;
-    if(S.pick){
-      h+=`<div class="card-grid">${C.map(card=>cardItem(card)).join("")}</div>
-      <p style="text-align:center;font-size:11px;color:#5a5d68;margin-top:8px">탭=정보확인 · 추가는 아래 버튼</p>
-      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px">${C.map(c=>`<button class="bt" onclick="addR('${c.id}')" style="font-size:11px;padding:3px 8px">${c.n}</button>`).join("")}</div>`;
-    }
-  }
+  // ── 내 덱 ──
+  h += `<div class="section">`;
+  h += `<div class="sec-title">🃏 내 덱</div>`;
+  h += `<div class="card-grid" onclick="cancelRemove()">`;
 
-  if(S.rw.length>0){
-    h+=`<div style="display:flex;gap:8px;justify-content:center;margin-top:10px">
-      ${S.rw.map(c=>`<div style="flex:1;max-width:120px">
-        ${flipCard(c)}
-        <div style="font-size:14px;font-weight:700;text-align:center;margin-top:4px">${c.n}</div>
-        <button onclick="rmR('${c.id}')" style="background:none;border:none;color:#e74c3c;font-size:11px;cursor:pointer;display:block;margin:2px auto">✕ 제거</button>
-      </div>`).join("")}
-    </div>`;
-  }
-  h+=`</div>`;
+  // 목표덱과 비교해서 표시
+  const goalCards = S.goal ? (archs().find(a=>a.id===S.goal)||{must:[],rec:[]}) : null;
+  const goalSet = goalCards ? new Set([...goalCards.must, ...goalCards.rec]) : null;
 
-  if(S.rw.length>0){
-    const sr=S.rw.map(c=>({...c,...sc(c.id)})).sort((a,b)=>b.s-a.s);
-    h+=`<div class="bx"><h3 style="margin:0 0 10px;font-size:14px;font-weight:700">🤖 AI 추천</h3>`;
-    sr.forEach((c,i)=>{
-      const top=i===0,scl=c.s>=80?"#27ae60":c.s>=60?"#f39c12":"#e74c3c";
-      h+=`<div class="rc${top?" top":""}" style="border-left:4px solid ${scl}">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <span style="font-size:15px;font-weight:700">${c.n} <span class="tb" style="color:${TC[c.tier]};background:${TC[c.tier]}22">${c.tier}</span></span>
-          <span style="font-size:13px;font-weight:800;padding:3px 10px;border-radius:8px;background:${scl}22;color:${scl}">${c.s}점</span>
-        </div>
-        <div style="font-size:11px;color:#8a8d98">${c.d}</div>
-        <div style="font-size:10px;color:#f1c40f;margin-top:2px;font-style:italic">💡 ${c.tip}</div>
-        <div style="font-size:10px;color:#b0b3be;margin-top:2px">${c.r}</div>
-        ${top?"<div style='font-size:11px;font-weight:700;color:#27ae60;margin-top:4px'>⭐ 추천</div>":""}
-        <button class="bt f${top?" p":""}" style="margin-top:8px" onclick="pick('${c.id}')">선택</button>
+  deck.forEach((cardName, idx) => {
+    const tag = buildTags()[cardName];
+    h += cardTileHtml(cardName, idx, false, tag);
+  });
+
+  // + 추가 버튼
+  h += `<div class="add-tile" onclick="openAddModal()">
+    <div class="plus">+</div>
+    <div class="add-txt">카드<br>추가하기</div>
+  </div>`;
+  h += `</div>`;
+
+  // 활성 콤보 (덱 아래)
+  if (activeCombos.length > 0) {
+    h += `<div style="margin-top:12px"><div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:6px">✅ 완성된 콤보</div>`;
+    activeCombos.forEach(cb => {
+      const gc = cb.cards.length === 2 ? 'combo-cards-2' : cb.cards.length === 3 ? 'combo-cards-3' : 'combo-cards-n';
+      h += `<div class="combo-box">
+        <div class="combo-title">${cb.name}</div>
+        <div class="combo-desc">${cb.desc}</div>
+        <div class="${gc}">${cb.cards.map(n => `<div onclick="showCardInfo('${n}')">${miniCard(n)}</div>`).join('')}</div>
       </div>`;
     });
-    h+=`<button class="bt f" onclick="skip()" style="margin-top:4px">⏭️ 스킵</button></div>`;
+    h += `</div>`;
   }
 
-  if(!S.rw.length&&!S.deck.length){
-    h+=`<div style="text-align:center;padding:40px 20px">
-      <span style="font-size:48px;display:block;margin-bottom:16px">🃏</span>
-      <p style="font-size:16px;font-weight:700;margin-bottom:8px">런을 시작하세요!</p>
-      <p style="font-size:12px;color:#8a8d98;line-height:1.7">카드를 추가하면 실시간으로<br>덱 방향과 다음 픽 추천을 알려드려요</p>
+  // 근접 콤보 힌트
+  if (nearCombos.length > 0) {
+    const nc = nearCombos[0];
+    const missing = nc.cards.filter(n => !deck.includes(n));
+    h += `<div style="margin-top:8px;font-size:13px;color:var(--yellow);padding:8px 10px;background:rgba(241,196,15,.07);border-radius:8px">
+      💡 <strong>${missing.join(', ')}</strong> 추가하면 <strong>${nc.name}</strong> 콤보 완성
     </div>`;
   }
-  return h;
-}
 
-function rCo(){
-  let h=`<h3 style="font-size:14px;font-weight:700;margin:4px 0 10px;color:#f1c40f">🏰 완성형 덱 (5가지)</h3>
-  <p style="font-size:11px;color:#5a5d68;margin-bottom:10px">덱 이름 탭 → 카드 목록 확인</p>`;
-
-  ARCHS.forEach((ar,idx)=>{
-    const isOpen=openArch===idx;
-    const ownedMust=ar.must.filter(m=>S.deck.includes(m)).length;
-    const ownedRec=ar.rec.filter(r=>S.deck.includes(r)).length;
-    const allCards=[...ar.must,...ar.rec].map(id=>C.find(c=>c.id===id)).filter(Boolean);
-
-    h+=`<div class="arch-hdr${isOpen?" open":""}" style="border-left:4px solid ${ar.color}" onclick="toggleArch(${idx})">
-      <div>
-        <div style="font-size:15px;font-weight:800;color:${ar.color}">${ar.emoji} ${ar.name}</div>
-        <div style="font-size:11px;color:#8a8d98;margin-top:2px">${ar.desc}</div>
-        <div style="display:flex;gap:8px;margin-top:4px">
-          <span class="bg" style="background:${ar.color}22;color:${ar.color}">권장 ${ar.idealSize}</span>
-          <span class="bg" style="background:#2a2c34;color:#8a8d98">필수 ${ownedMust}/${ar.must.length} 보유</span>
+  // 목표덱 영역
+  if (S.goal) {
+    const g = archs().find(a => a.id === S.goal);
+    if (g) {
+      const guide = getBuildGuide(g);
+      const mustHave = g.must.filter(n => deck.includes(n)).length;
+      const keyHave = guide.key.filter(n => deck.includes(n)).length;
+      const blueprint = [...g.must.map(n => ({name:n, role:'must'})), ...guide.key.map(n => ({name:n, role:'key'}))];
+      h += `<div class="goal-minimal">
+        <div class="goal-topline">
+          <div class="goal-meta">
+            <div class="goal-caption">목표 덱</div>
+            <div class="goal-name" style="font-size:16px;color:var(--text)">${g.name}</div>
+            <div class="goal-subcopy">선명한 카드는 이미 가진 카드, 희미한 카드는 앞으로 맞춰갈 카드예요.</div>
+          </div>
+          <button class="goal-clear" onclick="S.goal=null;render()">해제</button>
         </div>
-      </div>
-      <span style="color:#5a5d68;font-size:18px">${isOpen?"▲":"▼"}</span>
-    </div>`;
-
-    if(isOpen){
-      h+=`<div class="arch-body open">
-        <div style="font-size:12px;font-weight:700;color:#e74c3c;margin-bottom:6px">🔴 필수 카드</div>
-        <div class="card-grid" style="margin-bottom:12px">
-          ${ar.must.map(id=>{const card=C.find(c=>c.id===id);if(!card)return"";const owned=S.deck.includes(id);return`<div style="position:relative">${cardItem(card)}${owned?'<div style="position:absolute;top:4px;left:4px;background:#27ae60;border-radius:10px;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff">✓</div>':''}</div>`;}).join("")}
+        <div class="goal-chip-row">
+          <span class="goal-chip red">필수 ${mustHave}/${g.must.length}</span>
+          <span class="goal-chip orange">핵심 ${keyHave}/${guide.key.length}</span>
+          <span class="goal-chip ghost">권장 덱 ${g.size}</span>
         </div>
-        <div style="font-size:12px;font-weight:700;color:#3498db;margin-bottom:6px">🔵 추천 카드</div>
-        <div class="card-grid" style="margin-bottom:12px">
-          ${ar.rec.map(id=>{const card=C.find(c=>c.id===id);if(!card)return"";const owned=S.deck.includes(id);return`<div style="position:relative">${cardItem(card)}${owned?'<div style="position:absolute;top:4px;left:4px;background:#27ae60;border-radius:10px;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff">✓</div>':''}</div>`;}).join("")}
+        <div class="goal-legend">목표 청사진</div>
+        <div class="goal-blueprint-grid">
+          ${blueprint.map(item => goalBlueprintCardHtml(item.name, item.role)).join('')}
         </div>
-        <div style="background:#0f1117;border-radius:8px;padding:10px;margin-bottom:10px">
-          <div style="font-size:12px;font-weight:700;color:#f1c40f;margin-bottom:6px">🏺 추천 유물</div>
-          ${ar.relics.map(r=>`<div style="font-size:11px;color:#b0b3be;padding:2px 0">· ${r}</div>`).join("")}
-        </div>
-        <div style="background:#0f1117;border-radius:8px;padding:10px;margin-bottom:6px">
-          <div style="font-size:12px;font-weight:700;color:#8a8d98;margin-bottom:6px">💡 핵심 팁</div>
-          ${ar.tips.map(t=>`<div style="font-size:11px;color:#b0b3be;padding:2px 0">· ${t}</div>`).join("")}
-        </div>
-        <div style="display:flex;gap:8px;font-size:11px">
-          <span style="color:#27ae60">✅ ${ar.pro}</span>
-          <span style="color:#e74c3c">⚠️ ${ar.con}</span>
+        <div class="goal-actions">
+          <button class="goal-ghost-btn" onclick="openGoalDetail()">빌드 상세 보기</button>
+          <button class="goal-ghost-btn secondary" onclick="openGoalModal()">목표 덱 바꾸기</button>
         </div>
       </div>`;
     }
+  } else {
+    h += `<button class="goal-toggle" onclick="openGoalModal()">🎯 목표 덱 설정하기</button>`;
+  }
+
+  h += `</div>`;
+  return h;
+}
+
+// 빌드 모음 탭용 카드 (원본 이미지 그대로, 클릭 시 상세보기)
+function archCardHtml(cardName, owned) {
+  const src = imgUrl(cardName, S.char);
+  return `<div class="card-tile" style="cursor:pointer" onclick="event.stopPropagation();showCardInfo('${cardName}')">
+    <img src="${src}" loading="lazy" onerror="handleImgErr(this,'${cardName}','${S.char}')">
+    <div class="no-img" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:var(--sub)">${cardName.slice(0,2)}</div>
+    <div class="card-name">${cardName}</div>
+    ${owned ? `<div style="position:absolute;top:4px;left:4px;background:#27ae60;color:#fff;font-size:9px;font-weight:800;padding:2px 6px;border-radius:4px">보유</div>` : ''}
+  </div>`;
+}
+
+// 카드 타일 HTML
+function cardTileHtml(cardName, idx, isMissing=false, _unused=null, isRec=false) {
+  const src = imgUrl(cardName, S.char);
+  const isRemove = S.removeIdx === idx && idx >= 0;
+  let classes = 'card-tile';
+  if (isMissing) classes += ' missing';
+  if (isRemove) classes += ' show-remove';
+
+  let tagHtml = '';
+  const _bt = buildTags();
+  const _bc = buildColors();
+  const tag = _bt[cardName];
+  if (tag) {
+    const bc = _bc[tag.build] || '#888';
+    tagHtml = `<div class="build-dot" style="background:${bc}22;color:${bc}">${tag.role}</div>`;
+  }
+  if (isRec) {
+    tagHtml = `<div class="build-dot" style="background:rgba(255,255,255,.1);color:#8a8d98">추천</div>`;
+  }
+
+  return `<div class="${classes}" onclick="${idx >= 0 ? `event.stopPropagation();toggleRemove(${idx})` : isMissing ? `goalCardClick('${cardName}')` : 'void(0)'}">
+    <img src="${src}" loading="lazy" onerror="handleImgErr(this,'${cardName}','${S.char}')">
+    <div class="no-img" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:var(--sub)">${cardName.slice(0,2)}</div>
+    ${tagHtml}
+    <div class="card-name">${cardName}</div>
+    <div class="card-overlay" onclick="event.stopPropagation()">
+      <button class="ov-btn ov-info" onclick="showCardInfo('${cardName}');cancelRemove()">📋 상세보기</button>
+      <button class="ov-btn ov-del" onclick="confirmRemove(${idx})">🗑️ 제거</button>
+      <div class="ov-cancel" onclick="cancelRemove()">✕ 닫기</div>
+    </div>
+  </div>`;
+}
+
+// 미니 카드 (콤보/목표덱용 - missing 없이 원본 그대로)
+function miniCard(cardName) {
+  const src = imgUrl(cardName, S.char);
+  return `<div class="card-tile" style="width:100%">
+    <img src="${src}" loading="lazy" onerror="handleImgErr(this,'${cardName}','${S.char}')">
+    <div class="no-img" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:var(--sub)">${cardName.slice(0,2)}</div>
+    <div class="card-name">${cardName}</div>
+  </div>`;
+}
+
+
+function handleArchBodyClick(event) {
+  if (event.target.closest('.card-tile, .relic-item, .goal-ghost-btn, button, img, .modal-close, .build-tag')) return;
+  S.openArchId = null;
+  render();
+}
+
+function toggleRemove(idx) {
+  if (S.removeIdx === idx) {
+    // 두번째 탭 = 제거 실행
+    S.deck.splice(idx, 1);
+    S.removeIdx = null;
+    render();
+  } else {
+    // 첫번째 탭 = 제거 확인 오버레이
+    S.removeIdx = idx;
+    render();
+  }
+}
+
+function showCardInfo(cardName) {
+  const card = cards().find(c => c.n === cardName);
+  if (!card) { alert(`${cardName}\n\n아직 카드 상세 정보가 없어요.`); return; }
+
+  const src = imgUrl(cardName, S.char);
+  const relatedCombos = combos().filter(cb => cb.cards.includes(cardName));
+  const relatedArchs = archs().filter(ar => ar.must.includes(cardName) || ar.rec.includes(cardName));
+  const inDeck = S.deck.includes(cardName);
+
+  const tierColors = {S:'#e74c3c',A:'#e67e22',B:'#f1c40f',C:'#3498db',D:'#95a5a6'};
+  const tierLabels = {S:'S — 최우선픽',A:'A — 좋음',B:'B — 상황따라',C:'C — 비추',D:'D — 소멸 대상'};
+  const tc = tierColors[card.tier] || '#888';
+  const costLabel = card.c === 'X' ? 'X코스트' : card.c === 0 ? '0코스트 (무료)' : `${card.c}코스트`;
+  // 효과 텍스트 정리: 뎀→데미지, 방어→방어도
+  const effectText = card.d
+    .replace(/뎀/g,'데미지')
+    .replace(/방어(?!도)/g,'방어도')
+    .replace(/\+/g,' +')
+    .replace(/\. /g,'<br>');
+  // 팁 개선
+  const tipText = card.tip === '소멸 우선' ? '초반에는 덱에 기본 카드를 채운 채로 시작해요. 이 카드는 가치가 낮으므로 상점이나 이벤트에서 소멸(제거)하는 게 좋아요.' : card.tip;
+
+  document.getElementById('cardInfoTitle').textContent = cardName;
+  const body = document.getElementById('cardInfoBody');
+  body.innerHTML = `
+    <div style="display:flex;gap:14px;margin-bottom:16px">
+      <div style="width:100px;height:150px;flex-shrink:0;border-radius:10px;overflow:hidden;border:1.5px solid var(--border)">
+        <img src="${src}" style="width:100%;height:100%;object-fit:cover" onerror="handleImgErr(this,'${cardName}','${S.char}')">
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:18px;font-weight:800;margin-bottom:8px">${cardName}</div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">
+          <span style="background:${tc};color:#fff;font-size:12px;font-weight:800;padding:4px 10px;border-radius:6px">${tierLabels[card.tier]||card.tier}</span>
+          <span style="background:var(--surface2);color:var(--sub);font-size:12px;font-weight:700;padding:4px 10px;border-radius:6px">${card.t}</span>
+        </div>
+        <div style="background:var(--surface2);border-radius:8px;padding:8px 10px;margin-bottom:8px">
+          <div style="font-size:11px;font-weight:700;color:var(--dim);margin-bottom:3px">코스트</div>
+          <div style="font-size:14px;font-weight:800;color:var(--text)">${costLabel}</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:8px;padding:8px 10px">
+          <div style="font-size:11px;font-weight:700;color:var(--dim);margin-bottom:3px">효과</div>
+          <div style="font-size:13px;color:var(--text);line-height:1.7">${effectText}</div>
+        </div>
+      </div>
+    </div>
+    <div style="background:rgba(241,196,15,.08);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:13px;color:var(--yellow);line-height:1.6">
+      💡 ${tipText}
+    </div>
+    ${relatedArchs.length > 0 ? `
+    <div style="margin-bottom:12px">
+      <div style="font-size:13px;font-weight:700;color:var(--sub);margin-bottom:6px">연결되는 빌드</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px">
+        ${relatedArchs.map(ar=>`<span style="background:${ar.color}22;color:${ar.color};font-size:12px;font-weight:700;padding:5px 12px;border-radius:8px">${ar.name}${ar.must.includes(cardName)?' (핵심)':''}</span>`).join('')}
+      </div>
+    </div>` : ''}
+    ${relatedCombos.length > 0 ? `
+    <div style="margin-bottom:12px">
+      <div style="font-size:13px;font-weight:700;color:var(--sub);margin-bottom:8px">함께하면 좋은 카드</div>
+      ${relatedCombos.map(cb => {
+        const gc = cb.cards.length === 2 ? 'combo-cards-2' : 'combo-cards-3';
+        return `<div class="combo-box" style="margin-bottom:8px">
+          <div class="combo-title">${cb.name}</div>
+          <div class="combo-desc">${cb.desc}</div>
+          <div class="${gc}">${cb.cards.map(n=>miniCard(n)).join('')}</div>
+        </div>`;
+      }).join('')}
+    </div>` : ''}
+    ${!inDeck ? `<button onclick="addCardByName('${cardName}');closeModal('cardInfoModal')" style="width:100%;padding:13px;background:var(--green);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">+ 내 덱에 추가하기</button>` : `<div style="text-align:center;padding:10px;font-size:13px;color:var(--green);font-weight:700">✅ 이미 내 덱에 있어요</div>`}
+  `;
+  document.getElementById('cardInfoModal').classList.add('open');
+}
+
+function removeCard(idx) {
+  S.deck.splice(idx, 1);
+  S.removeIdx = null;
+  render();
+}
+
+function confirmRemove(idx) {
+  const name = S.deck[idx];
+  if (confirm(`'${name}'을 덱에서 제거할까요?`)) {
+    S.deck.splice(idx, 1);
+    S.removeIdx = null;
+    render();
+  }
+}
+
+function cancelRemove() {
+  if (S.removeIdx !== null) { S.removeIdx = null; render(); }
+}
+
+function addCardByName(name) {
+  if (!S.deck.includes(name)) {
+    S.deck.push(name);
+    showToast(`${name} 추가됨`);
+  }
+  render();
+}
+
+function goalBlueprintCardHtml(cardName, role) {
+  const owned = S.deck.includes(cardName);
+  const src = imgUrl(cardName, S.char);
+  const roleLabel = role === 'must' ? '필수' : '핵심';
+  const roleClass = role === 'must' ? 'must' : 'key';
+  return `<div class="goal-card ${owned?'owned':'pending'}" onclick="event.stopPropagation();showCardInfo('${cardName}')">
+    <img src="${src}" loading="lazy" onerror="handleImgErr(this,'${cardName}','${S.char}')">
+    <div class="no-img" style="display:none">?</div>
+    <div class="goal-badge ${roleClass}">${roleLabel}</div>
+    ${owned ? '<div class="goal-check">보유</div>' : ''}
+    <div class="card-name">${cardName}</div>
+  </div>`;
+}
+
+function openGoalDetail() {
+  if (!S.goal) return;
+  const ar = archs().find(a => a.id === S.goal);
+  if (!ar) return;
+  const guide = getBuildGuide(ar);
+  document.getElementById('goalDetailTitle').textContent = `${ar.name} 상세`;
+  document.getElementById('goalDetailBody').innerHTML = `
+    ${buildReferenceHeader(ar)}
+    <div class="arch-section-label">📌 완성 조건</div>
+    <div class="ref-tip-list">${ar.conditions.map(c=>`<div class="ref-tip-item">· ${c}</div>`).join('')}</div>
+
+    <div class="guide-group core"><div class="arch-section-label">필수 카드</div>
+    <div class="ref-mini-desc">${guide.coreLabel}</div>
+    <div class="card-grid">${ar.must.map(n=>`<div style="position:relative">${archCardHtml(n, S.deck.includes(n))}</div>`).join('')}</div></div>
+
+    <div class="guide-group key"><div class="arch-section-label">핵심 카드</div>
+    <div class="ref-mini-desc">${guide.keyLabel}</div>
+    <div class="card-grid">${guide.key.map(n=>`<div style="position:relative">${archCardHtml(n, S.deck.includes(n))}</div>`).join('')}</div></div>
+
+    <div class="guide-group flex"><div class="arch-section-label">있으면 좋은 카드</div>
+    <div class="ref-mini-desc">${guide.flexLabel}</div>
+    <div class="card-grid">${guide.flex.map(n=>`<div style="position:relative">${archCardHtml(n, S.deck.includes(n))}</div>`).join('')}</div></div>
+
+    <div class="arch-section-label">⚙️ 운영 포인트</div>
+    <div class="ref-mini-desc">${guide.opsLabel}</div>
+    <div class="ref-tip-list">${guide.ops.map(c=>`<div class="ref-tip-item">· ${c}</div>`).join('')}</div>
+
+    <div class="arch-section-label">🏺 추천 유물</div>
+    <div class="relic-list">${ar.relics.map(r=>{
+      const [name,...rest]=r.split(' — ');
+      const cleanName = name.replace(/\s/g,'');
+      const imgSrc = BASE + encodeURIComponent(cleanName) + '.webp';
+      return `<div class="relic-item" style="display:flex;gap:10px;align-items:center">
+        <div style="width:38px;height:38px;flex-shrink:0;border-radius:6px;overflow:hidden;background:var(--surface);border:1px solid var(--border)">
+          <img src="${imgSrc}" style="width:100%;height:100%;object-fit:contain" loading="lazy" onerror="this.parentElement.style.display='none'">
+        </div>
+        <div><strong style="font-size:13px">${name}</strong>${rest.length?`<div style="font-size:11px;color:var(--sub);margin-top:1px">${rest.join(' — ')}</div>`:''}</div>
+      </div>`;
+    }).join('')}</div>
+
+    <div style="display:flex;gap:8px;margin-top:10px;font-size:12px;flex-wrap:wrap">
+      <span style="color:var(--green)">✅ ${ar.pro}</span>
+      <span style="color:var(--red)">⚠️ ${ar.con}</span>
+    </div>`;
+  document.getElementById('goalDetailModal').classList.add('open');
+}
+
+function goalCardClick(name) {
+  if (S.deck.includes(name)) {
+    showToast(`${name}은 이미 내 덱에 있어요`);
+    return;
+  }
+  if (confirm(`'${name}'을 내 덱에 추가할까요?`)) {
+    S.deck.push(name);
+    render();
+  }
+}
+
+function showToast(msg) {
+  let t = document.getElementById('toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'toast';
+    t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#27ae60;color:#fff;padding:8px 16px;border-radius:20px;font-size:13px;font-weight:700;z-index:200;pointer-events:none;transition:opacity .3s';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(t._tid);
+  t._tid = setTimeout(() => { t.style.opacity = '0'; }, 1800);
+}
+
+// ═══════════════════════════════════════════
+// 카드 추가 모달
+// ═══════════════════════════════════════════
+async function openAddModal() {
+  S.selectedCard = null;
+  S.addTab = 'all';
+  document.getElementById('cardSearch').value = '';
+  await enrichCardsFromRepo(true);
+  renderAddTab();
+  document.getElementById('addModal').classList.add('open');
+  const body = document.getElementById('addModalBody') || document.querySelector('#addModal .modal-body');
+  if (body) body.scrollTop = 0;
+}
+
+function switchAddTab(tab) {
+  S.addTab = tab;
+  S.selectedCard = null;
+  document.querySelectorAll('.modal-tab').forEach((btn, i) => {
+    btn.classList.toggle('on', ['all','combo'][i] === tab);
+  });
+  renderAddTab();
+}
+
+function renderAddTab() {
+  const q = document.getElementById('cardSearch').value.replace(/\s/g,'').toLowerCase();
+  const panel = document.getElementById('cardDetailPanel');
+  const content = document.getElementById('addTabContent');
+  const body = document.getElementById('addModalBody') || document.querySelector('#addModal .modal-body');
+  const prevScrollTop = body ? body.scrollTop : 0;
+
+  // 카드 상세 패널
+  if (S.selectedCard) {
+    const card = cards().find(c => c.n === S.selectedCard);
+    if (card) {
+      const relatedCombos = combos().filter(cb => cb.cards.includes(card.n));
+      const relatedArchs = archs().filter(ar => ar.must.includes(card.n) || ar.rec.includes(card.n));
+      const tag = buildTags()[card.n];
+      panel.innerHTML = `<div class="card-detail">
+        <div class="detail-top">
+          <div class="detail-img"><img src="${imgUrl(card.n, S.char)}" onerror="handleImgErr(this,'${card.n}','${S.char}')"></div>
+          <div class="detail-info">
+            <h3>${card.n}</h3>
+            <p style="color:var(--sub);font-size:12px">${card.d}</p>
+            <p style="margin-top:4px;font-size:12px;font-style:italic;color:var(--yellow)">💡 ${card.tip}</p>
+          </div>
+        </div>
+        ${relatedArchs.length > 0 ? `
+          <div class="detail-builds">
+            <div style="font-size:12px;font-weight:700;color:var(--sub);margin-bottom:4px">연결되는 빌드</div>
+            <div class="build-tag-row">
+              ${relatedArchs.map(ar => `<span class="build-tag" style="background:${ar.color}22;color:${ar.color};font-size:11px">${ar.name}${ar.must.includes(card.n)?' (핵심)':''}</span>`).join('')}
+            </div>
+          </div>` : ''}
+        ${relatedCombos.length > 0 ? `
+          <div class="detail-combo-label">함께하면 좋은 카드</div>
+          <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px">
+            ${relatedCombos.flatMap(cb => cb.cards.filter(n=>n!==card.n)).map(n => `<div style="width:52px;flex-shrink:0">${miniCard(n)}</div>`).join('')}
+          </div>` : ''}
+        <button class="add-btn" style="margin-top:10px" onclick="confirmAdd('${card.n}')">덱에 추가하기</button>
+      </div>`;
+      return;
+    }
+  }
+  panel.innerHTML = '';
+
+  // 탭별 콘텐츠
+  if (S.addTab === 'combo') {
+    content.innerHTML = combos().map(cb => {
+      const ownedCnt = cb.cards.filter(n => S.deck.includes(n)).length;
+      const gc = cb.cards.length === 2 ? 'combo-cards-2' : cb.cards.length === 3 ? 'combo-cards-3' : 'combo-cards-n';
+      return `<div class="combo-box">
+        <div class="combo-title">${cb.name} <span style="font-size:12px;color:var(--sub)">${ownedCnt}/${cb.cards.length}장 보유</span></div>
+        <div class="combo-desc">${cb.desc}</div>
+        <div class="${gc}">${cb.cards.map(n => `<div onclick="selectCard('${n}')">${miniCard(n)}</div>`).join('')}</div>
+      </div>`;
+    }).join('');
+    return;
+  }
+
+  let list = [...cards()];
+  if (q) list = list.filter(c => c.n.replace(/\s/g,'').toLowerCase().includes(q));
+
+  if (list.length === 0) {
+    content.innerHTML = `<div class="section" style="text-align:center;padding:28px 12px;color:var(--sub);font-size:13px">검색된 결과가 없어요.</div>`;
+    if (body && !S.selectedCard) body.scrollTop = prevScrollTop;
+    return;
+  }
+
+  content.innerHTML = `<div class="card-grid">
+    ${list.map(c => {
+      const tag = buildTags()[c.n];
+      return `<div onclick="selectCard('${c.n}')">${cardTileHtml(c.n, -1, false, tag)}</div>`;
+    }).join('')}
+  </div>`;
+  if (body && !S.selectedCard) body.scrollTop = prevScrollTop;
+}
+
+function selectCard(name) {
+  S.selectedCard = name;
+  document.getElementById('cardDetailPanel').innerHTML = '';
+  renderAddTab();
+  // 스크롤 상단
+  document.querySelector('#addModal .modal-body').scrollTop = 0;
+}
+
+function confirmAdd(name) {
+  if (!S.deck.includes(name)) S.deck.push(name);
+  S.selectedCard = null;
+  closeModal('addModal');
+  render();
+}
+
+// ═══════════════════════════════════════════
+// 목표덱 모달
+// ═══════════════════════════════════════════
+function openGoalModal() {
+  S._tempGoal = S.goal || null;
+  renderGoalModal();
+  document.getElementById('goalModal').classList.add('open');
+}
+
+function renderGoalModal() {
+  const body = document.getElementById('goalModalBody');
+  body.innerHTML = archs().map(ar => `
+    <div class="build-card${S._tempGoal===ar.id?' selected':''}" onclick="selectTempGoal('${ar.id}')">
+      <div class="build-card-header">
+        <span class="build-card-name" style="color:${ar.color}">${ar.name}</span>
+        <span style="font-size:12px;color:var(--sub)">${ar.size}</span>
+      </div>
+      <div class="build-card-desc">${ar.desc}</div>
+      <div style="font-size:12px;font-weight:700;color:var(--sub);margin-bottom:6px">핵심 카드</div>
+      <div class="build-key-cards">
+        ${ar.must.map(n => `<div class="build-key-card">${miniCard(n)}</div>`).join('')}
+      </div>
+    </div>
+  `).join('') +
+  `<div style="display:flex;gap:8px;margin-top:12px;position:sticky;bottom:0;background:var(--surface);padding:12px 0 4px">
+    <button onclick="closeModal('goalModal')" style="flex:1;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--sub);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">취소</button>
+    <button onclick="confirmGoal()" style="flex:2;padding:12px;background:${S._tempGoal ? archs().find(a=>a.id===S._tempGoal)?.color||'var(--green)' : 'var(--dim)'};border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">${S._tempGoal ? '🎯 목표 덱으로 등록' : '빌드를 선택해주세요'}</button>
+  </div>`;
+}
+
+function selectTempGoal(id) {
+  S._tempGoal = id;
+  renderGoalModal();
+}
+
+function confirmGoal() {
+  if (!S._tempGoal) return;
+  S.goal = S._tempGoal;
+  closeModal('goalModal');
+  render();
+}
+
+function setGoal(id) {
+  S.goal = id;
+  closeModal('goalModal');
+  render();
+}
+
+// ═══════════════════════════════════════════
+// 완성덱 탭
+// ═══════════════════════════════════════════
+function renderCombo() {
+  if (archs().length === 0) {
+    const char = CHARS[S.char];
+    return `<div class="section" style="text-align:center;padding:30px 20px">
+      <div style="font-size:32px;margin-bottom:12px">${char.emoji}</div>
+      <div style="font-size:15px;font-weight:800;margin-bottom:8px">${char.name} 빌드 데이터 준비 중</div>
+      <div style="font-size:13px;color:var(--sub);line-height:1.6">현재 아이언클래드만 지원해요.<br>다른 직업 데이터는 업데이트 예정이에요.</div>
+    </div>`;
+  }
+  let h = ``;
+
+  archs().forEach(ar => {
+    const isOpen = S.openArchId === ar.id;
+    const guide = getBuildGuide(ar);
+    h += `<div class="arch-card${isOpen?' open':''}">
+      <div class="arch-head${isOpen?' open':''}" onclick="S.openArchId='${isOpen?null:ar.id}';render()">
+        <div class="arch-head-left">
+          <h3>${ar.name}</h3>
+          <p>${ar.desc}</p>
+          <div class="guide-chip-row" style="margin-top:8px">
+            <span class="guide-chip red">필수 ${ar.must.length}장</span>
+            <span class="guide-chip orange">핵심 ${guide.key.length}장</span>
+            <span class="guide-chip blue">있으면 좋은 카드 ${guide.flex.length}장</span>
+            <span class="guide-chip ghost">${ar.size}</span>
+          </div>
+        </div>
+        <span style="color:var(--dim);font-size:16px">${isOpen?'▲':'▼'}</span>
+      </div>`;
+    if (isOpen) {
+      h += `<div class="arch-body" onclick="handleArchBodyClick(event)">
+        <div class="guide-group core"><div class="arch-section-label">필수 카드</div>
+        <div class="ref-mini-desc">${guide.coreLabel}</div>
+        <div class="card-grid">
+          ${ar.must.map(n=>{
+            const owned=S.deck.includes(n);
+            return `<div style="position:relative">${archCardHtml(n, owned)}</div>`;
+          }).join('')}
+        </div></div>
+
+        <div class="guide-group key"><div class="arch-section-label">핵심 카드</div>
+        <div class="ref-mini-desc">${guide.keyLabel}</div>
+        <div class="card-grid">
+          ${guide.key.map(n=>{
+            const owned=S.deck.includes(n);
+            return `<div style="position:relative">${archCardHtml(n, owned)}</div>`;
+          }).join('')}
+        </div></div>
+
+        <div class="guide-group flex"><div class="arch-section-label">있으면 좋은 카드</div>
+        <div class="ref-mini-desc">${guide.flexLabel}</div>
+        <div class="card-grid">
+          ${guide.flex.map(n=>{
+            const owned=S.deck.includes(n);
+            return `<div style="position:relative">${archCardHtml(n, owned)}</div>`;
+          }).join('')}
+        </div></div>
+
+        <div class="arch-section-label">🏺 추천 유물</div>
+        <div class="relic-list">
+          ${ar.relics.map(r=>{
+            const [name,...rest]=r.split(' — ');
+            const cleanName = name.replace(/\s/g,'');
+            const imgSrc = BASE + encodeURIComponent(cleanName) + '.webp';
+            return `<div class="relic-item" style="display:flex;gap:10px;align-items:center">
+              <div style="width:38px;height:38px;flex-shrink:0;border-radius:6px;overflow:hidden;background:var(--surface);border:1px solid var(--border)">
+                <img src="${imgSrc}" style="width:100%;height:100%;object-fit:contain" loading="lazy" onerror="this.parentElement.style.display='none'">
+              </div>
+              <div><strong style="font-size:13px">${name}</strong>${rest.length?`<div style="font-size:11px;color:var(--sub);margin-top:1px">${rest.join(' — ')}</div>`:''}</div>
+            </div>`;
+          }).join('')}
+        </div>
+
+        <div class="arch-section-label">⚙️ 운영 포인트</div>
+        <div class="ref-mini-desc">${guide.opsLabel}</div>
+        <div class="ref-tip-list">${guide.ops.map(c=>`<div class="ref-tip-item">· ${c}</div>`).join('')}</div>
+
+        <div class="arch-section-label">📌 완성 조건</div>
+        <div class="ref-tip-list">${ar.conditions.map(c=>`<div class="ref-tip-item">· ${c}</div>`).join('')}</div>
+
+        <div style="display:flex;gap:8px;margin-top:10px;font-size:12px;flex-wrap:wrap">
+          <span style="color:var(--green)">✅ ${ar.pro}</span>
+          <span style="color:var(--red)">⚠️ ${ar.con}</span>
+        </div>
+      </div>`;
+    }
+    h += `</div>`;
   });
 
-  h+=`<h3 style="font-size:14px;font-weight:700;margin:16px 0 8px;color:#f1c40f">🔗 미니 콤보 (${COMBOS.length}개)</h3>`;
-  h+=`<div style="margin-bottom:12px">${["전체","자해","소멸","취약","타격","방밀","범용"].map(cat=>`<button class="fb2${S.cf===cat?" on":""}" style="--fc:${CC[cat]||"#e74c3c"}" onclick="S.cf='${cat}';render()">${cat}</button>`).join("")}</div>`;
+  // 콤보 섹션
+  const comboOpen = !!S.openCombo;
+  h += `<div class="combo-wrap${comboOpen?' open':''}">
+    <div class="combo-head${comboOpen?' open':''}" onclick="S.openCombo=${comboOpen?'false':'true'};render()">
+      <div class="combo-head-left">
+        <h3>주요 콤보</h3>
+        <p>카드 2~3장 조합만 빠르게 보는 참고용 목록</p>
+      </div>
+      <span style="color:var(--dim);font-size:16px">${comboOpen?'▲':'▼'}</span>
+    </div>`;
+  if (comboOpen) {
+    h += `<div class="combo-body" onclick="handleComboBodyClick(event)">`;
+    combos().forEach(cb => {
+      const done = cb.cards.every(n => S.deck.includes(n));
+      const partial = !done && cb.cards.some(n => S.deck.includes(n));
+      const gc = cb.cards.length === 2 ? 'combo-cards-2' : cb.cards.length === 3 ? 'combo-cards-3' : 'combo-cards-n';
+      const comboType = cb.loopType === 'infinite' ? '무한' : (cb.cards.length === 3 ? '3장 콤보' : (cb.cards.length === 2 ? '2장 콤보' : `${cb.cards.length}장 콤보`));
+      h += `<div class="combo-box" style="border-color:${done?'var(--green)':partial?'rgba(241,196,15,.35)':'rgba(255,255,255,.08)'}">
+        <div class="combo-title-row">
+          <div class="combo-title">${cb.name}</div>
+          <div class="combo-meta">${comboType}</div>
+        </div>
+        <div class="combo-desc">${cb.desc}</div>
+        <div class="${gc}">${cb.cards.map(n => miniCard(n)).join('')}</div>
+        ${!done?`<div style="font-size:12px;color:var(--yellow);margin-top:8px">${cb.cards.filter(n=>!S.deck.includes(n)).join(', ')} 추가하면 완성</div>`:''}
+      </div>`;
+    });
+    h += `</div>`;
+  }
+  h += `</div>`;
+  return h;
+}
 
-  COMBOS.filter(cb=>S.cf==="전체"||cb.cat===S.cf).forEach(cb=>{
-    const done=cb.cards.every(c=>S.deck.includes(c));
-    const partial=!done&&cb.cards.some(c=>S.deck.includes(c));
-    h+=`<div class="bx" style="border-left:4px solid ${CC[cb.cat]||"#555"};margin-bottom:8px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <span style="font-size:14px;font-weight:700">${done?"✅":partial?"🔸":"⬜"} ${cb.name}</span>
-        <span class="bg" style="background:${CC[cb.cat]||"#555"}22;color:${CC[cb.cat]||"#555"}">${cb.cat}</span>
-      </div>
-      <div class="card-grid">
-        ${cb.cards.map(cid=>{const card=C.find(c=>c.id===cid);if(!card)return"";return cardItem(card);}).join("")}
-      </div>
-      <div style="font-size:12px;color:#b0b3be;margin-top:8px">${cb.desc}</div>
-      ${!done?`<div style="font-size:11px;color:#f1c40f;margin-top:4px">💡 ${cb.cards.filter(c=>!S.deck.includes(c)).map(c=>C.find(x=>x.id===c)?.n).join(", ")} 추가하면 완성</div>`:""}
+
+function handleComboBodyClick(e) {
+  if (e.target.closest('.combo-box, .mini-card, .card, button, a, img')) return;
+  S.openCombo = false;
+  render();
+}
+
+// ═══════════════════════════════════════════
+// 카드 탭
+// ═══════════════════════════════════════════
+function renderCards() {
+  if (cards().length === 0) {
+    const char = CHARS[S.char];
+    return `<div class="section" style="text-align:center;padding:30px 20px">
+      <div style="font-size:32px;margin-bottom:12px">${char.emoji}</div>
+      <div style="font-size:15px;font-weight:800;margin-bottom:8px">${char.name} 카드 데이터 준비 중</div>
+      <div style="font-size:13px;color:var(--sub);line-height:1.6">현재 아이언클래드만 지원해요.<br>다른 직업 카드는 업데이트 예정이에요.</div>
+    </div>`;
+  }
+  let h = `<div class="hint" style="margin-bottom:10px">카드 탭하면 상세 정보 확인</div>`;
+  const rarityOrder = ['시작','일반','고급','희귀','특수'];
+  const rcolors = {시작:'#9e9e9e',일반:'#8a8d98',고급:'#3d7dd4',희귀:'#daa520',특수:'#9b59b6'};
+  rarityOrder.forEach(r => {
+    const list = cards().filter(c => c.r === r);
+    if (!list.length) return;
+    h += `<div class="rarity-section">
+      <div class="rarity-label" style="color:${rcolors[r]}">${r} (${list.length}장)</div>
+      <div class="card-grid">${list.map(c => renderRefCard(c)).join('')}</div>
     </div>`;
   });
   return h;
 }
 
-function rR(){
-  let h=`<div class="bx" style="margin-bottom:12px"><p style="font-size:12px;color:#9a9da8">카드 탭 → 뒤집어서 상세정보 확인</p></div>`;
-  ["시작","일반","고급","희귀","특수"].forEach(rarity=>{
-    const cards=C.filter(c=>c.r===rarity);
-    if(!cards.length)return;
-    h+=`<h3 style="font-size:14px;font-weight:700;margin:12px 0 8px;color:${RC[rarity]||"#888"}">${rarity} (${cards.length}장)</h3>`;
-    h+=`<div class="card-grid">${cards.map(card=>cardItem(card)).join("")}</div>`;
-  });
-  return h;
+function renderRefCard(card) {
+  const src = imgUrl(card.n, S.char);
+  const tierColors = {S:'#e74c3c',A:'#e67e22',B:'#f1c40f',C:'#3498db',D:'#95a5a6'};
+  return `<div class="card-tile" onclick="alert('${card.n}\\n\\n${card.d}\\n\\n💡 ${card.tip}')">
+    <img src="${src}" loading="lazy" onerror="handleImgErr(this,'${card.n}','${S.char}')">
+    <div class="cost-dot" style="background:${tierColors[card.tier]}">${card.tier}</div>
+    <div class="card-name">${card.n}</div>
+  </div>`;
 }
 
-function addR(id){if(S.rw.length>=3||S.rw.find(r=>r.id===id))return;const c=C.find(x=>x.id===id);if(c){S.rw.push(c);S.q="";S.pick=false;}render();}
-function rmR(id){S.rw=S.rw.filter(r=>r.id!==id);render();}
-function pick(id){S.deck.push(id);S.rw=[];render();}
-function skip(){S.rw=[];render();}
+// ═══════════════════════════════════════════
+// 유틸
+// ═══════════════════════════════════════════
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  S.selectedCard = null;
+  if (id === 'addModal') {
+    const h2 = document.querySelector('#addModal .modal-head h2');
+    if (h2) h2.textContent = '카드 추가하기';
+  }
+}
 
+function changeChar(k) {
+  S.char = k;
+  S.deck = [...(START_DECKS[k] || START_DECKS.ironclad)];
+  S.goal = null;
+  S.removeIdx = null;
+  render();
+}
+
+// 배경 클릭으로 모달 닫기
+document.querySelectorAll('.modal-bg').forEach(bg => {
+  bg.addEventListener('click', e => { if (e.target === bg) bg.classList.remove('open'); });
+});
+
+// ── 1. GNB 드래그 스크롤 ──
+(function() {
+  const el = document.getElementById('charRow');
+  let isDown = false, startX = 0, scrollLeft = 0, moved = false;
+
+  const stopDrag = () => {
+    isDown = false;
+    el.style.cursor = 'grab';
+    el.classList.remove('dragging');
+  };
+
+  el.addEventListener('mousedown', e => {
+    isDown = true;
+    moved = false;
+    startX = e.clientX;
+    scrollLeft = el.scrollLeft;
+  });
+
+  window.addEventListener('mousemove', e => {
+    if (!isDown) return;
+    const dx = e.clientX - startX;
+    if (Math.abs(dx) > 6) {
+      moved = true;
+      el.style.cursor = 'grabbing';
+      el.classList.add('dragging');
+      el.scrollLeft = scrollLeft - dx;
+      e.preventDefault();
+    }
+  });
+
+  window.addEventListener('mouseup', stopDrag);
+  el.addEventListener('mouseleave', stopDrag);
+
+  el.addEventListener('click', e => {
+    if (!moved) return;
+    e.preventDefault();
+    e.stopPropagation();
+    moved = false;
+  }, true);
+})();
+
+// ── 3. GitHub API로 카드 목록 자동 로드 ──
+// 직업별 prefix 규칙: 파일명이 클래스명_카드명 또는 카드명 단독
+// 유물은 별도 배열로 분리
+const REPO_API = 'https://api.github.com/repos/elithelucky/sts2-cards/contents/';
+const REPO_TREE_API = 'https://api.github.com/repos/elithelucky/sts2-cards/git/trees/main?recursive=1';
+const REPO_RAW_BASE = 'https://raw.githubusercontent.com/elithelucky/sts2-cards/main/';
+
+function parseRepoFile(filename) {
+  const base = filename.replace(/\.webp$/i, '');
+  const sharedMatch = base.match(/^(.+?)_(Ironclad|ironclad|Silent|silent|Defect|defect|Necrobinder|necrobinder|Regent|regent)$/);
+  if (sharedMatch) return { name: sharedMatch[1], isShared: true, suffix: sharedMatch[2] };
+  return { name: base, isShared: false, suffix: null };
+}
+
+const KNOWN_RELICS = new Set([
+  '불타는혈액','뱀의반지','신성한빛','구속된성물함','부서진핵','어두운피','비룡의반지',
+  '신성한운명','해방된성물함','주입된핵','금강저','기묘하게매끄러운돌','다섯반지의책',
+  '닻','딸기','랜턴','목보호대','백년퍼즐','숫돌','식권','염주','영원한얼음','유서깊은차세트',
+  '자수정가지','작은우편함','준비된가방','청동비늘','축제용폭죽','출진물감','타격용인형',
+  '펜듈럼','포션벨트','피가담긴병','행복한꽃','호화로운베개','붉은해골','스네코의해골',
+  '검술안내서','뼈플루트','데이터디스크','구슬주머니','그렘린뿔','미니어처대포',
+  '반짝이는립스틱','배','별자리판','붉은가면','사슬낫','석화된두꺼비','소리굽쇠',
+  '소뿔모양걸이','수은모래시계','쌍절곤','아카베코','영원의깃털','오리하르콘','완갑',
+  '장식용부채','중절모','착암기','찰랑이는대야','쳐내기용방패','촛대','파충류장식',
+  '팬터그래프','펜촉','편지칼','풀무','행운의물교기','향지','종이게구리','자가형성점토',
+  '팅샤','뒤틀린깔때기','은하먼지','리갈라이트','책수리용칼','장례용가면','판금케이블',
+  '공생바이러스','게임용말','고깃덩어리','고동치는잔여물','날카로운이빨','낡은동전',
+  '녹아내린알','도마뱀꼬리','도박용칩','망고','망토걸쇠','멈추지않는팽이','무지개반지',
+  '미라의손','배달원','병법서','삽','샹들리에','석재달력','선장의타륜','섬뜩한램프',
+  '수리검','아이스크림','얼어붙은알','오래가는사탕','위압적인투구','유독성알','전경기',
+  '짜증나는퍼즐상자','케틀벨','텅스텐막대','튼튼한조임쇠','표창','하얀별','하얀짐승석상',
+  '회중시계','카론의유골','악마의혓바닥','파손된투구','나선형다트','종이핰','질긴붕대',
+  '달모양페스츄리','미니리젠트','주황색반죽','커다란모자','책갈피','상아패','감정칩',
+  '메트로놈','동력전지','가마솥','공구함','공명하는트라이앵글','날개부적','돌리의거울',
+  '때묻은러그','리의와플','멤버십카드','목패','미니어처텐트','벨트버클','불타는나뭇가지',
+  '비명을지르는병','빵','신비로운라이터','왕실도장','용과','용기의투석구','용암램프',
+  '울퉁불퉁한망치','유령씨앗','주판','케미컬X','태양계모형','펀치대거','유황','닌자두루마리',
+  '비트루비우스적하수인','불멸의인장','룬축전기'
+]);
+
+const CHAR_CARD_ARRAYS = {
+  ironclad: IRONCLAD_CARDS,
+  silent: SILENT_CARDS,
+  defect: DEFECT_CARDS,
+  necro: NECRO_CARDS,
+  regent: REGENT_CARDS,
+};
+
+const REPO_ENRICHED = { ironclad:false, silent:false, defect:false, necro:false, regent:false };
+const MANUAL_CLASS_OVERRIDES = { necro: ['쇠락','추출','분리','부름'] };
+let REPO_FILES_CACHE = null;
+let REPO_MANIFEST_CACHE = null;
+let RELIC_IMAGE_FILES = [];
+
+function normalizeRepoName(name) {
+  return String(name || '').replace(/\.webp$/i,'').replace(/[_\s]/g,'').replace(/[!?]/g,'').trim();
+}
+
+function suffixToCharKey(suffix) {
+  return {
+    'Ironclad':'ironclad','ironclad':'ironclad',
+    'Silent':'silent','silent':'silent',
+    'Defect':'defect','defect':'defect',
+    'Necrobinder':'necro','necrobinder':'necro','Necro':'necro','necro':'necro',
+    'Regent':'regent','regent':'regent',
+  }[suffix] || null;
+}
+
+function pushCardIfMissing(charKey, cardName) {
+  if (!charKey || !cardName) return false;
+  const arr = CHAR_CARD_ARRAYS[charKey];
+  const normalized = normalizeRepoName(cardName);
+  if (!normalized || KNOWN_RELICS.has(normalized)) return false;
+  if (arr.some(c => normalizeRepoName(c.n) === normalized)) return false;
+  arr.push({n:cardName, c:'?', t:'카드', r:'일반', d:'', tier:'B', tip:''});
+  return true;
+}
+
+async function loadRepoManifest() {
+  if (REPO_MANIFEST_CACHE !== null) return REPO_MANIFEST_CACHE;
+  const candidates = ['cards-manifest.json','manifest.json','data/cards-manifest.json','cards_manifest.json'];
+  for (const path of candidates) {
+    try {
+      const res = await fetch(REPO_RAW_BASE + path + '?v=' + Date.now(), { cache:'no-store' });
+      if (!res.ok) continue;
+      const json = await res.json();
+      if (json && typeof json === 'object') {
+        REPO_MANIFEST_CACHE = json;
+        return json;
+      }
+    } catch (e) {}
+  }
+  REPO_MANIFEST_CACHE = false;
+  return false;
+}
+
+async function loadRepoFiles() {
+  if (REPO_FILES_CACHE) return REPO_FILES_CACHE;
+  try {
+    const treeRes = await fetch(REPO_TREE_API + '&v=' + Date.now(), { cache:'no-store' });
+    if (treeRes.ok) {
+      const treeJson = await treeRes.json();
+      const files = (treeJson.tree || [])
+        .filter(f => f.type === 'blob' && /\.webp$/i.test(f.path))
+        .map(f => f.path.split('/').pop());
+      REPO_FILES_CACHE = [...new Set(files)];
+      return REPO_FILES_CACHE;
+    }
+  } catch (e) {}
+
+  try {
+    const res = await fetch(REPO_API + '?v=' + Date.now(), { cache:'no-store' });
+    if (!res.ok) return null;
+    const files = await res.json();
+    REPO_FILES_CACHE = files.filter(f => /\.webp$/i.test(f.name)).map(f => f.name);
+    return REPO_FILES_CACHE;
+  } catch (e) {
+    return null;
+  }
+}
+
+function updateRelicImages(files) {
+  RELIC_IMAGE_FILES = files.filter(f => KNOWN_RELICS.has(normalizeRepoName(f)));
+}
+
+function relicImgUrl(relicName) {
+  const clean = relicName.replace(/\s/g,'');
+  return BASE + encodeURIComponent(clean) + '.webp';
+}
+
+function applyManualOverrides() {
+  Object.entries(MANUAL_CLASS_OVERRIDES).forEach(([charKey, names]) => {
+    names.forEach(name => pushCardIfMissing(charKey, name));
+  });
+}
+
+function applyManifestCards(manifest) {
+  const keyMap = { ironclad:'ironclad', silent:'silent', defect:'defect', necro:'necro', necrobinder:'necro', regent:'regent' };
+  Object.entries(keyMap).forEach(([manifestKey, charKey]) => {
+    const list = manifest[manifestKey];
+    if (!Array.isArray(list)) return;
+    list.forEach(name => pushCardIfMissing(charKey, name));
+    REPO_ENRICHED[charKey] = true;
+  });
+}
+
+function applyRepoFilesFallback(files) {
+  const existingByChar = Object.fromEntries(
+    Object.entries(CHAR_CARD_ARRAYS).map(([charKey, arr]) => [charKey, new Set(arr.map(c => normalizeRepoName(c.n)))])
+  );
+  const suffixedCountByChar = { ironclad:0, silent:0, defect:0, necro:0, regent:0 };
+
+  files.forEach(file => {
+    const parsed = parseRepoFile(file);
+    const normalized = normalizeRepoName(parsed.name);
+    if (!normalized || KNOWN_RELICS.has(normalized)) return;
+
+    // 파일명에 클래스 suffix가 있으면 그 클래스로 강제 귀속
+    if (parsed.suffix) {
+      const charKey = suffixToCharKey(parsed.suffix);
+      if (charKey) {
+        pushCardIfMissing(charKey, parsed.name);
+        existingByChar[charKey].add(normalized);
+        suffixedCountByChar[charKey] = (suffixedCountByChar[charKey] || 0) + 1;
+      }
+      return;
+    }
+
+    // suffix 없는 카드는 기존 데이터에서 같은 이름을 가진 직업에만 보강
+    const matchedChars = Object.keys(existingByChar).filter(charKey => existingByChar[charKey].has(normalized));
+    if (matchedChars.length) {
+      matchedChars.forEach(charKey => {
+        pushCardIfMissing(charKey, parsed.name);
+        existingByChar[charKey].add(normalized);
+      });
+    }
+  });
+
+  applyManualOverrides();
+
+  // 디버그/확인용: suffix 기반으로 자동 보강된 개수 기록
+  window.__repoCardCounts = Object.fromEntries(
+    Object.entries(CHAR_CARD_ARRAYS).map(([charKey, arr]) => [charKey, arr.length])
+  );
+  window.__repoSuffixedCounts = suffixedCountByChar;
+}
+
+async function enrichCardsFromRepo(force=false) {
+  if (!force && Object.values(REPO_ENRICHED).every(Boolean)) return;
+
+  const [manifest, files] = await Promise.all([loadRepoManifest(), loadRepoFiles()]);
+  if (files) updateRelicImages(files);
+
+  if (manifest) {
+    applyManifestCards(manifest);
+    Object.keys(REPO_ENRICHED).forEach(k => REPO_ENRICHED[k] = true);
+    return;
+  }
+
+  if (!files) return;
+  applyRepoFilesFallback(files);
+  Object.keys(REPO_ENRICHED).forEach(k => REPO_ENRICHED[k] = true);
+}
+
+// 최초 렌더 후 레포에서 카드 보강
 render();
+enrichCardsFromRepo(true).then(() => render());
+
+// 직업 전환시도 레포 보강
+async function changeChar(k) {
+  S.char = k;
+  S.deck = [...(START_DECKS[k] || START_DECKS.ironclad)];
+  S.goal = null;
+  S.removeIdx = null;
+  render();
+  await enrichCardsFromRepo();
+  render();
+}
+
 </script>
 </body>
 </html>
