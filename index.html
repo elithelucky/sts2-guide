@@ -293,7 +293,7 @@ body{background:var(--bg);color:var(--text);font-family:'Apple SD Gothic Neo','N
 // ═══════════════════════════════════════════
 // 데이터
 // ═══════════════════════════════════════════
-const BASE = 'https://raw.githubusercontent.com/elithelucky/sts2-cards/main/';
+const BASE = 'https://cdn.jsdelivr.net/gh/elithelucky/sts2-images@main/';
 const CHAR_CAP = {ironclad:'Ironclad',silent:'Silent',defect:'Defect',necro:'Necro',regent:'Regent'};
 
 const CLASS_FILE_SUFFIX = {
@@ -613,6 +613,16 @@ const SILENT_CARDS = [
 ];
 
 const SILENT_ARCHS = [
+  {
+    id:'dagger', name:'단도 덱', color:'#6aa9ff', emoji:'',
+    desc:'단도 생성과 연타로 압박. 빠른 턴 전개와 다수전 대응에 강함.',
+    size:'10~14장',
+    must:['칼날 부채','칼날 함정'],
+    rec:['단검 투척','작업 도구','예비','곡예','계산된 도박','잔상','도탄'],
+    conditions:['단도 생성 카드 2장 이상 확보','드로우/버리기로 손패를 빠르게 순환','다수전에서 단도 누적으로 압박'],
+    relics:['쿠나이 — 연타로 민첩 확보','수리검 — 연타로 힘 확보','닌자 두루마리 — 시작 턴 폭발력'],
+    pro:'초반~중반 전개가 빠르고 다수전에 강함', con:'핵심 생성 카드 없으면 딜이 분산됨'
+  },
   {
     id:'sly', name:'교활 덱', color:'#2ecc71', emoji:'🃏',
     desc:'버리기로 교활 트리거 반복. 드로우-버리기 순환이 핵심.',
@@ -1980,9 +1990,9 @@ document.querySelectorAll('.modal-bg').forEach(bg => {
 // ── 3. GitHub API로 카드 목록 자동 로드 ──
 // 직업별 prefix 규칙: 파일명이 클래스명_카드명 또는 카드명 단독
 // 유물은 별도 배열로 분리
-const REPO_API = 'https://api.github.com/repos/elithelucky/sts2-cards/contents/';
-const REPO_TREE_API = 'https://api.github.com/repos/elithelucky/sts2-cards/git/trees/main?recursive=1';
-const REPO_RAW_BASE = 'https://raw.githubusercontent.com/elithelucky/sts2-cards/main/';
+const REPO_API = 'https://api.github.com/repos/elithelucky/sts2-images/contents/';
+const REPO_TREE_API = 'https://api.github.com/repos/elithelucky/sts2-images/git/trees/main?recursive=1';
+const REPO_RAW_BASE = 'https://cdn.jsdelivr.net/gh/elithelucky/sts2-images@main/';
 
 function parseRepoFile(filename) {
   const base = filename.replace(/\.webp$/i, '');
