@@ -1471,6 +1471,53 @@ body{
   }
 }
 
+
+/* SHOP SKIP BUTTON VISUAL DIFFERENTIATION */
+.shop-skip-btn{
+  background:#f3f4f6 !important;
+  color:#111827 !important;
+  border-color:#d1d5db !important;
+}
+.shop-skip-btn:hover{
+  background:#ffffff !important;
+  color:#000 !important;
+  border-color:#ffffff !important;
+}
+.shop-exit-btn .res-skip-keycap{
+  margin-right:6px;
+}
+
+
+/* PAGE SCROLL INSTEAD OF INNER RESULT SCROLL */
+.pc-result-pane,
+.pc-result-pane .inline-result,
+.pc-result-pane #resultSection,
+.pc-result-pane #resultBody{
+  max-height:none !important;
+  height:auto !important;
+  overflow:visible !important;
+}
+
+
+/* TOP RECOMMEND SHOP EXIT */
+.res-skip-compact.is-top-recommend{
+  margin-bottom:14px !important;
+}
+.res-skip-compact.is-top-recommend .res-summary{
+  opacity:0.95;
+}
+
+
+/* FORCE SHOP EXIT TO TOP WHEN IT IS BEST */
+#resultBody{
+  display:flex;
+  flex-direction:column;
+}
+#resultBody .res-skip-compact.skip-best{
+  order:-999 !important;
+  margin-bottom:14px !important;
+}
+
 </style>
 </head>
 <body>
@@ -1977,6 +2024,14 @@ function getCurrentCardPool(){
     seen.add(card.n);
     return true;
   });
+
+  // shop: if purchase-end is the best choice, force it to the very top
+  if (isShopMode) {
+    const skipNode = body.querySelector('.res-skip-compact.skip-best');
+    if (skipNode) {
+      body.prepend(skipNode);
+    }
+  }
 }
 function getCardMeta(name, preferredChar=curChar){
   const preferred=ALL[preferredChar];
@@ -4258,7 +4313,7 @@ window.renderResult = function(scored,skipScore){
 
   // bottom skip / end action
   const action=document.createElement('div');
-  action.className='res-item res-skip-compact'+(skipBest?' best skip-best':'');
+  action.className='res-item res-skip-compact'+(skipBest?' best skip-best is-top-recommend':'');
   action.dataset.rank='skip';
   const skipSummary = isShopMode ? '상점 구매를 끝내려면 구매 종료를 누르세요' : '지금은 스킵보다 집는 쪽이 낫습니다';
   action.innerHTML=`<div class="res-title-row">${skipBest?'<span class="res-badge" style="background:#22c55e;color:#fff">추천</span>':''}<span class="res-title">${isShopMode?'구매 종료':'스킵'}</span></div><div class="res-summary">${skipSummary}</div><button class="res-compact-btn${skipBest?' is-recommended':''}" onclick="doSkip()"><span class="res-skip-keycap">\`</span>${isShopMode?'구매 종료':'스킵하기'}</button>`;
@@ -4334,6 +4389,32 @@ window.renderResult = function(scored,skipScore){
       return result;
     };
   }
+})();
+</script>
+
+
+<script>
+(function(){
+  function moveBestShopExitToTop(){
+    const body = document.getElementById('resultBody');
+    if(!body) return;
+    const skipBest = body.querySelector('.res-skip-compact.skip-best');
+    if(!skipBest) return;
+    body.prepend(skipBest);
+  }
+
+  // initial + after render tick
+  const run = () => requestAnimationFrame(() => requestAnimationFrame(moveBestShopExitToTop));
+  run();
+
+  const bodyEl = document.getElementById('resultBody');
+  if(bodyEl){
+    const mo = new MutationObserver(run);
+    mo.observe(bodyEl, {childList:true, subtree:false});
+  }
+
+  // also expose for any render function to call if needed
+  window.moveBestShopExitToTop = moveBestShopExitToTop;
 })();
 </script>
 
