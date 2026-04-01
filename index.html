@@ -4068,5 +4068,274 @@ function showOnboarding(el){
 }
 </script>
 
+
+<script>
+/* === SHOP FLOW + SEARCH RESULT CLEANUP OVERRIDES === */
+
+// 카드 검색 결과: profile/type 아이콘 제거
+window.renderSearchGrid = function(){
+  const wrap=document.getElementById('searchGridWrap');const q=document.getElementById('modalInput').value;const d=D();
+  wrap.innerHTML='<div class="search-grid loading"></div>';
+  const pool=deckAddMode?getCurrentCardPool().filter(c=>isSearchableCard(c,curChar)):getSearchPoolForSlot(activeSlot||0);
+  let list;if(deckAddMode){list=pool.slice()}else{const ex=picks.filter((p,j)=>p&&j!==activeSlot);const pickable=pool.filter(c=>!BA().includes(c.n));list=pickable.filter(c=>!ex.includes(c.n))}
+  list=list.map(c=>({card:c,rank:getSearchRank(c.n,q)})).filter(x=>isSearchableCard(x.card,curChar) && x.rank>-1).sort((a,b)=>b.rank-a.rank || a.card.n.length-b.card.n.length || a.card.n.localeCompare(b.card.n,'ko')).map(x=>x.card);
+  searchResultList=list.slice();
+  searchResultAction=[];
+  if(!list.length){wrap.innerHTML='<div class="search-empty">결과 없음</div>';return}
+  let prog='';
+  if(!deckAddMode){
+    const need=getNeedCount();
+    prog='<div class="slot-progress">'+Array.from({length:need},(_,i)=>`<span class="slot-dot ${i===activeSlot?'on':''} ${mode==='shop'&&isShopColorlessSlot(i)?'colorless':''}"></span>`).join('')+`<span class="slot-text">${getSlotLabel(activeSlot)} 선택</span></div>`;
+    if(mode==='shop'){
+      prog+=`<div class="slot-hint">${isShopColorlessSlot(activeSlot)?'이 슬롯은 중립 카드만 검색됩니다.':'이 슬롯은 현재 클래스 카드만 검색됩니다.'}</div>`;
+    }
+  }
+  const grid=document.createElement('div');grid.className='search-grid';
+  list.forEach((card,idx)=>{
+    const el=document.createElement('div');el.className='sg-card';
+    const choose=()=>{
+      if(deckAddMode){
+        pushDeckCard(card.n);closeSearch();renderAll();
+        setTimeout(()=>{document.getElementById('deckGrid').scrollIntoView({behavior:'smooth',block:'center'})},50);
+        return;
+      }
+      picks[activeSlot]=card.n;
+      const need=getNeedCount();
+      const next=Array.from({length:need},(_,i)=>i).find(i=>!picks[i]);
+      if(next!==undefined){
+        activeSlot=next;
+        document.getElementById('modalTitle').textContent=getSlotLabel(next)+' 선택';
+        document.getElementById('modalInput').value='';
+        renderRewardRow(); renderSearchGrid(); ensureSearchInputFocus();
+      } else {
+        closeSearch(); renderAll('to-result');
+      }
+    };
+    searchResultAction[idx]=choose;
+    el.onclick=choose;
+    const img=makeImg(card.n,'sg');el.appendChild(img);
+    const showKeycaps=(window.innerWidth>768) && q.trim().length>0;
+    if(showKeycaps && idx<9) el.innerHTML+=`<span class="search-keycap">${idx+1}</span>`;
+    el.innerHTML+=`<div class="sg-name">${card.n}</div><span class="sg-tier tier-${card.tier}">${card.tier}</span>${UNLOCK[card.n]?'<div class="lock-corner">🔒</div>':''}`;
+    grid.appendChild(el)
+  });
+  wrap.innerHTML=prog;wrap.appendChild(grid)
+};
+
+function shopRemoveCard(name){
+  const idx = picks.findIndex(v => v===name);
+  if(idx>=0) picks[idx]='';
+}
+function remainingShopCards(){
+  return picks.filter(Boolean);
+}
+window.buyShopCard = function(name){
+  const from = picks.filter(Boolean);
+  pushDeckCard(name);
+  hist.push({p:`구매:${name}`,f:from});
+  shopRemoveCard(name);
+  deckAddMode=false; activeSlot=-1;
+  const remain = remainingShopCards();
+  if(remain.length){
+    setLastAction(`${name} 카드를 현재 덱에 추가했습니다.`, 'success');
+    renderAll('to-result');
+  }else{
+    setLastAction(`${name} 카드를 구매하고 상점 선택을 마쳤습니다.`, 'success');
+    finalizeShopCycle('구매 종료');
+  }
+};
+
+window.shopSkipCard = function(name){
+  shopRemoveCard(name);
+  deckAddMode=false; activeSlot=-1;
+  const remain = remainingShopCards();
+  if(remain.length){
+    clearLastAction();
+    renderAll('to-result');
+  }else{
+    setLastAction('남은 상점 카드가 없어 구매를 종료했습니다.', 'info');
+    finalizeShopCycle('구매 종료');
+  }
+};
+
+window.pickCard = function(name){
+  if(mode==='shop'){ buyShopCard(name); return; }
+  pushDeckCard(name);
+  setLastAction(`${name} 카드를 현재 덱에 추가했습니다.`, 'success');
+  finalizeRewardCycle(name);
+};
+
+window.doSkip = function(){
+  const from=picks.filter(Boolean);
+  if(mode==='shop'){
+    setLastAction('상점 구매를 종료했습니다.', 'info');
+    if(from.length) hist.push({p:'구매 종료',f:from});
+    deckAddMode=false;
+    activeSlot=-1;
+    picks=freshPicks();
+    renderAll('to-picker');
+    return;
+  }
+  setLastAction('현재 보상 카드를 스킵했습니다.', 'info');
+  if(from.length) hist.push({p:'스킵',f:from});
+  deckAddMode=false;
+  activeSlot=-1;
+  picks=freshPicks();
+  renderAll('to-picker');
+};
+
+// 상점 결과 UI 재정의
+window.renderResult = function(scored,skipScore){
+  const sec=document.getElementById('resultSection');
+  const body=document.getElementById('resultBody');
+  const desc=sec.querySelector('.pc-result-desc');
+  const isPc=window.innerWidth>768;
+  if(desc) desc.style.display = isPc ? '' : 'none';
+
+  if(!scored){
+    body.innerHTML = lastActionMessage ? `<div class="result-feedback result-feedback-${lastActionKind||'info'}"><div class="feedback-icon">✓</div><div class="feedback-text">${lastActionMessage}</div></div>` : '';
+    if(isPc){
+      sec.style.display=''; sec.classList.add('open');
+    }else{
+      if(lastActionMessage){ sec.style.display=''; sec.classList.add('open'); }
+      else { sec.style.display='none'; sec.classList.remove('open'); }
+    }
+    return;
+  }
+  sec.style.display=''; sec.classList.add('open');
+  clearLastAction();
+  body.innerHTML='';
+
+  const isShopMode = mode==='shop';
+  const top=scored[0];
+  const skipBest=!top || top.score<=skipScore || top.warn;
+
+  if(isShopMode){
+    body.innerHTML += `<div class="res-note" style="margin-bottom:10px">카드를 구매하거나 넘기면서 계속 비교할 수 있습니다. 끝났다면 <span class="res-skip-keycap">\`</span>구매 종료를 누르세요.</div>`;
+  }
+
+  let cardHotkeyIndex = 1;
+  scored.forEach((it,i)=>{
+    const best = !skipBest && i===0 && it.score>skipScore && (it.score-skipScore>=8 || !it.warn);
+    const div=document.createElement('div');
+    div.className='res-item'+(best?' best':'')+(!best?' res-compact-choice':'');
+    div.dataset.rank = String(i+1);
+    const hotkey = window.innerWidth>768 ? (cardHotkeyIndex<=9 ? cardHotkeyIndex++ : null) : null;
+    const head=document.createElement('div');
+    head.className='res-clickarea';
+    head.onclick=()=>showDetail(it.name);
+    const imgEl=makeImg(it.name,'sg');
+    imgEl.style.cssText='width:'+(best?'70px':'44px')+';border-radius:8px;flex-shrink:0;border:1px solid var(--bd2)';
+    head.appendChild(imgEl);
+    let info='<div style="flex:1;min-width:0">';
+    info+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">';
+    if(best) info+=`<span class="res-badge" style="background:#22c55e">추천</span>`;
+    info+=`<span class="res-title">${it.name}</span>`;
+    const tierStyle = (skipBest && it.tier==='S') ? ' style="opacity:.62;filter:saturate(.7) brightness(.92)"' : '';
+    info+=`<span class="res-tier-pill tier-${it.tier}"${tierStyle}>${it.tier}</span>`;
+    info+='</div>';
+    const compactChips = Array.from(new Map((it.chips||[]).map(ch=>[ch[1],ch])).values());
+    if(compactChips.length){
+      info+='<div class="res-state">';
+      compactChips.slice(0,2).forEach(ch=>{info+=`<span class="res-chip ${ch[0]}">${ch[1]}</span>`});
+      info+='</div>';
+    }
+    info+=`<div class="res-summary">${it.summary}</div>`;
+    if(UNLOCK[it.name]) info+=`<div class="res-unlock-mini">🔒 해금 필요</div>`;
+    if(best && it.reasons?.length) info+=`<div class="res-note">${it.reasons[0]}</div>`;
+    info+='</div>';
+    head.innerHTML+=info;
+    div.appendChild(head);
+
+    const hot = hotkey ? `<span class="res-action-keycap">${hotkey}</span>` : '';
+    if(isShopMode){
+      div.innerHTML += `<div class="shop-card-actions"><button class="res-compact-btn${best?' is-recommended':''}" onclick="buyShopCard('${it.name}')">${hot}이 카드 구매</button><button class="res-compact-btn shop-skip-btn" onclick="shopSkipCard('${it.name}')">이 카드 넘기기</button></div>`;
+    }else{
+      div.innerHTML += `<button class="res-compact-btn${best?' is-recommended':''}" onclick="pickCard('${it.name}')">${hot}이 카드 뽑기</button>`;
+    }
+    body.appendChild(div);
+  });
+
+  // bottom skip / end action
+  const action=document.createElement('div');
+  action.className='res-item res-skip-compact'+(skipBest?' best skip-best':'');
+  action.dataset.rank='skip';
+  const skipSummary = isShopMode ? '상점 구매를 끝내려면 구매 종료를 누르세요' : '지금은 스킵보다 집는 쪽이 낫습니다';
+  action.innerHTML=`<div class="res-title-row">${skipBest?'<span class="res-badge" style="background:#22c55e;color:#fff">추천</span>':''}<span class="res-title">${isShopMode?'구매 종료':'스킵'}</span></div><div class="res-summary">${skipSummary}</div><button class="res-compact-btn${skipBest?' is-recommended':''}" onclick="doSkip()"><span class="res-skip-keycap">\`</span>${isShopMode?'구매 종료':'스킵하기'}</button>`;
+  body.appendChild(action);
+};
+</script>
+<style>
+.shop-card-actions{
+  display:flex;
+  gap:8px;
+  margin-top:10px;
+}
+.shop-card-actions .res-compact-btn{
+  margin-top:0;
+  width:auto;
+  flex:1 1 0;
+}
+.shop-card-actions .shop-skip-btn{
+  background:transparent;
+  color:var(--sub);
+}
+</style>
+
+
+<script>
+(function(){
+  const blockedSearchTerms = new Set(['profile','icon','portrait','avatar']);
+  function normalizeText(v){
+    return (v || '').toString().trim().toLowerCase();
+  }
+  function isBlockedCardEntry(card){
+    if(!card) return false;
+    const fields = [
+      card.name, card.title, card.id, card.key, card.slug, card.image, card.img, card.type
+    ].map(normalizeText);
+
+    const joined = fields.join(' ');
+    if (joined.includes('profile')) return true;
+
+    const exact = fields.some(v => blockedSearchTerms.has(v));
+    if (exact) return true;
+
+    // image-only/profile-like dummy entries
+    if ((normalizeText(card.name) === 'profile') || (normalizeText(card.title) === 'profile')) return true;
+
+    return false;
+  }
+
+  const originalRenderSearchGrid = window.renderSearchGrid;
+  if (typeof originalRenderSearchGrid === 'function') {
+    window.renderSearchGrid = function(){
+      // try to filter the source array commonly used by the page
+      const candidateKeys = ['allCards','searchCards','cards','cardDb','CARD_DB'];
+      candidateKeys.forEach((k) => {
+        if (Array.isArray(window[k])) {
+          window[k] = window[k].filter(c => !isBlockedCardEntry(c));
+        }
+      });
+
+      const result = originalRenderSearchGrid.apply(this, arguments);
+
+      // DOM-level cleanup fallback
+      const grid = document.querySelector('#searchGridWrap, .search-grid, #searchGrid');
+      if (grid) {
+        [...grid.querySelectorAll('.sg-card, .search-card, .card')].forEach(el => {
+          const label = (el.textContent || '').trim().toLowerCase();
+          const img = (el.querySelector('img')?.getAttribute('src') || '').toLowerCase();
+          if (label === 'profile' || label.includes(' profile') || img.includes('profile')) {
+            el.remove();
+          }
+        });
+      }
+      return result;
+    };
+  }
+})();
+</script>
+
 </body>
 </html>
