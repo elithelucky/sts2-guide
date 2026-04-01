@@ -27,6 +27,9 @@ body.modal-lock{position:fixed;left:0;right:0;overflow:hidden;width:100%;touch-a
 .mode-tabs{display:flex;gap:0;margin-bottom:12px;border-radius:10px;overflow:hidden;border:1px solid var(--bd2);background:var(--bg)}
 .mode-tab{flex:1;padding:11px;background:none;border:none;color:var(--dk);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s}
 .mode-tab.on{background:var(--bd2);color:var(--tx);font-weight:700}
+.mode-tab{position:relative}
+.mode-tab-keycap{display:none;position:absolute;top:7px;right:8px;min-width:18px;height:18px;padding:0 5px;border-radius:6px;align-items:center;justify-content:center;font-size:10px;font-weight:800;line-height:1;color:#e5edf8;background:linear-gradient(180deg,#1f2937,#111827);border:1px solid rgba(148,163,184,.38);box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 3px 10px rgba(0,0,0,.35)}
+@media (min-width: 1024px){.mode-tab-keycap{display:inline-flex}.mode-tab{padding-right:34px}}
 
 .app-tabs{display:flex;gap:0;margin:12px 0 14px;border-radius:14px;overflow:hidden;border:1px solid var(--bd2);background:var(--s1);box-shadow:0 10px 28px rgba(0,0,0,.22)}
 .app-tab{position:relative;flex:1;padding:13px 10px;background:transparent;border:none;color:var(--sub);font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:.18s}
@@ -137,7 +140,7 @@ body.modal-lock{position:fixed;left:0;right:0;overflow:hidden;width:100%;touch-a
 .reward-slot:hover{border-color:var(--dim)}
 .reward-slot.filled{border-style:solid;border-color:var(--bd2)}
 .reward-slot .rs-ph{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--dk);font-weight:600;text-align:center;padding:0}.reward-slot .rs-ph .ph-plus{font-size:18px;line-height:1;opacity:.9}.reward-slot .rs-ph .ph-label{font-size:12px;line-height:1.25;opacity:.8}
-.reward-slot .rs-img{width:100%;height:100%;display:block;object-fit:cover;border-radius:8px}
+.reward-slot .rs-img{width:100%;height:100%;display:block;object-fit:contain;object-position:center center;border-radius:8px;padding:4px;background:transparent}
 .reward-slot .rs-name{position:absolute;bottom:0;left:0;right:0;padding:12px 4px 6px;background:linear-gradient(transparent,rgba(0,0,0,.88));font-size:13px;font-weight:700;color:#fff;text-align:center}
 .reward-slot .rs-tier{position:absolute;top:5px;right:5px;font-size:11px;font-weight:800;color:#fff;padding:3px 7px;border-radius:6px}
 .reward-slot .rs-clear{position:absolute;top:5px;left:5px;background:rgba(0,0,0,.5);border:none;color:#fff;font-size:14px;cursor:pointer;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
@@ -152,7 +155,7 @@ body.modal-lock{position:fixed;left:0;right:0;overflow:hidden;width:100%;touch-a
 .reward-row-shop,.reward-row-colorless{display:grid;gap:8px;margin-bottom:0}
 .reward-row-shop .reward-slot,.reward-row-colorless .reward-slot{height:88px;min-height:88px;aspect-ratio:auto}
 .reward-row-shop .reward-slot .rs-ph,.reward-row-colorless .reward-slot .rs-ph{height:100%}
-.reward-row-shop .reward-slot .rs-img,.reward-row-colorless .reward-slot .rs-img{width:100%;height:100%;object-fit:cover}
+.reward-row-shop .reward-slot .rs-img,.reward-row-colorless .reward-slot .rs-img{width:100%;height:100%;object-fit:contain;object-position:center center;padding:4px}
 .slot-dot.colorless{background:#374151}.slot-dot.on.colorless{background:#93c5fd}
 .slot-hint{margin:-2px 0 10px;font-size:12px;color:#93c5fd;font-weight:700}
 
@@ -358,9 +361,23 @@ body.modal-lock{position:fixed;left:0;right:0;overflow:hidden;width:100%;touch-a
   box-shadow:0 4px 12px rgba(0,0,0,.14)
 }
 .dk-ov-info{background:linear-gradient(180deg,#60a5fa,#3b82f6);color:#fff}.dk-ov-del{background:linear-gradient(180deg,#fb7185,#ef4444);color:#fff}
-.dk-add{border-radius:8px;border:2px dashed var(--dim);background:rgba(255,255,255,.03);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;aspect-ratio:3/4;transition:.15s}
+.dk-add{position:relative;border-radius:8px;border:2px dashed var(--dim);background:rgba(255,255,255,.03);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;aspect-ratio:3/4;transition:.15s}
 .dk-add:hover{border-color:var(--sub);background:rgba(255,255,255,.06)}
+
+.dk-add-keycap{position:absolute;top:6px;left:6px;min-width:20px;height:20px;padding:0 6px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#e5edf8;background:linear-gradient(180deg,#1f2937,#111827);border:1px solid rgba(148,163,184,.38);box-shadow:inset 0 1px 0 rgba(255,255,255,.14), 0 3px 10px rgba(0,0,0,.35);z-index:2}
+@media (max-width:768px){.dk-add-keycap{display:none}}
+.pc-result-desc{margin-bottom:12px !important;font-size:13px !important;color:var(--sub) !important;font-weight:700}
+@media (max-width: 1023px){
+  .pc-result-desc{display:none !important;}
+}
+
+
 .dk-add span{font-size:22px;color:var(--sub)}.dk-add small{font-size:10px;color:var(--sub);font-weight:700}
+.slot-open-keycap{position:absolute;top:6px;left:6px;min-width:20px;height:20px;padding:0 6px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#e5edf8;background:linear-gradient(180deg,#1f2937,#111827);border:1px solid rgba(148,163,184,.38);box-shadow:inset 0 1px 0 rgba(255,255,255,.14), 0 3px 10px rgba(0,0,0,.35);z-index:2}
+@media (max-width:768px){.slot-open-keycap{display:none}}
+.pc-pane-title{display:none}
+@media (min-width:1024px){.pc-pane-title{display:block}}
+
 /* 히스토리 */
 .hist-row{font-size:13px;color:var(--dk);padding:6px 0;border-bottom:1px solid #1a1c24;line-height:1.6;word-break:break-all}
 .hist-row:last-child{border:none}
@@ -1103,6 +1120,357 @@ body{
   }
 }
 
+
+
+/* ===== PC 3-column layout (real app) ===== */
+@media (min-width: 1180px){
+  body{
+    max-width:none !important;
+    margin:0 !important;
+    padding:24px 28px 80px !important;
+  }
+  .hdr,
+  .gnb-wrap,
+  .app-tabs{
+    max-width:1520px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  .gnb-wrap{margin-bottom:16px !important;}
+  .app-tabs{margin:14px auto 16px !important;}
+
+  #guideTab .guide-list{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    align-items:flex-start;
+  }
+  #guideTab .guide-card{
+    width:100%;
+    max-width:860px;
+    padding:16px 18px;
+    margin-left:0;
+    margin-right:0;
+  }
+  #guideTab .guide-title{font-size:18px;}
+  #guideTab .guide-desc{
+    display:-webkit-box;
+    -webkit-line-clamp:3;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+    max-width:72ch;
+  }
+  #guideTab .guide-meta{font-size:12px;}
+  #guideTab .guide-actions{
+    margin-top:10px;
+    justify-content:flex-start;
+  }
+  #guideTab .guide-btn{
+    width:auto;
+    justify-content:flex-start;
+    align-self:flex-start;
+    display:inline-flex;
+  }
+
+  /* 멀티 조합도 빌드 모음과 동일 폭/정렬 */
+  #guideTab #coopSection .guide-subsec{
+    width:100%;
+    max-width:860px;
+    margin-top:18px;
+  }
+  #guideTab #coopSection .guide-subttl{
+    margin:0 0 10px 2px;
+    text-align:left;
+  }
+  #guideTab #coopSection .coop-card{
+    width:100%;
+    max-width:860px;
+    padding:16px 18px;
+    margin-left:0;
+    margin-right:0;
+  }
+  #guideTab #coopSection .guide-actions{
+    justify-content:flex-start;
+  }
+
+  #liveTab{
+    max-width:1520px;
+    margin:0 auto 20px !important;
+    padding:20px !important;
+    border-radius:20px;
+  }
+  #guideTab{
+    max-width:1520px;
+    margin:0 auto 20px !important;
+  }
+  .pc-live-shell{
+    display:grid;
+    grid-template-columns:minmax(420px, 1.12fr) minmax(360px, .92fr) minmax(420px, 1.08fr);
+    gap:18px;
+    align-items:start;
+  }
+  .pc-col{min-width:0;}
+  .pc-pane{
+    background:rgba(255,255,255,.02);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:18px;
+    padding:16px;
+  }
+  .pc-pane + .pc-pane{margin-top:14px;}
+  .pc-pane-title{
+    font-size:15px;
+    font-weight:800;
+    color:#dce5f4;
+    margin:0 0 12px;
+    letter-spacing:-.01em;
+  }
+  .pc-col-center #resultSection,
+  .pc-col-right .pc-deck-pane,
+  .pc-col-left .pc-input-pane{margin-top:0 !important;}
+  .pc-col-center .pc-result-pane,
+  .pc-col-right .pc-deck-pane{position:sticky; top:18px;}
+  .pc-col-center .pc-result-pane{
+    max-height:calc(100vh - 36px);
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+  }
+  .pc-col-left .build-panel,
+  .pc-col-left #pickerSection,
+  .pc-col-center #resultSection,
+  .pc-col-right #deckCountRow,
+  .pc-col-right #deckGrid{border-top:none !important; margin-top:0 !important; padding-top:0 !important;}
+  .pc-col-left .build-panel{display:block !important;}
+  .pc-col-left .inline-picker{margin-top:0; padding-top:0; border-top:none;}
+  .pc-col-left .mode-tabs{margin-bottom:12px;}
+  .pc-col-left .reward-row{grid-template-columns:repeat(3, minmax(0,1fr)); gap:10px;}
+  .pc-col-left .reward-slot,
+  .pc-col-left .reward-row-shop .reward-slot,
+  .pc-col-left .reward-row-colorless .reward-slot{height:124px; min-height:124px;}
+  .pc-col-left .shop-slot-group.colorless{margin-top:14px;}
+  .pc-col-center .inline-result{display:block;}
+  .pc-col-center #resultSection{
+    display:flex !important;
+    flex-direction:column;
+    min-height:0;
+    flex:1 1 auto;
+  }
+  .pc-col-center #resultSection.open{
+    display:flex !important;
+  }
+  .pc-col-center #resultBody{
+    min-height:0;
+    overflow:auto;
+    padding-right:4px;
+  }
+  .pc-col-center #resultBody::-webkit-scrollbar{width:10px;}
+  .pc-col-center #resultBody::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:999px;border:2px solid transparent;background-clip:padding-box;}
+  .pc-col-center #resultSection .card-label{font-size:20px; margin-bottom:10px;}
+  .pc-col-center .recommend-hint{margin-bottom:10px; font-size:13px;}
+  .pc-col-center .res-item{padding:12px; border-radius:14px; margin-bottom:8px;}
+  .pc-col-center .res-item.res-compact-choice{padding:9px 10px;}
+  .pc-col-center .res-item.res-compact-choice .res-clickarea{gap:9px; align-items:flex-start;}
+  .pc-col-center .res-item.res-compact-choice .res-title{font-size:15px;}
+  .pc-col-center .res-item.res-compact-choice .res-badge{font-size:10px;padding:2px 7px;}
+  .pc-col-center .res-item.res-compact-choice .res-tier-pill{font-size:10px;padding:2px 7px;}
+  .pc-col-center .res-item.res-compact-choice .res-state{display:flex; margin:3px 0 4px; gap:4px; flex-wrap:wrap;}
+  .pc-col-center .res-item.res-compact-choice .res-chip{font-size:10px; padding:3px 7px;}
+  .pc-col-center .res-item.res-compact-choice .res-summary{font-size:11px; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; margin-bottom:0; color:#d7dbe5; line-height:1.35;}
+  .pc-col-center .res-item.res-compact-choice .res-note,
+  .pc-col-center .res-item.res-compact-choice .res-unlock-mini{display:none !important;}
+  .pc-col-center .res-item.res-compact-choice .res-compact-btn{margin-top:6px; padding:7px 9px; font-size:12px; border-radius:10px; position:relative; z-index:8; pointer-events:auto;}
+  .pc-col-center .res-skip-compact .res-compact-btn{position:relative; z-index:8; pointer-events:auto;}
+  .pc-col-center .res-item .res-clickarea{position:relative; z-index:1;}
+  .pc-col-center .res-skip-compact{padding:8px 10px;}
+  .pc-col-center .res-skip-compact .res-title{font-size:14px;}
+  .pc-col-center .res-skip-compact .res-summary{font-size:12px; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; margin-bottom:0;}
+  .pc-col-center .res-skip-compact .res-compact-btn{margin-top:7px; padding:8px 10px; font-size:12px;}
+  .pc-col-center .res-title{font-size:18px;}
+  .pc-col-center .res-summary{font-size:14px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
+  .pc-col-center .res-note,
+  .pc-col-center .res-reason{display:none;}
+  .pc-col-center .build-line,
+  .pc-col-center .build-meta,
+  .pc-col-center .build-next{font-size:13px;}
+  .pc-col-right #deckCountRow{display:flex !important; margin-bottom:12px;}
+  .pc-col-right .deck-count-note{font-size:15px;}
+  .pc-col-right #deckGrid{margin-top:0; grid-template-columns:repeat(5, minmax(0,1fr)); gap:10px;}
+  .pc-col-right .dk-card,
+  .pc-col-right .dk-add{border-radius:10px;}
+  .pc-col-right .dk-card .dk-name{font-size:12px; padding:10px 5px 7px;}
+  .pc-col-right .deck-reset{font-size:13px;}
+  .pc-col-right .dk-add small{font-size:11px;}
+  .pc-col-right .dk-add span{font-size:24px;}
+  .pc-col-left .card-label,
+  .pc-col-right .card-label{font-size:20px;}
+  .modal-box{max-width:1020px !important; height:84vh !important;}
+  .search-grid{grid-template-columns:repeat(5,1fr) !important; gap:10px;}
+  .sg-card{min-height:210px;}
+}
+
+
+.result-feedback{display:flex;align-items:center;gap:12px;padding:16px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.08);background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.02));margin-top:6px}
+.feedback-icon{width:30px;height:30px;border-radius:999px;display:flex;align-items:center;justify-content:center;background:rgba(34,197,94,.18);color:#86efac;font-weight:900;flex:0 0 auto;border:1px solid rgba(134,239,172,.32);box-shadow:0 0 0 1px rgba(34,197,94,.10), 0 0 14px rgba(34,197,94,.12);font-size:16px;line-height:1}
+.feedback-text{font-size:14px;font-weight:800;color:var(--tx);line-height:1.45}
+.dk-card.card-added{overflow:visible;z-index:5;animation:cardAddedGlow 1.25s ease-out}
+.dk-card.card-added::after{content:'';position:absolute;inset:-22px;border-radius:22px;pointer-events:none;background:radial-gradient(circle, rgba(34,197,94,.52) 0, rgba(34,197,94,.26) 30%, rgba(34,197,94,.10) 48%, rgba(34,197,94,0) 74%);animation:cardAddedHalo 1.05s ease-out}
+.dk-card.card-added .confetti-bit{position:absolute;width:10px;height:14px;border-radius:3px;pointer-events:none;opacity:0;animation:confettiBurst 1s ease-out forwards;z-index:8;box-shadow:0 0 12px rgba(255,255,255,.18)}
+@keyframes cardAddedGlow{0%{box-shadow:0 0 0 rgba(34,197,94,0), 0 0 0 rgba(16,185,129,0)}35%{box-shadow:0 0 26px rgba(34,197,94,.55), 0 0 48px rgba(16,185,129,.26)}100%{box-shadow:0 0 0 rgba(34,197,94,0), 0 0 0 rgba(16,185,129,0)}}
+@keyframes cardAddedHalo{0%{opacity:.95;transform:scale(.78)}100%{opacity:0;transform:scale(1.4)}}
+@keyframes confettiBurst{0%{opacity:0;transform:translate(0,0) scale(.4) rotate(0deg)}16%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.14) rotate(240deg)}}
+
+
+@media (max-width:768px){.pc-result-desc{display:none !important;}}
+
+/* HOTKEY BADGE FIX */
+.search-card .hotkey-badge{
+  position:absolute;
+  top:4px;
+  left:4px;
+  width:28px;
+  height:28px;
+  font-size:14px;
+  font-weight:700;
+  background:rgba(0,0,0,0.85);
+  border-radius:6px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:5;
+}
+
+
+/* SEARCH KEYCAP SIZE FIX */
+.search-keycap {
+  position:absolute;
+  top:4px;
+  left:4px;
+  width:34px;
+  height:34px;
+  font-size:16px;
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,0.9);
+  color:#fff;
+  border-radius:8px;
+  z-index:10;
+  box-shadow:0 2px 6px rgba(0,0,0,0.5);
+}
+
+
+/* ONBOARDING FLICKER FIX */
+.onboarding {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.onboarding.show {
+  opacity: 1;
+}
+
+
+@media (min-width: 1024px) {
+  .res-tier-pill {
+    font-size: 14px;
+    padding: 4px 8px;
+    border-radius: 8px;
+  }
+}
+
+
+/* MATCH TIER WITH KEYCAP */
+.sg-tier{
+  position:absolute;
+  top:4px;
+  right:4px;
+  min-width:34px;
+  width:34px;
+  height:34px;
+  padding:0;
+  font-size:16px;
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:8px;
+  z-index:10;
+  line-height:1;
+}
+
+
+/* ONBOARDING HARD FIX */
+.onboarding {
+  visibility:hidden;
+  opacity:0;
+}
+.onboarding.show {
+  visibility:visible;
+  opacity:1;
+  transition:opacity 0.15s ease;
+}
+
+
+/* ONBOARDING POSITION READY FIX */
+.hx-onboard-overlay.show .hx-bubble,
+.hx-onboard-overlay.show .hx-spot,
+.hx-onboard-overlay.show .hx-dim{
+  visibility:hidden;
+}
+.hx-onboard-overlay.show.ready .hx-bubble,
+.hx-onboard-overlay.show.ready .hx-spot,
+.hx-onboard-overlay.show.ready .hx-dim{
+  visibility:visible;
+}
+
+
+/* FORCE SG TIER SIZE TO MATCH SEARCH KEYCAP */
+.sg-tier{
+  position:absolute;
+  top:4px;
+  right:4px;
+  width:34px !important;
+  min-width:34px !important;
+  height:34px !important;
+  padding:0 !important;
+  font-size:16px !important;
+  font-weight:700 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  border-radius:8px !important;
+  line-height:1 !important;
+  z-index:10 !important;
+}
+
+
+/* SEARCH RESULT CARD SEPARATION */
+.search-grid{
+  gap:14px !important;
+}
+.sg-card{
+  background:rgba(255,255,255,0.03) !important;
+  border:1px solid rgba(255,255,255,0.08) !important;
+  border-radius:14px !important;
+  padding:8px !important;
+  box-shadow:0 2px 10px rgba(0,0,0,0.18);
+  overflow:hidden !important;
+}
+.sg-card img,
+.sg-card .sg-ph{
+  border-radius:10px !important;
+}
+.sg-card:hover{
+  transform:translateY(-2px);
+  border-color:rgba(255,255,255,0.18) !important;
+  box-shadow:0 8px 22px rgba(0,0,0,0.28);
+}
+@media (min-width: 1024px){
+  .search-grid{
+    gap:16px !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -1118,12 +1486,11 @@ body{
   <div class="build-panel" id="buildPanel"><div class="builds" id="buildBtns"></div><div class="build-info" id="buildInfo"></div></div>
   <div class="inline-picker" id="pickerSection">
     <div class="mode-tabs">
-      <button class="mode-tab on" id="modeReward" onclick="setMode('reward')">보상 카드</button>
-      <button class="mode-tab" id="modeShop" onclick="setMode('shop')">상점 구매</button>
+      <button class="mode-tab on" id="modeReward" onclick="setMode('reward')">보상 카드<span class="mode-tab-keycap">Q</span></button>
+      <button class="mode-tab" id="modeShop" onclick="setMode('shop')">상점 구매<span class="mode-tab-keycap">W</span></button>
     </div>
     <div class="reward-row" id="rewardRow"></div>
-    <div class="inline-result" id="resultSection" style="display:none"><div class="card-label">추천 결과</div>
-<div class="recommend-hint">숫자키(1~3)로 바로 선택</div><div id="resultBody"></div></div>
+    <div class="inline-result" id="resultSection" style="display:none"><div class="recommend-hint pc-result-desc">보상 또는 상점 카드 선택.</div><div id="resultBody"></div></div>
   </div>
   <div class="deck-divider"></div>
   <div class="deck-count-row"><div class="deck-count-note" id="deckCountNote">현재 덱 <strong>0장</strong></div><button class="deck-reset" onclick="resetAll()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15.55-6.36L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15.55 6.36L3 16"/></svg>초기화</button></div>
@@ -1700,6 +2067,9 @@ let activeSlot=-1;
 let hist=[];
 let __deckSeq=1;
 let deckIds=(START_DECKS[curChar]||[]).map(()=>__deckSeq++);
+let lastActionMessage='';
+let lastActionKind='';
+let recentAddedDeckId=null;
 var upgradedIds = new Set();
 window.upgradedIds = upgradedIds;
 let deckOpen=true;
@@ -1712,7 +2082,9 @@ function isUpgradedCardIdx(idx){
   }
   return upgradedIds.has(idx);
 }
-function pushDeckCard(name){ deck.push(name); deckIds.push(__deckSeq++); }
+function pushDeckCard(name){ deck.push(name); const newId=__deckSeq++; deckIds.push(newId); recentAddedDeckId=newId; }
+function setLastAction(message, kind='info'){ lastActionMessage=message; lastActionKind=kind; }
+function clearLastAction(){ lastActionMessage=''; lastActionKind=''; }
 function removeDeckCardAt(idx){
   deck.splice(idx,1);
   if(!(upgradedIds instanceof Set)){
@@ -2457,10 +2829,11 @@ function renderRewardRow(){
   document.getElementById('modeReward').className='mode-tab'+(mode==='reward'?' on':'');
   document.getElementById('modeShop').className='mode-tab'+(mode==='shop'?' on':'');
   const row=document.getElementById('rewardRow');row.innerHTML='';
+  const firstEmptyIdx = picks.findIndex(v=>!v);
 
   const makeSlot=(i)=>{const slot=document.createElement('div');slot.className='reward-slot'+(picks[i]?' filled':'');slot.onclick=()=>openSearch(i);
     if(picks[i]){const c=getCardMeta(picks[i]);const img=makeImg(picks[i],'rs');img.className='rs-img';slot.appendChild(img);slot.innerHTML+=`<div class="rs-name">${picks[i]}</div>`;if(c)slot.innerHTML+=`<span class="rs-tier tier-${c.tier}">${c.tier}</span>`;const clr=document.createElement('button');clr.className='rs-clear';clr.innerHTML='✕';clr.onclick=e=>{e.stopPropagation();picks[i]='';renderAll()};slot.appendChild(clr)}
-    else{slot.innerHTML=`<div class="rs-ph"><div class="ph-plus">+</div><div class="ph-label">${getSlotLabel(i).replace(/^상점 |^중립 /,'')}</div></div>`}
+    else{slot.innerHTML=`${window.innerWidth>768 && i===firstEmptyIdx ? '<div class="slot-open-keycap">E</div>' : ''}<div class="rs-ph"><div class="ph-plus">+</div><div class="ph-label">${getSlotLabel(i).replace(/^상점 |^중립 /,'')}</div></div>`}
     return slot;};
 
   if(mode==='shop'){
@@ -2519,13 +2892,24 @@ function renderSearchGrid(){
 function renderResult(scored,skipScore){
   const sec=document.getElementById('resultSection');
   const body=document.getElementById('resultBody');
+  const desc=sec.querySelector('.pc-result-desc');
+  const isPc=window.innerWidth>768;
+  if(desc) desc.style.display = isPc ? '' : 'none';
+
   if(!scored){
-    sec.style.display='none';
-    sec.classList.remove('open');
+    body.innerHTML = lastActionMessage ? `<div class="result-feedback result-feedback-${lastActionKind||'info'}"><div class="feedback-icon">✓</div><div class="feedback-text">${lastActionMessage}</div></div>` : '';
+    if(isPc){
+      sec.style.display='';
+      sec.classList.add('open');
+    }else{
+      if(lastActionMessage){ sec.style.display=''; sec.classList.add('open'); }
+      else { sec.style.display='none'; sec.classList.remove('open'); }
+    }
     return;
   }
   sec.style.display='';
   sec.classList.add('open');
+  clearLastAction();
   body.innerHTML='';
 
   const isShopMode = mode==='shop';
@@ -2551,32 +2935,26 @@ function renderResult(scored,skipScore){
   }
 
   const entries = [];
-  if(skipBest){
-    entries.push({type:'skip', best:true});
-  }
-  scored.forEach((it,i)=>{
-    entries.push({type:'card', item:it, best:!skipBest && i===0 && it.score>skipScore && (it.score-skipScore>=8 || !it.warn)});
-  });
-  if(!skipBest){
-    entries.push({type:'skip', best:false});
-  }
+  if(skipBest){ entries.push({type:'skip', best:true}); }
+  scored.forEach((it,i)=>{ entries.push({type:'card', item:it, best:!skipBest && i===0 && it.score>skipScore && (it.score-skipScore>=8 || !it.warn)}); });
+  if(!skipBest){ entries.push({type:'skip', best:false}); }
 
+  let cardHotkeyIndex = 1;
   entries.forEach((entry, idx)=>{
-    const hotkey = (window.innerWidth>768 && idx<9) ? idx+1 : null;
+    const hotkey = window.innerWidth>768 ? (entry.type==='skip' ? '`' : (cardHotkeyIndex<=9 ? cardHotkeyIndex++ : null)) : null;
 
     if(entry.type==='card'){
       const it = entry.item;
       const best = !!entry.best;
       const div=document.createElement('div');
-      div.className='res-item'+(best?' best':'');
+      div.className='res-item'+(best?' best':'')+(!best?' res-compact-choice':'');
+      div.dataset.rank = String(idx+1);
       const head=document.createElement('div');
       head.className='res-clickarea';
       head.onclick=()=>showDetail(it.name);
-
       const imgEl=makeImg(it.name,'sg');
-      imgEl.style.cssText='width:70px;border-radius:8px;flex-shrink:0;border:1px solid var(--bd2)';
+      imgEl.style.cssText='width:'+(best?'70px':'44px')+';border-radius:8px;flex-shrink:0;border:1px solid var(--bd2)';
       head.appendChild(imgEl);
-
       let info='<div style="flex:1;min-width:0">';
       info+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">';
       if(best) info+=`<span class="res-badge" style="background:#22c55e">추천</span>`;
@@ -2584,35 +2962,32 @@ function renderResult(scored,skipScore){
       const tierStyle = (skipBest && it.tier==='S') ? ' style="opacity:.62;filter:saturate(.7) brightness(.92)"' : '';
       info+=`<span class="res-tier-pill tier-${it.tier}"${tierStyle}>${it.tier}</span>`;
       info+='</div>';
-
-      if(it.chips?.length){
-        info+='<div class="res-state">';
-        Array.from(new Map((it.chips||[]).map(ch=>[ch[1],ch])).values()).slice(0,2).forEach(ch=>{info+=`<span class="res-chip ${ch[0]}">${ch[1]}</span>`});
-        info+='</div>';
+      const compactChips = Array.from(new Map((it.chips||[]).map(ch=>[ch[1],ch])).values());
+      if(!compactChips.length){
+        const txt=`${it.summary||''} ${(it.reasons||[]).join(' ')}`;
+        if(/오프빌드/.test(txt)) compactChips.push(['bad','오프빌드']);
+        else if(/빌드 시동/.test(txt)) compactChips.push(['mid','빌드 시동']);
+        else if(/빌드 후보/.test(txt)) compactChips.push(['mid','빌드 후보']);
+        else if(/범용/.test(txt)) compactChips.push(['mid','범용']);
+        else if(/지금 강함|전투력|초반 안정성/.test(txt)) compactChips.push(['good','지금 강함']);
       }
-
+      if(compactChips.length){ info+='<div class="res-state">'; compactChips.slice(0,2).forEach(ch=>{info+=`<span class="res-chip ${ch[0]}">${ch[1]}</span>`}); info+='</div>'; }
       info+=`<div class="res-summary">${it.summary}</div>`;
       if(UNLOCK[it.name]) info+=`<div class="res-unlock-mini">🔒 해금 필요</div>`;
-      if(it.reasons?.length) info+=`<div class="res-note">${it.reasons[0]}</div>`;
+      if(best && it.reasons?.length) info+=`<div class="res-note">${it.reasons[0]}</div>`;
       info+='</div>';
-
       head.innerHTML+=info;
       div.appendChild(head);
-
       const hot = hotkey ? `<span class="res-action-keycap">${hotkey}</span>` : '';
       div.innerHTML+=`<button class="res-compact-btn${best?' is-recommended':''}" onclick="pickCard('${it.name}')">${hot}${isShopMode?'이 카드 구매':'이 카드 뽑기'}</button>`;
       body.appendChild(div);
     }else{
       const sk=document.createElement('div');
-      sk.className='res-item'+(entry.best?' best skip-best':'');
+      sk.className='res-item res-skip-compact'+(entry.best?' best skip-best':'');
+      sk.dataset.rank = 'skip';
       const hot = hotkey ? `<span class="res-skip-keycap">${hotkey}</span>` : '';
       sk.innerHTML=`<div class="res-title-row">${entry.best?'<span class="res-badge" style="background:#22c55e;color:#fff">추천</span>':''}<span class="res-title">${isShopMode?'상점 종료':'스킵'}</span></div><div class="res-summary">${skipSummary}</div><button class="res-compact-btn${entry.best?' is-recommended':''}" onclick="doSkip()">${hot}${isShopMode?'구매 종료':'스킵하기'}</button>`;
       body.appendChild(sk);
-      if(entry.best){
-        requestAnimationFrame(()=>{
-          try{ sk.scrollIntoView({block:'center', behavior:'smooth'}); }catch(e){}
-        });
-      }
     }
   });
 }
@@ -2710,9 +3085,22 @@ function renderDeck(){
   const hints=getDeckActionHints();
   deck.forEach((name,i)=>{const iM=a&&a.must.includes(name);const iR=a&&a.rec.includes(name);const upgradedNow=isUpgradedCardIdx(i);
     const wrap=document.createElement('div');wrap.className='dk-wrap'+(selectedDeckIdx===i?' selected':'');
-    const el=document.createElement('div');el.className='dk-card'+(iM?' must':iR?' rec':'')+(upgradedNow?' upgraded':'');
+    const el=document.createElement('div');const addedNow=(deckIds[i]===recentAddedDeckId);el.className='dk-card'+(iM?' must':iR?' rec':'')+(upgradedNow?' upgraded':'')+(addedNow?' card-added':'');
     el.onclick=(e)=>{e.stopPropagation();selectedDeckIdx=selectedDeckIdx===i?-1:i;renderDeck()};
-    const img=makeImg(name,'dk');el.appendChild(img);
+    const img=makeImg(name,'dk');el.appendChild(img); if(addedNow){ const confettiSpec=[
+      {l:'12%',t:'18%',dx:'-56px',dy:'-76px',bg:'#22c55e',delay:'0s'},
+      {l:'24%',t:'10%',dx:'-22px',dy:'-92px',bg:'#fbbf24',delay:'.02s'},
+      {l:'42%',t:'4%',dx:'-4px',dy:'-108px',bg:'#60a5fa',delay:'.04s'},
+      {l:'58%',t:'4%',dx:'12px',dy:'-102px',bg:'#a78bfa',delay:'.01s'},
+      {l:'74%',t:'12%',dx:'38px',dy:'-84px',bg:'#f472b6',delay:'.06s'},
+      {l:'88%',t:'22%',dx:'62px',dy:'-58px',bg:'#f97316',delay:'.08s'},
+      {l:'10%',t:'42%',dx:'-64px',dy:'-16px',bg:'#34d399',delay:'.03s'},
+      {l:'20%',t:'60%',dx:'-48px',dy:'14px',bg:'#fde047',delay:'.05s'},
+      {l:'50%',t:'58%',dx:'0px',dy:'28px',bg:'#38bdf8',delay:'.07s'},
+      {l:'78%',t:'56%',dx:'48px',dy:'12px',bg:'#fb7185',delay:'.09s'},
+      {l:'90%',t:'38%',dx:'70px',dy:'-8px',bg:'#c084fc',delay:'.11s'},
+      {l:'50%',t:'20%',dx:'0px',dy:'-122px',bg:'#facc15',delay:'.03s'}
+    ]; confettiSpec.forEach(spec=>{ const cf=document.createElement('span'); cf.className='confetti-bit'; cf.style.left=spec.l; cf.style.top=spec.t; cf.style.setProperty('--dx',spec.dx); cf.style.setProperty('--dy',spec.dy); cf.style.background=spec.bg; cf.style.animationDelay=spec.delay; el.appendChild(cf); }); }
     let actionBadge='';
     if(hints.removeIdx===i) actionBadge=`<div class="dk-action-label"><span class="dk-action-pill remove">제거추천</span></div>`;
     else if(hints.upgradeIdx===i && !upgradedNow) actionBadge=`<div class="dk-action-label"><span class="dk-action-pill upgrade">강화추천</span></div>`;
@@ -2805,9 +3193,13 @@ function renderAll(scrollMode='none'){
   syncTabVisibility();
   const filled=picks.filter(Boolean);
   if(filled.length){const scored=filled.map(n=>({name:n,...scoreCard(n)})).sort((a,b)=>b.score-a.score);renderResult(scored,getSkipScore())}else{renderResult(null)}
+  if(recentAddedDeckId!=null){ setTimeout(()=>{ recentAddedDeckId=null; const g=document.getElementById('deckGrid'); if(g) renderDeck(); }, 1200); }
   const need=getNeedCount();
   if(currentTab==='live' && scrollMode==='to-result' && filled.length===need) scrollToRecommendations();
-  if(currentTab==='live' && scrollMode==='to-picker') scrollToPickerTop();
+  if(currentTab==='live' && scrollMode==='to-picker'){
+    if(window.innerWidth<=768) scrollToBuildButtons();
+    else scrollToPickerTop();
+  }
 }
 
 
@@ -2818,6 +3210,11 @@ function scrollToRecommendations(){
 }
 function scrollToPickerTop(){
   const sec=document.getElementById('pickerSection');
+  if(!sec) return;
+  setTimeout(()=>sec.scrollIntoView({behavior:'smooth',block:'start'}),60);
+}
+function scrollToBuildButtons(){
+  const sec=document.getElementById('buildBtns') || document.getElementById('buildPanel');
   if(!sec) return;
   setTimeout(()=>sec.scrollIntoView({behavior:'smooth',block:'start'}),60);
 }
@@ -2947,27 +3344,114 @@ function finalizeShopCycle(actionName='상점 종료'){const from=picks.filter(B
 function buyShopCard(name){
   const from=picks.filter(Boolean);
   pushDeckCard(name);
+  setLastAction(`${name} 카드를 현재 덱에 추가했습니다.`, 'success');
   hist.push({p:`구매:${name}`,f:from});
-  const remain = from.filter(p=>p!==name);
-  picks = [...remain];
-  while(picks.length<SHOP_SLOT_COUNT) picks.push('');
   deckAddMode=false;
   activeSlot=-1;
-  renderAll(remain.length ? 'to-result' : 'to-picker');
+  picks=freshPicks();
+  renderAll('to-picker');
 }
 function pickCard(name){
   if(mode==='shop'){ buyShopCard(name); return; }
   pushDeckCard(name);
+  setLastAction(`${name} 카드를 현재 덱에 추가했습니다.`, 'success');
   finalizeRewardCycle(name);
 }
 function doSkip(){
-  if(mode==='shop'){ finalizeShopCycle('상점 종료'); return; }
-  finalizeRewardCycle('스킵');
+  const from=picks.filter(Boolean);
+  setLastAction(mode==='shop' ? '현재 상점 카드를 스킵했습니다.' : '현재 보상 카드를 스킵했습니다.', 'info');
+  if(mode==='shop'){
+    if(from.length) hist.push({p:'상점 종료',f:from});
+  }else{
+    if(from.length) hist.push({p:'스킵',f:from});
+  }
+  deckAddMode=false;
+  activeSlot=-1;
+  picks=freshPicks();
+  renderAll('to-picker');
 }
 function toggleBuildPanel(){}
 function toggleHistory(){}
 function toggleDeck(){}
 function resetAll(){deck=[...START_DECKS[curChar]];deckIds=deck.map(()=>__deckSeq++);upgradedIds = new Set();window.upgradedIds = upgradedIds;hist=[];picks=freshPicks();deckOpen=true;buildId=null;selectedDeckIdx=-1;historyOpen=false;buildPanelOpen=true;renderAll()}
+
+function isTypingTarget(el){
+  if(!el) return false;
+  if(el.isContentEditable) return true;
+  const tag=(el.tagName||'').toUpperCase();
+  return tag==='INPUT' || tag==='TEXTAREA' || tag==='SELECT';
+}
+function isSearchModalOpen(){
+  return document.getElementById('searchModal').classList.contains('open');
+}
+function openPrimaryCardSearch(){
+  if(currentTab!=='live') return;
+  if(isSearchModalOpen()) return;
+  const count=getNeedCount();
+  let target=picks.findIndex(v=>!v);
+  if(target<0) target=Math.max(0,count-1);
+  openSearch(target);
+}
+function handleGlobalHotkeys(e){
+  if(e.isComposing || e.ctrlKey || e.metaKey || e.altKey) return;
+  if(e.repeat) return;
+  const activeEl=document.activeElement;
+  if(isTypingTarget(activeEl)) return;
+
+  if(e.code==='Backquote'){
+    if(isSearchModalOpen() || currentTab!=='live') return;
+    const resultWrap=document.getElementById('resultSection');
+    const resultVisible=!!resultWrap && (resultWrap.classList.contains('open') || resultWrap.style.display!== 'none');
+    if(!resultVisible) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if(typeof e.stopImmediatePropagation==='function') e.stopImmediatePropagation();
+    const skipBtn = document.querySelector('#resultBody .res-skip-compact .res-compact-btn');
+    if(skipBtn){
+      skipBtn.click();
+    }else{
+      doSkip();
+    }
+    return false;
+  }
+
+  if(e.defaultPrevented) return;
+  if(e.code==='KeyQ'){
+    if(currentTab!=='live' || isSearchModalOpen()) return;
+    e.preventDefault();
+    setMode('reward');
+    return;
+  }
+  if(e.code==='KeyW'){
+    if(currentTab!=='live' || isSearchModalOpen()) return;
+    e.preventDefault();
+    setMode('shop');
+    return;
+  }
+  if(e.code==='KeyE'){
+    if(isSearchModalOpen()) return;
+    e.preventDefault();
+    openPrimaryCardSearch();
+    return;
+  }
+  if(e.code==='Escape'){
+    if(isSearchModalOpen()){
+      e.preventDefault();
+      closeSearch();
+      return;
+    }
+  }
+}
+
+document.addEventListener('keydown', handleGlobalHotkeys, true);
+
+document.addEventListener('click', function(e){
+  const btn = e.target.closest && e.target.closest('#resultBody .res-skip-compact .res-compact-btn');
+  if(!btn) return;
+  e.preventDefault();
+  e.stopPropagation();
+  doSkip();
+}, true);
 
 document.getElementById('modalInput').addEventListener('keydown',function(e){
   if(e.isComposing||e.ctrlKey||e.metaKey||e.altKey) return;
@@ -2996,7 +3480,7 @@ document.addEventListener('keydown', function(e){
   const idx='123456789'.indexOf(e.key);
   if(idx===-1) return;
   const visible=(el)=>{ if(!el) return false; const r=el.getBoundingClientRect(); const cs=getComputedStyle(el); return r.width>0 && r.height>0 && cs.display!=='none' && cs.visibility!=='hidden'; };
-  const actions=[...document.querySelectorAll('.res-item .res-compact-btn')].filter(visible);
+  const actions=[...document.querySelectorAll('.res-item:not(.res-skip-compact) .res-compact-btn')].filter(visible);
   if(actions.length && idx<actions.length){
     e.preventDefault();
     e.stopPropagation();
@@ -3095,9 +3579,12 @@ document.addEventListener('keydown', function(e){
   const SEARCH_INPUT_KEY = 'hailot_hint_search_input_v31';
   const SEARCH_RESULT_KEY = 'hailot_hint_search_result_v31';
 
+  const isPCOnboard = () => window.matchMedia('(min-width: 1180px)').matches;
+  const withHotkeys = (base, hotkeys) => isPCOnboard() ? `${base} ${hotkeys}` : base;
+
   const introSteps = [
-    { target: '.app-tab:nth-child(1)', text: '카드 뭐 뽑지에서 지금 뽑을 카드를 추천받아요' },
-    { target: '.app-tab:nth-child(2)', text: '빌드모음에서 완성된 빌드와 필요한 카드를 볼 수 있어요' }
+    { target: '.app-tab:nth-child(1)', text: '지금 덱 상태에 따라 어떤 카드를 뽑아야 할지 추천받을 수 있어요' },
+    { target: '.app-tab:nth-child(2)', text: '이곳에서 완성된 빌드를 볼 수 있어요' }
   ];
   let introIdx = 0;
   let mode = null; // 'intro' or 'hint'
@@ -3172,10 +3659,22 @@ document.addEventListener('keydown', function(e){
   }
 
   function openOverlay(){
-    $('hxOverlay').classList.add('show');
+    const overlay = $('hxOverlay');
+    overlay.classList.add('show');
+    overlay.classList.remove('ready');
+  }
+  function markOverlayReady(){
+    const overlay = $('hxOverlay');
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        overlay.classList.add('ready');
+      });
+    });
   }
   function closeOverlay(){
-    $('hxOverlay').classList.remove('show');
+    const overlay = $('hxOverlay');
+    overlay.classList.remove('ready');
+    overlay.classList.remove('show');
     mode = null;
     currentHint = null;
   }
@@ -3183,13 +3682,16 @@ document.addEventListener('keydown', function(e){
   function renderIntro(){
     mode = 'intro';
     const step = introSteps[introIdx];
+    const target = q(step.target);
+    if(!target) return;
     $('hxStep').textContent = `STEP ${introIdx + 1} / ${introSteps.length}`;
     $('hxText').textContent = step.text;
     $('hxSkip').style.display = 'inline-block';
     $('hxPrev').style.display = introIdx === 0 ? 'none' : 'inline-block';
     $('hxNext').textContent = introIdx === introSteps.length - 1 ? '완료' : '다음';
     openOverlay();
-    setTimeout(() => positionOverlay(q(step.target)), 80);
+    positionOverlay(target);
+    markOverlayReady();
   }
 
   function startIntro(){
@@ -3212,7 +3714,8 @@ document.addEventListener('keydown', function(e){
     $('hxPrev').style.display = 'none';
     $('hxNext').textContent = '확인';
     openOverlay();
-    setTimeout(() => positionOverlay(target), 80);
+    positionOverlay(target);
+    markOverlayReady();
   }
 
   function finishCurrent(){
@@ -3227,6 +3730,16 @@ document.addEventListener('keydown', function(e){
       return;
     }
     if(mode === 'hint' && currentHint){
+      if(currentHint.key === SEARCH_INPUT_KEY){
+        try{ localStorage.setItem(SEARCH_INPUT_KEY, '1'); }catch(e){}
+        const input = $('modalInput');
+        if(input && !input.value){
+          input.value = 'ㅌㄱ';
+          if(typeof renderSearchGrid === 'function') renderSearchGrid();
+        }
+        showHint(SEARCH_RESULT_KEY, '#searchGridWrap .sg-card', isPCOnboard() ? '1~9 단축키로 카드를 선택할 수 있어요' : '카드를 눌러 선택할 수 있어요');
+        return;
+      }
       try{ localStorage.setItem(currentHint.key, '1'); }catch(e){}
       closeOverlay();
     }
@@ -3258,31 +3771,47 @@ document.addEventListener('keydown', function(e){
       originalSetAppTab(tab);
       setTimeout(() => {
         if(tab === 'live'){
-          showHint(LIVE_PICKER_KEY, '#pickerSection', '보상 카드나 상점 구매에서 카드를 선택해보세요');
+          showHint(LIVE_PICKER_KEY, '#pickerSection', isPCOnboard() ? '카드를 선택하면 추천받을 수 있어요. 단축키로 편리하게 쓸 수 있어요.' : '카드를 선택하면 추천받을 수 있어요');
         }
       }, 120);
     };
   }
 
-  // patch openDeckAdd for search hint
+  // patch openDeckAdd: modal opens normally, onboarding starts when search input is focused
   const originalOpenDeckAdd = typeof openDeckAdd === 'function' ? openDeckAdd : null;
   if(originalOpenDeckAdd){
     window.openDeckAdd = function(){
       originalOpenDeckAdd();
-      setTimeout(() => {
-        showHint(SEARCH_INPUT_KEY, '#modalInput', '카드 초성으로 빠르게 검색할 수 있어요');
-      }, 120);
     };
   }
 
-  // patch renderSearchGrid for result hint
+
+  // search onboarding starts on input focus/click, not immediately on modal open
+  const searchInput = $('modalInput');
+  if(searchInput){
+    const triggerSearchInputHint = function(){
+      try{
+        if(localStorage.getItem(SEARCH_INPUT_KEY)) return;
+      }catch(e){}
+      if(!$('searchModal') || !$('searchModal').classList.contains('open')) return;
+      if(mode === 'hint' && currentHint && (currentHint.key === SEARCH_INPUT_KEY || currentHint.key === SEARCH_RESULT_KEY)) return;
+
+      if(!searchInput.value){
+        searchInput.value = 'ㅌㄱ';
+        if(typeof renderSearchGrid === 'function') renderSearchGrid();
+      }
+      showHint(SEARCH_INPUT_KEY, '#modalInput', '초성으로 카드를 검색할 수 있어요');
+    };
+
+    searchInput.addEventListener('focus', triggerSearchInputHint);
+    searchInput.addEventListener('click', triggerSearchInputHint);
+  }
+
+  // patch renderSearchGrid: result hint is shown only after search-input onboarding step is confirmed
   const originalRenderSearchGrid = typeof renderSearchGrid === 'function' ? renderSearchGrid : null;
   if(originalRenderSearchGrid){
     window.renderSearchGrid = function(){
       const result = originalRenderSearchGrid.apply(this, arguments);
-      setTimeout(() => {
-        showHint(SEARCH_RESULT_KEY, '#searchGridWrap .sg-card', '숫자키로 카드를 고르고 ESC로 창을 닫을 수 있어요');
-      }, 120);
       return result;
     };
   }
@@ -3443,6 +3972,101 @@ document.addEventListener('keydown', function (e) {
     </div>
   </div>
 </div>
+
+
+<script>
+(function(){
+  function applyPcLayout(){
+    const liveTab=document.getElementById('liveTab');
+    if(!liveTab || document.querySelector('.pc-live-shell')) return;
+    const buildPanel=document.getElementById('buildPanel');
+    const pickerSection=document.getElementById('pickerSection');
+    const resultSection=document.getElementById('resultSection');
+    const deckCountRow=document.querySelector('.deck-count-row');
+    const deckGrid=document.getElementById('deckGrid');
+    const deckDivider=document.querySelector('#liveTab .deck-divider');
+    if(!buildPanel || !pickerSection || !resultSection || !deckCountRow || !deckGrid) return;
+
+    const shell=document.createElement('div');
+    shell.className='pc-live-shell';
+
+    const left=document.createElement('section');
+    left.className='pc-col pc-col-left';
+    const leftPane=document.createElement('div');
+    leftPane.className='pc-pane pc-input-pane';
+    const leftTitle=document.createElement('div');
+    leftTitle.className='pc-pane-title';
+    leftTitle.textContent='카드 선택';
+    const descEl = resultSection.querySelector('.pc-result-desc');
+    if(descEl) descEl.textContent='보상 또는 상점 카드 선택.';
+    leftPane.appendChild(leftTitle);
+    leftPane.appendChild(buildPanel);
+    leftPane.appendChild(pickerSection);
+    left.appendChild(leftPane);
+
+    const center=document.createElement('section');
+    center.className='pc-col pc-col-center';
+    const centerPane=document.createElement('div');
+    centerPane.className='pc-pane pc-result-pane';
+    const centerTitle=document.createElement('div');
+    centerTitle.className='pc-pane-title';
+    centerTitle.textContent='추천 결과';
+    centerPane.appendChild(centerTitle);
+    centerPane.appendChild(resultSection);
+    center.appendChild(centerPane);
+
+    const right=document.createElement('section');
+    right.className='pc-col pc-col-right';
+    const rightPane=document.createElement('div');
+    rightPane.className='pc-pane pc-deck-pane';
+    const rightTitle=document.createElement('div');
+    rightTitle.className='pc-pane-title';
+    rightTitle.textContent='현재 덱';
+    rightPane.appendChild(rightTitle);
+    deckCountRow.id='deckCountRow';
+    rightPane.appendChild(deckCountRow);
+    rightPane.appendChild(deckGrid);
+    right.appendChild(rightPane);
+
+    shell.appendChild(left);
+    shell.appendChild(center);
+    shell.appendChild(right);
+
+    if(deckDivider) deckDivider.remove();
+    liveTab.appendChild(shell);
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded', applyPcLayout);
+  }else{
+    applyPcLayout();
+  }
+})();
+</script>
+
+
+<script>
+function showOnboarding(el){
+  el.style.opacity = 0;
+  requestAnimationFrame(()=>{
+    el.classList.add('show');
+  });
+}
+</script>
+
+
+<script>
+function showOnboarding(el){
+  el.style.visibility='hidden';
+  el.style.opacity='0';
+
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      el.classList.add('show');
+    });
+  });
+}
+</script>
 
 </body>
 </html>
