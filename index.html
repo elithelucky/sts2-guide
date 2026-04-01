@@ -1051,6 +1051,58 @@ background:#22c55e;border-color:#22c55e;color:#fff}
   margin-bottom:10px;
   font-weight:500;
 }
+
+
+/* stronger mobile bottom breathing room */
+body{
+  padding-bottom: calc(200px + env(safe-area-inset-bottom, 0px)) !important;
+}
+@media (max-width: 768px){
+  body{
+    padding-bottom: calc(260px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+body{
+  padding-bottom: calc(140px + env(safe-area-inset-bottom, 0px)) !important;
+}
+@media (max-width: 768px){
+  body{
+    padding-bottom: calc(180px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+
+/* mobile top spacing tightened */
+@media (max-width: 768px){
+  .gnb-wrap{
+    margin-bottom: 8px !important;
+    padding-bottom: 4px !important;
+  }
+  .gnb-shell{
+    padding: 9px 10px !important;
+  }
+  .app-tabs{
+    margin-top: 6px !important;
+    margin-bottom: 8px !important;
+  }
+  .app-tab{
+    padding: 10px 8px !important;
+  }
+  .app-tab small{
+    margin-top: 1px !important;
+    font-size: 10px !important;
+  }
+  .card{
+    margin-bottom: 10px !important;
+  }
+  .app-tabs + .card,
+  #liveTab,
+  #guideTab{
+    margin-top: 0 !important;
+  }
+}
+
 </style>
 </head>
 <body>
