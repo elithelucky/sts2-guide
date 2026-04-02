@@ -2928,7 +2928,7 @@ function renderSearchGrid(){
   const grid=document.createElement('div');grid.className='search-grid';
   list.forEach((card,idx)=>{const el=document.createElement('div');el.className='sg-card';
     const choose=()=>{
-      if(deckAddMode){pushDeckCard(card.n);closeSearch();renderAll();setTimeout(()=>{document.getElementById('deckGrid').scrollIntoView({behavior:'smooth',block:'center'})},50);return;}
+      if(deckAddMode){pushDeckCard(card.n);closeSearch();renderAll();setTimeout(()=>{},50);return;}
       picks[activeSlot]=card.n;
       const need=getNeedCount();
       const next=Array.from({length:need},(_,i)=>i).find(i=>!picks[i]);
@@ -3259,19 +3259,13 @@ function renderAll(scrollMode='none'){
 
 
 function scrollToRecommendations(){
-  const sec=document.getElementById('resultSection');
-  if(!sec||sec.style.display==='none') return;
-  setTimeout(()=>sec.scrollIntoView({behavior:'smooth',block:'nearest'}),60);
+  return;
 }
 function scrollToPickerTop(){
-  const sec=document.getElementById('pickerSection');
-  if(!sec) return;
-  setTimeout(()=>sec.scrollIntoView({behavior:'smooth',block:'start'}),60);
+  return;
 }
 function scrollToBuildButtons(){
-  const sec=document.getElementById('buildBtns') || document.getElementById('buildPanel');
-  if(!sec) return;
-  setTimeout(()=>sec.scrollIntoView({behavior:'smooth',block:'start'}),60);
+  return;
 }
 
 // ═══════════════════════════════════════
@@ -3501,7 +3495,15 @@ function handleGlobalHotkeys(e){
 document.addEventListener('keydown', handleGlobalHotkeys, true);
 
 document.addEventListener('click', function(e){
-  const btn = e.target.closest && e.target.closest('#resultBody .res-skip-compact .res-compact-btn');
+  const btn = e.target.closest && e.target.closest('#resultBody [data-action="do-skip"], #resultBody .res-skip-compact .res-compact-btn');
+  if(!btn) return;
+  e.preventDefault();
+  e.stopPropagation();
+  doSkip();
+}, true);
+
+document.addEventListener('pointerup', function(e){
+  const btn = e.target.closest && e.target.closest('#resultBody [data-action="do-skip"], #resultBody .res-skip-compact .res-compact-btn');
   if(!btn) return;
   e.preventDefault();
   e.stopPropagation();
@@ -3562,15 +3564,7 @@ document.addEventListener('keydown', function(e){
     const bestItem=document.querySelector('.res-item.best');
     const skipBlock=[...document.querySelectorAll('.res-item, .skip-card, .skip-box, .res-skip, .recommend-skip, .skip-section, .res-skip-card')]
       .find(el => visible(el) && /스킵하기|스킵/.test(el.textContent||''));
-    if(skipBlock && bestItem && skipBlock === bestItem){
-      try{
-        skipBlock.scrollIntoView({block:'center', behavior:'smooth'});
-      }catch(e){}
-    }else if(!bestItem && skipBlock && /추천/.test(skipBlock.textContent||'')){
-      try{
-        skipBlock.scrollIntoView({block:'center', behavior:'smooth'});
-      }catch(e){}
-    }
+    
   }
 
   function setLoadingState(){
@@ -4151,7 +4145,7 @@ window.renderSearchGrid = function(){
     const choose=()=>{
       if(deckAddMode){
         pushDeckCard(card.n);closeSearch();renderAll();
-        setTimeout(()=>{document.getElementById('deckGrid').scrollIntoView({behavior:'smooth',block:'center'})},50);
+        setTimeout(()=>{},50);
         return;
       }
       picks[activeSlot]=card.n;
@@ -4315,8 +4309,10 @@ window.renderResult = function(scored,skipScore){
   const action=document.createElement('div');
   action.className='res-item res-skip-compact'+(skipBest?' best skip-best is-top-recommend':'');
   action.dataset.rank='skip';
-  const skipSummary = isShopMode ? '상점 구매를 끝내려면 구매 종료를 누르세요' : '지금은 스킵보다 집는 쪽이 낫습니다';
-  action.innerHTML=`<div class="res-title-row">${skipBest?'<span class="res-badge" style="background:#22c55e;color:#fff">추천</span>':''}<span class="res-title">${isShopMode?'구매 종료':'스킵'}</span></div><div class="res-summary">${skipSummary}</div><button class="res-compact-btn${skipBest?' is-recommended':''}" onclick="doSkip()"><span class="res-skip-keycap">\`</span>${isShopMode?'구매 종료':'스킵하기'}</button>`;
+  const skipSummary = isShopMode
+    ? (skipBest ? '지금은 더 사기보다 여기서 구매를 끝내는 쪽이 낫습니다' : '상점 구매를 끝내려면 구매 종료를 누르세요')
+    : (skipBest ? '지금은 집기보다 스킵하는 쪽이 낫습니다' : '지금은 스킵보다 집는 쪽이 낫습니다');
+  action.innerHTML=`<div class="res-title-row">${skipBest?'<span class="res-badge" style="background:#22c55e;color:#fff">추천</span>':''}<span class="res-title">${isShopMode?'구매 종료':'스킵'}</span></div><div class="res-summary">${skipSummary}</div><button type="button" data-action="do-skip" class="res-compact-btn${skipBest?' is-recommended':''}" onclick="doSkip()"><span class="res-skip-keycap">\`</span>${isShopMode?'구매 종료':'스킵하기'}</button>`;
   body.appendChild(action);
 };
 </script>
@@ -4415,6 +4411,558 @@ window.renderResult = function(scored,skipScore){
 
   // also expose for any render function to call if needed
   window.moveBestShopExitToTop = moveBestShopExitToTop;
+})();
+</script>
+
+
+<script>
+(function(){
+  // Hard-kill any remaining auto-scroll behavior that fights user scrolling.
+  window.scrollToRecommendations = function(){};
+  window.scrollToPickerTop = function(){};
+  window.scrollToBuildButtons = function(){};
+  window.applyBestOnlyRecommendation = function(){
+    const visible = (el)=>{
+      if(!el) return false;
+      const r = el.getBoundingClientRect();
+      const cs = getComputedStyle(el);
+      return r.width > 0 && r.height > 0 && cs.display !== 'none' && cs.visibility !== 'hidden';
+    };
+    const items=[...document.querySelectorAll('.res-item')].filter(visible);
+    items.forEach((it,idx)=>{
+      const btn=it.querySelector('.res-compact-btn, .res-select-btn');
+      if(btn) btn.classList.remove('is-recommended');
+      if(idx===0 && btn) btn.classList.add('is-recommended');
+    });
+  };
+
+  document.addEventListener('click', function(e){
+    const target = e.target.closest && e.target.closest('.res-item, .res-compact-btn, .res-select-btn, .reward-slot, .sg-card, .dk-card, .dk-add');
+    if(!target) return;
+    setTimeout(function(){
+      document.body.classList.remove('modal-lock');
+      document.body.style.top='';
+    }, 0);
+  }, true);
+})();
+</script>
+
+
+<script>
+(function(){
+  const state = {
+    isAutoScrolling:false,
+    autoScrollUntil:0,
+    userLockUntil:0,
+    suppressUntil:0,
+    lastRunAt:{},
+    pendingReason:null,
+    pendingMeta:null,
+    pendingForce:false,
+    pendingExpiresAt:0
+  };
+
+  function now(){ return Date.now(); }
+  function isMobile(){ return window.innerWidth <= 768; }
+  function visible(el){
+    if(!el) return false;
+    const r = el.getBoundingClientRect();
+    const cs = getComputedStyle(el);
+    return r.width > 0 && r.height > 0 && cs.display !== 'none' && cs.visibility !== 'hidden';
+  }
+  function clearPending(){
+    state.pendingReason = null;
+    state.pendingMeta = null;
+    state.pendingForce = false;
+    state.pendingExpiresAt = 0;
+  }
+  function markUserInteracted(){
+    const t = now();
+    if(t < state.autoScrollUntil) return;
+    state.userLockUntil = t + 1600;
+    clearPending();
+  }
+  ['wheel','touchstart','touchmove','pointerdown','mousedown'].forEach(type=>{
+    window.addEventListener(type, markUserInteracted, {passive:true, capture:true});
+  });
+  window.addEventListener('scroll', function(){
+    if(now() < state.autoScrollUntil) return;
+    state.userLockUntil = now() + 1200;
+  }, {passive:true, capture:true});
+
+  function allowReason(reason, opts){
+    const t = now();
+    const last = state.lastRunAt[reason] || 0;
+    const force = !!(opts && opts.force);
+    if(t < state.suppressUntil) return false;
+    if(state.isAutoScrolling) return false;
+    if(!force && t < state.userLockUntil) return false;
+    if(t - last < 700) return false;
+    return true;
+  }
+
+  function mobileTopTarget(){
+    const result = document.getElementById('resultSection') || document.getElementById('resultBody');
+    const picker = document.getElementById('pickerSection') || document.getElementById('liveTab');
+    if(visible(result)) return result;
+    return picker || result;
+  }
+
+  function pcTopTarget(){
+    return document.getElementById('pickerSection') || document.getElementById('liveTab') || document.getElementById('resultSection');
+  }
+
+  function targetForReason(reason, meta){
+    const mobile = isMobile();
+    if(reason === 'to-result'){
+      return mobile ? mobileTopTarget() : (document.getElementById('resultSection') || document.getElementById('resultBody'));
+    }
+    if(reason === 'to-picker'){
+      return mobile ? mobileTopTarget() : pcTopTarget();
+    }
+    if(reason === 'to-top'){
+      return mobile ? mobileTopTarget() : pcTopTarget();
+    }
+    return null;
+  }
+
+  function runAutoScroll(reason, meta, opts){
+    const target = targetForReason(reason, meta);
+    if(!visible(target) || !allowReason(reason, opts)) return false;
+
+    state.isAutoScrolling = true;
+    state.lastRunAt[reason] = now();
+    state.autoScrollUntil = now() + 900;
+
+    try{
+      target.scrollIntoView({behavior:'smooth', block:'start', inline:'nearest'});
+    }catch(_e){
+      target.scrollIntoView(true);
+    }
+
+    window.clearTimeout(state._autoScrollTimer);
+    state._autoScrollTimer = window.setTimeout(function(){
+      state.isAutoScrolling = false;
+      state.autoScrollUntil = 0;
+    }, 900);
+    return true;
+  }
+
+  function queueAutoScroll(reason, meta, force){
+    state.pendingReason = reason;
+    state.pendingMeta = meta || null;
+    state.pendingForce = !!force;
+    state.pendingExpiresAt = now() + 1200;
+  }
+
+  function flushPendingAutoScroll(scrollMode){
+    if(now() < state.suppressUntil) return;
+
+    let reason = null;
+    let meta = null;
+    let force = false;
+
+    if(state.pendingReason && now() < state.pendingExpiresAt){
+      reason = state.pendingReason;
+      meta = state.pendingMeta;
+      force = state.pendingForce;
+    }else if(scrollMode && scrollMode !== 'none'){
+      reason = scrollMode;
+    }
+
+    if(!reason) return;
+
+    clearPending();
+
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        runAutoScroll(reason, meta, {force:force});
+      });
+    });
+  }
+
+  window.scrollToRecommendations = function(){ runAutoScroll('to-result'); };
+  window.scrollToPickerTop = function(){ runAutoScroll('to-picker'); };
+  window.scrollToBuildButtons = function(){ runAutoScroll('to-picker'); };
+
+  if(typeof window.renderAll === 'function'){
+    const _renderAll = window.renderAll;
+    window.renderAll = function(scrollMode='none'){
+      const result = _renderAll.call(this, scrollMode);
+      flushPendingAutoScroll(scrollMode);
+      return result;
+    };
+  }
+
+  if(typeof window.pushDeckCard === 'function'){
+    const _pushDeckCard = window.pushDeckCard;
+    window.pushDeckCard = function(){
+      try{
+        const modalOpen = typeof window.isSearchModalOpen === 'function' ? window.isSearchModalOpen() : false;
+        if(modalOpen && window.deckAddMode){
+          queueAutoScroll('to-top', {source:'deck-add-complete'}, true);
+        }
+      }catch(_e){}
+      return _pushDeckCard.apply(this, arguments);
+    };
+  }
+
+  if(typeof window.openDeckAdd === 'function'){
+    const _openDeckAdd = window.openDeckAdd;
+    window.openDeckAdd = function(){
+      clearPending();
+      state.suppressUntil = now() + 800;
+      return _openDeckAdd.apply(this, arguments);
+    };
+  }
+
+  ['pickCard','doSkip','buyShopCard','shopSkipCard'].forEach(function(fnName){
+    if(typeof window[fnName] !== 'function') return;
+    const original = window[fnName];
+    window[fnName] = function(){
+      queueAutoScroll('to-top', {source:fnName}, true);
+      return original.apply(this, arguments);
+    };
+  });
+
+  window.__autoScrollState = state;
+  window.__queueAutoScroll = queueAutoScroll;
+})();
+</script>
+
+
+<script>
+(function(){
+  const state = window.__autoScrollState || (window.__autoScrollState = {});
+  function now(){ return Date.now(); }
+  function isMobile(){ return window.innerWidth <= 768; }
+  function visible(el){
+    if(!el) return false;
+    const r = el.getBoundingClientRect();
+    const cs = getComputedStyle(el);
+    return r.width > 0 && r.height > 0 && cs.display !== 'none' && cs.visibility !== 'hidden';
+  }
+  function pickerTopTarget(){
+    return document.getElementById('pickerSection')
+      || document.getElementById('liveTab')
+      || document.querySelector('.app-tabs')
+      || document.body;
+  }
+  function resultTopTarget(){
+    return document.getElementById('resultSection') || document.getElementById('resultBody') || pickerTopTarget();
+  }
+
+  // Prevent legacy deckGrid auto-scroll after deck-add card selection.
+  state.ignoreDeckGridScrollUntil = 0;
+  const nativeScrollIntoView = Element.prototype.scrollIntoView;
+  if(!Element.prototype.__hailotPatchedScrollIntoView){
+    Element.prototype.__hailotPatchedScrollIntoView = true;
+    Element.prototype.scrollIntoView = function(){
+      try{
+        if(this && this.id === 'deckGrid' && now() < (window.__autoScrollState?.ignoreDeckGridScrollUntil || 0)){
+          return;
+        }
+      }catch(_e){}
+      return nativeScrollIntoView.apply(this, arguments);
+    };
+  }
+
+  // Patch queue helper so deck add completion and buy/skip/finish always go to picker top.
+  const originalQueue = window.__queueAutoScroll;
+  if(typeof originalQueue === 'function'){
+    window.__queueAutoScroll = function(reason, meta, force){
+      if(reason === 'to-top' || reason === 'to-picker'){
+        reason = 'to-picker-top';
+      }
+      return originalQueue(reason, meta, force);
+    };
+  }
+
+  // Replace run behavior via exported helpers.
+  window.scrollToPickerTop = function(){
+    const target = pickerTopTarget();
+    if(!visible(target)) return;
+    try{ target.scrollIntoView({behavior:'smooth', block:'start', inline:'nearest'}); }
+    catch(_e){ target.scrollIntoView(true); }
+  };
+  window.scrollToRecommendations = function(){
+    const target = resultTopTarget();
+    if(!visible(target)) return;
+    try{ target.scrollIntoView({behavior:'smooth', block:'start', inline:'nearest'}); }
+    catch(_e){ target.scrollIntoView(true); }
+  };
+  window.scrollToBuildButtons = window.scrollToPickerTop;
+
+  // Re-wrap renderAll so policy is explicit.
+  if(typeof window.renderAll === 'function' && !window.__hailotRenderAllV11Patched){
+    window.__hailotRenderAllV11Patched = true;
+    const _renderAll = window.renderAll;
+    window.renderAll = function(scrollMode='none'){
+      const result = _renderAll.call(this, scrollMode);
+      const pending = window.__autoScrollState || {};
+      const pr = pending.pendingReason;
+      const force = pending.pendingForce;
+      const expires = pending.pendingExpiresAt || 0;
+      const validPending = pr && now() < expires;
+      const reason = validPending ? pr : scrollMode;
+      if(reason === 'to-picker-top' || reason === 'to-picker' || reason === 'to-top'){
+        pending.pendingReason = null;
+        pending.pendingMeta = null;
+        pending.pendingForce = false;
+        pending.pendingExpiresAt = 0;
+        requestAnimationFrame(()=>requestAnimationFrame(()=>window.scrollToPickerTop()));
+      }else if(reason === 'to-result'){
+        pending.pendingReason = null;
+        pending.pendingMeta = null;
+        pending.pendingForce = false;
+        pending.pendingExpiresAt = 0;
+        requestAnimationFrame(()=>requestAnimationFrame(()=>window.scrollToRecommendations()));
+      }
+      return result;
+    };
+  }
+
+  // Deck add: clicking + only opens modal; only after actual card chosen do we scroll to top.
+  if(typeof window.pushDeckCard === 'function' && !window.__hailotPushDeckCardV11Patched){
+    window.__hailotPushDeckCardV11Patched = true;
+    const _pushDeckCard = window.pushDeckCard;
+    window.pushDeckCard = function(){
+      const beforeLen = Array.isArray(window.deck) ? window.deck.length : null;
+      const modalOpen = typeof window.isSearchModalOpen === 'function' ? window.isSearchModalOpen() : false;
+      const wasDeckAdd = !!window.deckAddMode;
+      const ret = _pushDeckCard.apply(this, arguments);
+      const afterLen = Array.isArray(window.deck) ? window.deck.length : null;
+      if(wasDeckAdd && modalOpen && beforeLen != null && afterLen != null && afterLen > beforeLen){
+        state.ignoreDeckGridScrollUntil = now() + 1500;
+        if(typeof window.__queueAutoScroll === 'function'){
+          window.__queueAutoScroll('to-picker-top', {source:'deck-add-complete'}, true);
+        }
+      }
+      return ret;
+    };
+  }
+
+  // Reward/shop actions: after completion always move to picker top, not deck end.
+  ['pickCard','doSkip','buyShopCard','shopSkipCard'].forEach(function(fnName){
+    const fn = window[fnName];
+    if(typeof fn !== 'function' || fn.__hailotV11Patched) return;
+    const wrapped = function(){
+      if(typeof window.__queueAutoScroll === 'function'){
+        window.__queueAutoScroll('to-picker-top', {source:fnName}, true);
+      }
+      return fn.apply(this, arguments);
+    };
+    wrapped.__hailotV11Patched = true;
+    window[fnName] = wrapped;
+  });
+})();
+</script>
+
+
+<script>
+(function(){
+  if(window.__hailotFinalV12Patched) return;
+  window.__hailotFinalV12Patched = true;
+
+  function topTarget(){
+    return document.getElementById('pickerSection')
+      || document.getElementById('liveTab')
+      || document.querySelector('.app-tabs')
+      || document.body;
+  }
+  function scrollToTopTarget(){
+    const el = topTarget();
+    if(!el) return;
+    const y = Math.max(0, window.pageYOffset + el.getBoundingClientRect().top - 8);
+    try{
+      window.scrollTo({ top:y, behavior:'smooth' });
+    }catch(_e){
+      window.scrollTo(0, y);
+    }
+  }
+  function scheduleTopScroll(){
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        scrollToTopTarget();
+      });
+    });
+  }
+
+  // Kill all legacy queued auto-scroll behavior. We will control policy explicitly per action.
+  window.__queueAutoScroll = function(){};
+  window.scrollToRecommendations = function(){};
+  window.scrollToBuildButtons = function(){};
+  window.scrollToPickerTop = function(){};
+
+  if(typeof window.renderAll === 'function' && !window.__hailotRenderAllV12Patched){
+    window.__hailotRenderAllV12Patched = true;
+    const _renderAll = window.renderAll;
+    window.renderAll = function(scrollMode){
+      return _renderAll.call(this, 'none');
+    };
+  }
+
+  if(typeof window.pickCard === 'function' && !window.pickCard.__hailotV12Patched){
+    const _pickCard = window.pickCard;
+    const wrapped = function(){
+      const ret = _pickCard.apply(this, arguments);
+      scheduleTopScroll(); // 보상 선택 후 바로 다음 선택 준비
+      return ret;
+    };
+    wrapped.__hailotV12Patched = true;
+    window.pickCard = wrapped;
+  }
+
+  if(typeof window.doSkip === 'function' && !window.doSkip.__hailotV12Patched){
+    const _doSkip = window.doSkip;
+    const wrapped = function(){
+      const ret = _doSkip.apply(this, arguments);
+      scheduleTopScroll(); // 보상 스킵, 상점 구매 종료 후 상단 이동
+      return ret;
+    };
+    wrapped.__hailotV12Patched = true;
+    window.doSkip = wrapped;
+  }
+
+  // 상점 카드 구매는 스크롤을 건드리지 않음
+  if(typeof window.buyShopCard === 'function' && !window.buyShopCard.__hailotV12Patched){
+    const _buyShopCard = window.buyShopCard;
+    const wrapped = function(){
+      return _buyShopCard.apply(this, arguments);
+    };
+    wrapped.__hailotV12Patched = true;
+    window.buyShopCard = wrapped;
+  }
+
+  // +추가 클릭 시에는 스크롤하지 않고, 실제 덱 반영 완료 후에만 상단 이동
+  if(typeof window.pushDeckCard === 'function' && !window.pushDeckCard.__hailotV12Patched){
+    const _pushDeckCard = window.pushDeckCard;
+    const wrapped = function(){
+      const beforeLen = Array.isArray(window.deck) ? window.deck.length : null;
+      const wasDeckAdd = !!window.deckAddMode;
+      const ret = _pushDeckCard.apply(this, arguments);
+      const afterLen = Array.isArray(window.deck) ? window.deck.length : null;
+      if(wasDeckAdd && beforeLen != null && afterLen != null && afterLen > beforeLen){
+        scheduleTopScroll();
+      }
+      return ret;
+    };
+    wrapped.__hailotV12Patched = true;
+    window.pushDeckCard = wrapped;
+  }
+
+  // 혹시 남아있는 deckGrid.scrollIntoView가 마지막 카드 쪽으로 끌어당기면 차단
+  if(!Element.prototype.__hailotPatchedScrollIntoViewV12){
+    const native = Element.prototype.scrollIntoView;
+    Element.prototype.__hailotPatchedScrollIntoViewV12 = true;
+    Element.prototype.scrollIntoView = function(){
+      try{
+        if(this && this.id === 'deckGrid'){
+          return;
+        }
+      }catch(_e){}
+      return native.apply(this, arguments);
+    };
+  }
+})();
+</script>
+
+
+<script>
+(function(){
+  if(window.__hailotForceTopV13) return;
+  window.__hailotForceTopV13 = true;
+
+  function isMobile(){ return window.innerWidth <= 768; }
+  function forceTop(){
+    try{ window.scrollTo({top:0, behavior:'auto'}); }
+    catch(_e){ window.scrollTo(0,0); }
+    try{ document.documentElement.scrollTop = 0; }catch(_e){}
+    try{ document.body.scrollTop = 0; }catch(_e){}
+  }
+  function forceTopBurst(){
+    [0, 16, 40, 80, 140, 220, 320, 450, 650, 900].forEach(function(delay){
+      setTimeout(function(){
+        forceTop();
+        try{ requestAnimationFrame(forceTop); }catch(_e){}
+      }, delay);
+    });
+  }
+
+  // Completely disable helper auto-scroll hooks; explicit actions only.
+  window.__queueAutoScroll = function(){};
+  window.scrollToRecommendations = function(){};
+  window.scrollToBuildButtons = function(){};
+  window.scrollToPickerTop = function(){};
+
+  if(typeof window.renderAll === 'function' && !window.__hailotRenderAllV13){
+    window.__hailotRenderAllV13 = true;
+    const _renderAll = window.renderAll;
+    window.renderAll = function(){
+      return _renderAll.call(this, 'none');
+    };
+  }
+
+  // Reward card pick: ALWAYS go to page top after the pick has actually rendered.
+  if(typeof window.pickCard === 'function' && !window.pickCard.__hailotV13){
+    const _pickCard = window.pickCard;
+    window.pickCard = function(){
+      const ret = _pickCard.apply(this, arguments);
+      forceTopBurst();
+      return ret;
+    };
+    window.pickCard.__hailotV13 = true;
+  }
+
+  // Skip / shop finish: ALWAYS go to page top.
+  if(typeof window.doSkip === 'function' && !window.doSkip.__hailotV13){
+    const _doSkip = window.doSkip;
+    window.doSkip = function(){
+      const ret = _doSkip.apply(this, arguments);
+      forceTopBurst();
+      return ret;
+    };
+    window.doSkip.__hailotV13 = true;
+  }
+
+  // Shop buy: NEVER scroll.
+  if(typeof window.buyShopCard === 'function' && !window.buyShopCard.__hailotV13){
+    const _buyShopCard = window.buyShopCard;
+    window.buyShopCard = function(){
+      return _buyShopCard.apply(this, arguments);
+    };
+    window.buyShopCard.__hailotV13 = true;
+  }
+
+  // Deck add: clicking + does nothing. Only after real deck insertion, go to page top.
+  if(typeof window.pushDeckCard === 'function' && !window.pushDeckCard.__hailotV13){
+    const _pushDeckCard = window.pushDeckCard;
+    window.pushDeckCard = function(){
+      const beforeLen = Array.isArray(window.deck) ? window.deck.length : null;
+      const wasDeckAdd = !!window.deckAddMode;
+      const ret = _pushDeckCard.apply(this, arguments);
+      const afterLen = Array.isArray(window.deck) ? window.deck.length : null;
+      if(wasDeckAdd && beforeLen != null && afterLen != null && afterLen > beforeLen){
+        forceTopBurst();
+      }
+      return ret;
+    };
+    window.pushDeckCard.__hailotV13 = true;
+  }
+
+  // Block any remaining legacy attempts to drag viewport to the deck area.
+  if(!Element.prototype.__hailotPatchedScrollIntoViewV13){
+    const native = Element.prototype.scrollIntoView;
+    Element.prototype.__hailotPatchedScrollIntoViewV13 = true;
+    Element.prototype.scrollIntoView = function(){
+      try{
+        const id = this && this.id;
+        if(id === 'deckGrid' || id === 'deckCountRow') return;
+        if(this && this.closest && this.closest('#deckGrid')) return;
+      }catch(_e){}
+      return native.apply(this, arguments);
+    };
+  }
 })();
 </script>
 
