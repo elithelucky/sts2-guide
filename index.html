@@ -1518,6 +1518,174 @@ body{
   margin-bottom:14px !important;
 }
 
+
+
+/* PC에서 빌드모음 상세 모달 크게 보기 */
+@media (min-width: 1180px){
+  #detailModal{
+    align-items:center;
+    justify-content:center;
+    padding:28px;
+  }
+  #detailModal .detail-box{
+    width:min(1100px, calc(100vw - 80px));
+    max-width:min(1100px, calc(100vw - 80px));
+    max-height:88vh;
+    padding:28px 30px 26px;
+    border-radius:24px;
+    box-shadow:0 28px 80px rgba(0,0,0,.42);
+  }
+  #detailModal .detail-name{
+    font-size:28px;
+    line-height:1.2;
+    margin-bottom:10px;
+    padding-right:44px;
+  }
+  #detailModal .detail-text,
+  #detailModal .detail-combo-why,
+  #detailModal .build-list-desc,
+  #detailModal .guide-desc,
+  #detailModal .guide-meta,
+  #detailModal .coop-desc,
+  #detailModal .coop-meta,
+  #detailModal .detail-source{
+    font-size:15px;
+    line-height:1.75;
+  }
+  #detailModal .detail-label{
+    font-size:13px;
+    margin-bottom:6px;
+  }
+  #detailModal .detail-chip{
+    font-size:13px;
+    padding:6px 12px;
+    border-radius:10px;
+  }
+  #detailModal .detail-section{margin-bottom:16px;}
+  #detailModal .guide-group,
+  #detailModal .guide-group.core,
+  #detailModal .guide-group.key,
+  #detailModal .build-list-wrap,
+  #detailModal .coop-card,
+  #detailModal .guide-intro{
+    padding:22px;
+    border-radius:22px;
+  }
+  #detailModal .guide-group-title,
+  #detailModal .guide-subttl,
+  #detailModal .coop-title,
+  #detailModal .detail-combo-name{
+    font-size:24px;
+    line-height:1.25;
+    margin-bottom:10px;
+  }
+  #detailModal .mini-grid,
+  #detailModal .build-list-grid{
+    grid-template-columns:repeat(5, minmax(0,1fr));
+    gap:16px;
+  }
+  #detailModal .mini-card,
+  #detailModal .build-list-card{
+    border-radius:14px;
+  }
+  #detailModal .mini-name,
+  #detailModal .build-list-name{
+    font-size:14px;
+  }
+  #detailModal .guide-actions{gap:10px; margin-top:14px;}
+  #detailModal .guide-btn,
+  #detailModal .detail-close{
+    font-size:15px;
+    padding:13px 16px;
+    border-radius:12px;
+  }
+  #detailModal .detail-close{margin-top:14px;}
+  #detailModal .detail-top-close{
+    top:16px;
+    right:16px;
+    width:38px;
+    height:38px;
+    font-size:20px;
+  }
+
+  #detailModal .detail-summary-compact{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:10px;
+    margin-bottom:12px;
+  }
+  #detailModal .detail-summary-compact .summary-pill{
+    padding:8px 12px;
+    font-size:12px;
+  }
+  #detailModal .detail-two-col{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:16px;
+    margin-top:14px;
+  }
+  #detailModal .detail-two-col .guide-group,
+  #detailModal .detail-two-col .guide-group.core,
+  #detailModal .detail-two-col .guide-group.key{
+    margin-top:0 !important;
+    height:100%;
+  }
+  #detailModal .detail-two-col .guide-group-title{
+    font-size:21px;
+    margin-bottom:8px;
+  }
+  #detailModal .detail-two-col .ref-mini-desc{
+    font-size:14px;
+    line-height:1.6;
+    margin-bottom:14px !important;
+  }
+  #detailModal .detail-two-col .guide-group.core .mini-grid{
+    grid-template-columns:repeat(3, minmax(0,1fr));
+    gap:12px;
+  }
+  #detailModal .detail-two-col .guide-group.key .mini-grid{
+    grid-template-columns:repeat(4, minmax(0,1fr));
+    gap:12px;
+  }
+  #detailModal .detail-two-col .mini-card{
+    border-radius:12px;
+  }
+  #detailModal .detail-two-col .mini-name{
+    font-size:13px;
+  }
+  #detailModal .detail-secondary-grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:16px;
+  }
+  #detailModal .guide-group.compact-section .guide-group-title{
+    font-size:20px;
+  }
+  #detailModal .guide-group.compact-section .mini-grid{
+    grid-template-columns:repeat(5, minmax(0,1fr));
+    gap:12px;
+  }
+  @media (min-width: 1024px){
+    #detailModal .detail-box{
+      width:min(1040px, calc(100vw - 72px));
+      max-width:min(1040px, calc(100vw - 72px));
+      padding:24px 26px 22px;
+    }
+  }
+  @media (min-width: 1180px){
+    #detailModal .detail-two-col{
+      grid-template-columns:minmax(0,.44fr) minmax(0,.56fr);
+      gap:18px;
+    }
+    #detailModal .detail-secondary-grid{
+      grid-template-columns:repeat(2, minmax(0,1fr));
+      gap:18px;
+      align-items:start;
+    }
+  }
+}
+
 </style>
 </head>
 <body>
@@ -1637,10 +1805,12 @@ function openCoopGuide(id){
   h+=renderCoopTitleButtons(guide);
   h+=`<div class="detail-text" style="margin-top:8px">${guide.desc||''}</div>`;
   h+=`<div class="detail-chip-row" style="margin-top:10px;margin-bottom:18px"><span class="badge good">${guide.meta||''}</span></div>`;
-  h+=`<div class="guide-group core" style="margin-top:14px;"><div class="guide-group-title">필수 카드</div><div class="ref-mini-desc" style="color:color-mix(in srgb,var(--sub) 88%, #000 12%);margin-bottom:18px">이 카드들이 잡혀야 조합의 정체성이 선명해짐</div><div class="mini-grid">${(guide.must||[]).map(cardTile).join('')}</div></div>`;
-  h+=`<div class="guide-group key"><div class="guide-group-title">시너지 카드</div><div class="ref-mini-desc" style="color:color-mix(in srgb,var(--sub) 88%, #000 12%);margin-bottom:18px">이 카드들이 모일수록 빌드가 제대로 굴러가기 시작합니다.</div><div class="mini-grid">${(guide.rec||[]).map(cardTile).join('')}</div></div>`;
-  const sections=Object.entries(byChar).map(([charKey,items])=>`<div class="guide-group" style="border-width:2px"><div class="guide-group-title">${CHARS[charKey]?.name||charKey} 쪽에서 챙길 카드</div><div class="mini-grid">${items.map(cardTile).join('')}</div></div>`).join('<div class="guide-divider"></div>');
-  if(sections){h+=`<div class="guide-divider"></div>${sections}`;}
+  h+=`<div class="detail-two-col">`;
+  h+=`<div class="guide-group core" style="margin-top:0;"><div class="guide-group-title">필수 카드</div><div class="ref-mini-desc" style="color:color-mix(in srgb,var(--sub) 88%, #000 12%);margin-bottom:18px">이 카드들이 잡혀야 조합의 정체성이 선명해짐</div><div class="mini-grid">${(guide.must||[]).map(cardTile).join('')}</div></div>`;
+  h+=`<div class="guide-group key" style="margin-top:0;"><div class="guide-group-title">시너지 카드</div><div class="ref-mini-desc" style="color:color-mix(in srgb,var(--sub) 88%, #000 12%);margin-bottom:18px">이 카드들이 모일수록 빌드가 제대로 굴러가기 시작합니다.</div><div class="mini-grid">${(guide.rec||[]).map(cardTile).join('')}</div></div>`;
+  h+=`</div>`;
+  const sections=Object.entries(byChar).map(([charKey,items])=>`<div class="guide-group compact-section" style="border-width:2px"><div class="guide-group-title">${CHARS[charKey]?.name||charKey} 쪽에서 챙길 카드</div><div class="mini-grid">${items.map(cardTile).join('')}</div></div>`).join('');
+  if(sections){h+=`<div class="guide-divider"></div><div class="detail-secondary-grid">${sections}</div>`;}
   if((guide.tips||[]).length){
     h+=`<div class="guide-divider"></div><div class="guide-group"><div class="guide-group-title">운용 포인트</div><div class="detail-section" style="padding:0;border:none;background:none">${guide.tips.map(t=>`<div class="detail-text" style="margin-top:0;margin-bottom:10px">• ${t}</div>`).join('')}</div></div>`;
   }
@@ -2806,14 +2976,17 @@ function openGuideBuildFull(id){
   }else if(remainTotal===0){
     h+=`<div class="guide-almost" style="border-color:rgba(34,211,238,.35);background:linear-gradient(135deg,rgba(7,25,29,.60),rgba(2,15,20,.34));color:#b8fff1">완성 상태. 지금은 보강 카드나 압축에 집중하면 됨</div>`;
   }
-  h+=`<div class="guide-group core" style="margin-top:14px;"><div class="guide-group-title">필수 카드</div><div class="ref-mini-desc" style="color:color-mix(in srgb,var(--sub) 88%, #000 12%);margin-bottom:18px">이 카드들이 없으면 빌드가 완성되지 않습니다.</div><div class="mini-grid">${build.must.map(n=>cardTile(n)).join('')}</div></div>`;
-  h+=`<div class="guide-group key"><div class="guide-group-title">시너지 카드</div><div class="ref-mini-desc" style="color:color-mix(in srgb,var(--sub) 88%, #000 12%);margin-bottom:18px">이 카드들이 모이면 빌드가 제대로 굴러가기 시작</div><div class="mini-grid">${build.rec.map(n=>cardTile(n)).join('')}</div></div>`;
+  h+=`<div class="detail-two-col">`;
+  h+=`<div class="guide-group core" style="margin-top:0;"><div class="guide-group-title">필수 카드</div><div class="ref-mini-desc" style="color:color-mix(in srgb,var(--sub) 88%, #000 12%);margin-bottom:18px">이 카드들이 없으면 빌드가 완성되지 않습니다.</div><div class="mini-grid">${build.must.map(n=>cardTile(n)).join('')}</div></div>`;
+  h+=`<div class="guide-group key" style="margin-top:0;"><div class="guide-group-title">시너지 카드</div><div class="ref-mini-desc" style="color:color-mix(in srgb,var(--sub) 88%, #000 12%);margin-bottom:18px">이 카드들이 모이면 빌드가 제대로 굴러가기 시작</div><div class="mini-grid">${build.rec.map(n=>cardTile(n)).join('')}</div></div>`;
+  h+=`</div>`;
   h+=`<div class="guide-divider"></div>`;
+  const secondarySections=[];
   if(relics.length){
-    h+=`<div class="guide-group" style="border-width:2px"><div class="guide-group-title">추천 유물</div><div class="relic-grid">`+relics.map(r=>`<button class="relic-tile" onclick="openRelicDetail('${esc(r.name)}','${esc(r.desc||'')}')"><img class="relic-tile-img" src="${relicImgSrc(r.name)}" onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<div class=\'relic-tile-ph\'>유물</div>')"><div class="relic-tile-name">${r.name}</div></button>`).join('')+`</div></div>`;
-    h+=`<div class="guide-divider"></div>`;
+    secondarySections.push(`<div class="guide-group compact-section" style="border-width:2px"><div class="guide-group-title">추천 유물</div><div class="relic-grid">`+relics.map(r=>`<button class="relic-tile" onclick="openRelicDetail('${esc(r.name)}','${esc(r.desc||'')}')"><img class="relic-tile-img" src="${relicImgSrc(r.name)}" onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<div class=\'relic-tile-ph\'>유물</div>')"><div class="relic-tile-name">${r.name}</div></button>`).join('')+`</div></div>`);
   }
-  h+=`<div class="guide-group"><div class="guide-group-title">전체 구성 카드</div><div class="mini-grid">${[...build.must,...build.rec.filter(n=>!build.must.includes(n))].map(n=>cardTile(n)).join('')}</div></div>`;
+  secondarySections.push(`<div class="guide-group compact-section"><div class="guide-group-title">전체 구성 카드</div><div class="mini-grid">${[...build.must,...build.rec.filter(n=>!build.must.includes(n))].map(n=>cardTile(n)).join('')}</div></div>`);
+  h+=`<div class="detail-secondary-grid">${secondarySections.join('')}</div>`;
   h+=`<button class="detail-close" onclick="closeDetail()">닫기</button>`;
   body.innerHTML=h;
   const modal=document.getElementById('detailModal');
