@@ -3499,30 +3499,51 @@ function showBuildList(kind='all', liveLinked=false){
   }
   const a=d.archs.find(x=>x.id===currentBid);
   const uniq=(arr)=>[...new Set(arr)];
-  const all=uniq([...a.must,...a.rec]);
+  const all=uniq([...(a.must||[]),...(a.rec||[])]);
   const esc=(s)=>String(s).replace(/'/g,"&#39;");
-  const deckNow=deck.slice();
-  const renderCards=(arr,label,cls)=>{
-    if(!arr.length) return '';
-    const extraClass = cls==='all' ? ' divided' : '';
-    return `<div class="build-list-wrap ${cls}${extraClass}"><div class="build-list-head"><div class="build-list-title">${label}</div></div><div class="build-list-grid">${arr.map(n=>{
-      const owned = liveLinked && deckNow.includes(n);
-      return `<button class="build-list-card ${cls}" onclick="showDetail('${esc(n)}')"><img src="${imgSrcs(n)[0]}" onerror="this.onerror=null;this.src='${imgSrcs(n)[1]}';"><div class="build-list-footer">${owned?'<div class="build-list-owned"><span class="check"></span>덱에 있음</div>':''}${UNLOCK[n]?'<div class="build-list-lock">🔒</div>':''}<div class="build-list-name">${n}</div></div></button>`;
-    }).join('')}</div></div>`;
+  const deckNow=liveLinked ? (((typeof getDeckNames==='function' && getDeckNames()) || deck.slice())) : deck.slice();
+  const cardTile=(name)=>{
+    const owned=liveLinked && deckNow.includes(name);
+    const cls=['mini-card', owned?'owned':''].filter(Boolean).join(' ');
+    return `<button class="${cls}" onclick="showDetail('${esc(name)}')">${UNLOCK[name]?'<div class="lock-corner">🔒</div>':''}${owned?'<div class="mini-owned-check">덱에 있음</div>':''}<img src="${imgSrcs(name)[0]}" onerror="if(!this.dataset.f1){this.dataset.f1='1';this.src='${imgSrcs(name)[1]}';return;} this.onerror=null;this.src='${imgSrcs(name)[2]||imgSrcs(name)[1]}';"><div class="mini-name">${name}</div></button>`;
   };
   const listTitle = kind==='must' ? `${a.name} 필수 카드 리스트` : kind==='rec' ? `${a.name} 시너지 카드 리스트` : `${a.name} 카드 리스트`;
-  const listDesc = kind==='must'
+  const descText = kind==='must'
     ? '이 카드들이 없으면 빌드가 완성되지 않습니다.'
     : kind==='rec'
       ? '이 카드들이 모일수록 빌드가 제대로 굴러가기 시작합니다.'
-      : '';
-  let h=`<button class="detail-top-close" onclick="closeDetail()">✕</button><div class="detail-name">${listTitle}</div><div class="detail-meta"><span class="detail-chip" style="background:${a.color}22;color:${a.color};border:1px solid ${a.color}44">${a.desc}</span></div>${listDesc?`<div class="detail-text" style="margin-top:10px;color:var(--sub);font-size:13px">${listDesc}</div>`:''}`;
-  if(kind==='must') h+=renderCards(a.must,'필수 카드','must');
-  else if(kind==='rec') h+=renderCards(a.rec,'시너지 카드','core');
-  else h+=renderCards(a.must,'필수 카드','must')+renderCards(a.rec,'시너지 카드','core')+renderCards(all,'전체 구성 카드','all');
+      : (a.desc||'');
+  const mh=(a.must||[]).filter(n=>deckNow.includes(n)).length;
+  const rh=(a.rec||[]).filter(n=>deckNow.includes(n)).length;
+  const summary=`<div class="detail-summary-compact" style="margin-top:12px"><span class="summary-pill"><strong>필수</strong> ${mh}/${(a.must||[]).length}</span><span class="summary-pill"><strong>시너지</strong> ${rh}/${(a.rec||[]).length}</span></div>`;
+  let h='';
+  h+=`<button class="detail-top-close" onclick="closeDetail()">✕</button>`;
+  h+=`<div class="detail-name">${listTitle}</div>`;
+  h+=`<div class="detail-text" style="margin-top:8px">${descText}</div>`;
+  if(a.sourceName){ h+=`<div class="detail-source">${renderDetailSource(a)}</div>`; }
+  h+=`<div class="detail-chip-row" style="margin-top:10px"><span class="badge good">${a.sub||a.descShort||a.meta||''}</span></div>`;
+  h+=summary;
+
+  if(kind==='must'){
+    h+=`<div class="guide-divider"></div>`;
+    h+=`<div class="guide-group core compact-section"><div class="guide-group-title">필수 카드</div><div class="ref-mini-desc">이 카드들이 없으면 빌드가 완성되지 않습니다.</div><div class="mini-grid">${(a.must||[]).map(n=>cardTile(n)).join('')}</div></div>`;
+  }else if(kind==='rec'){
+    h+=`<div class="guide-divider"></div>`;
+    h+=`<div class="guide-group key compact-section"><div class="guide-group-title">시너지 카드</div><div class="ref-mini-desc">이 카드들이 모일수록 빌드가 제대로 굴러가기 시작합니다.</div><div class="mini-grid">${(a.rec||[]).map(n=>cardTile(n)).join('')}</div></div>`;
+  }else{
+    h+=`<div class="detail-two-col">`;
+    h+=`<div class="guide-group core" style="margin-top:0;"><div class="guide-group-title">필수 카드</div><div class="ref-mini-desc" style="color:color-mix(in srgb,var(--sub) 88%, #000 12%);margin-bottom:18px">이 카드들이 없으면 빌드가 완성되지 않습니다.</div><div class="mini-grid">${(a.must||[]).map(n=>cardTile(n)).join('')}</div></div>`;
+    h+=`<div class="guide-group key" style="margin-top:0;"><div class="guide-group-title">시너지 카드</div><div class="ref-mini-desc" style="color:color-mix(in srgb,var(--sub) 88%, #000 12%);margin-bottom:18px">이 카드들이 모일수록 빌드가 제대로 굴러가기 시작합니다.</div><div class="mini-grid">${(a.rec||[]).map(n=>cardTile(n)).join('')}</div></div>`;
+    h+=`</div>`;
+    h+=`<div class="guide-divider"></div>`;
+    h+=`<div class="detail-secondary-grid"><div class="guide-group compact-section"><div class="guide-group-title">전체 구성 카드</div><div class="mini-grid">${all.map(n=>cardTile(n)).join('')}</div></div></div>`;
+  }
+
   h+=`<button class="detail-close" onclick="closeDetail()">닫기</button>`;
   body.innerHTML=h;
-  document.getElementById('detailModal').classList.add('open');
+  const modal=document.getElementById('detailModal');
+  modal.dataset.mode='guide';
+  modal.classList.add('open');
   updateBodyLock();
 }
 
