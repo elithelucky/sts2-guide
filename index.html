@@ -237,6 +237,17 @@ body.modal-lock{position:fixed;left:0;right:0;overflow:hidden;width:100%;touch-a
 .modal-top h2{font-size:17px;font-weight:800}
 .modal-close{background:var(--bd2);border:none;color:var(--sub);font-size:16px;cursor:pointer;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center}
 .modal-top input{width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--bd2);background:var(--bg);color:var(--tx);font-size:15px;outline:none;font-family:inherit}
+.search-scope-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.search-scope-btn,.search-scope-char{height:36px;border-radius:999px;border:1px solid var(--bd2);background:var(--s2);color:var(--sub);font-size:13px;font-weight:800;padding:0 12px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-family:inherit;box-shadow:none;animation:none;transform:none;position:relative;gap:6px}
+.search-scope-btn.on{background:var(--bd2);color:var(--tx);border-color:var(--bd2)}
+.search-scope-char{padding:0 12px;overflow:hidden}
+.search-scope-char img{width:16px;height:16px;object-fit:contain;display:block}
+.search-scope-char.on{background:color-mix(in srgb,var(--cc) 16%, var(--s2));color:#fff;border-color:color-mix(in srgb,var(--cc) 45%, var(--bd2));box-shadow:none;animation:none !important}
+.search-scope-char::before,.search-scope-char::after{content:none !important;animation:none !important}
+.search-scope-char span{line-height:1}
+.search-scope-keycap{display:none;align-items:center;justify-content:center;min-width:36px;height:20px;padding:0 7px;border-radius:6px;font-size:10px;font-weight:800;line-height:1;color:#e5edf8;background:linear-gradient(180deg,#1f2937,#111827);border:1px solid rgba(148,163,184,.38);box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 3px 10px rgba(0,0,0,.35);letter-spacing:.01em;flex:0 0 auto}
+@media (min-width: 1024px){.search-scope-keycap{display:inline-flex}}
+
 .modal-body{overflow-y:auto;flex:1;padding:10px 12px 16px;overscroll-behavior:contain}
 .search-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .sg-card{position:relative;border-radius:8px;overflow:visible;cursor:pointer;border:1.5px solid var(--bd2);background:var(--s2)}
@@ -1719,7 +1730,7 @@ body{
   <div id="coopSection"></div>
 </div>
 <div class="modal-bg" id="searchModal">
-  <div class="modal-box"><div class="modal-top"><div class="modal-top-row"><h2 id="modalTitle">카드 선택</h2><button class="modal-close" onclick="closeSearch()">✕</button></div><input id="modalInput" placeholder="이름 또는 초성 (폼멜타격 : ㅍㅁㅌㄱ)" oninput="renderSearchGrid()"></div><div class="modal-body"><div id="searchGridWrap"></div></div></div>
+  <div class="modal-box"><div class="modal-top"><div class="modal-top-row"><h2 id="modalTitle">카드 선택</h2><button class="modal-close" onclick="closeSearch()">✕</button></div><input id="modalInput" placeholder="이름 또는 초성 (폼멜타격 : ㅍㅁㅌㄱ)" oninput="renderSearchGrid()"><div id="searchScopeRow" class="search-scope-row"></div></div><div class="modal-body"><div id="searchGridWrap"></div></div></div>
 </div>
 <div class="modal-bg" id="detailModal" onclick="if(event.target===this)closeDetail()"><div class="detail-box" id="detailBody"></div></div>
 
@@ -2104,46 +2115,81 @@ const BUILD_RELICS={
 // 통합 데이터 접근
 // ═══════════════════════════════════════
 
-const COLORLESS_CARDS=(function(){
-  const defs=[];
-  const add=(names,t,r,tier='D')=>names.forEach(n=>defs.push({n,c:0,t,r,tier,tip:`${r} 카드`}));
-
-  add(['강철의 섬광','극적인 입장','난사','만물 절단','고동치는 도끼','궁극의 타격','정신 공격','주먹다짐','탐색 타격'],'공격','일반','B');
-  add(['능숙','미래 예지','비상 단추','생산','성급함','순수','어둠의 족쇄','연장','초조함','팔방미인','궁극의 수비','발견','착수','재난','충격파','평형','폭탄'],'스킬','일반','B');
-  add(['위풍당당','고정시키기','기량','자동화','준비 시간','책략'],'파워','일반','B');
-
-  add(['사냥돌','집중 포화','황금 도끼','쥐어뜯기','탐욕의 손','잭팟'],'공격','희귀','A');
-  add(['비밀 기술','비밀 병기','전략의 천재','포석','숨겨진 보석','연금','임명','휘갈김','두들겨 패기'],'스킬','희귀','A');
-  add(['엔트로피','향수','대혼란','굴러가는 바위','영원의 갑옷','재앙'],'파워','희귀','A');
-
-  add(['집단 공격','태그 팀','너만 믿는다','가로막기','똘똘 뭉치기','부양','협력','때려눕히기','흉내내기','단결','희망의 등불'],'멀티','멀티','B');
-
-  add(['유성우','제압','니오우의 격분','파수꾼','할퀴기','박살','호각 불기'],'고대의 존재','고대','A');
-  add(['염원','찬란한 불꽃','사중 시전','영체화','신성','안식'],'고대의 존재','고대','A');
-  add(['봉인된 왕좌','인지 편향','금지된 마도서','유령의 형상','타락'],'고대의 존재','고대','A');
-
-  add(['감염','공허','그을음','나태','부상','분해','쇠퇴','어지러움','정신 오염','화상','유독성','유인','잔해','점액투성이','필사적인 도주'],'상태이상','상태이상','D');
-
-  add(['규칙 준수','등반가의 골칫거리','몸부림','방울의 저주','부패','불운','빚','상처','서투름','수면 부족','수치','어리석음','의심','죄책감','탐욕','후회','포자 잠식','매료됨'],'저주','저주','D');
-
-  add(['격돌','섀 급습','되돌리기','박멸','짓누르기','쪼기'],'공격','이벤트','C');
-  add(['계몽','방해','스택','고리형 강인함','참호','탈바꿈','Hello World'],'스킬','이벤트','C');
-  add(['광란의 포식','압도','이도류','마름쇠'],'공격','이벤트','C');
-
-  add(['랜턴 열쇠','보물 지도','섀도니스 알'],'퀘스트','퀘스트','D');
-
-  add(['단도','하수인 타격','하수인 투하','군주의 칼날','발광','연료','영혼','하수인 희생'],'토큰','토큰','D');
-  add(['훑어보기','거대한 바위'],'토큰','토큰','D');
-
-  const seen=new Set();
-  return defs.filter(card=>{
-    const key=card.n;
-    if(seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-})();
-
+const COLORLESS_CARDS=[
+  {n:'강철의 섬광',c:0,t:'공격',r:'일반',tier:'A',tip:'0코 5피해+드로우1. 취약 효율도 좋아 무난한 고성능 카드'},
+  {n:'극적인 입장',c:0,t:'공격',r:'일반',tier:'B',tip:'선천성 광역딜. 초반 잡몹 정리에 무난'},
+  {n:'난사',c:'X',t:'공격',r:'일반',tier:'C',tip:'무작위 대상이라 안정성 낮음. 대체로 우선순위 낮음'},
+  {n:'만물 절단',c:0,t:'공격',r:'일반',tier:'B',tip:'단일 딜을 광역으로 전이. 취약·딜펌핑이 있는 덱에서 가치 상승'},
+  {n:'고동치는 도끼',c:1,t:'공격',r:'일반',tier:'A',tip:'손으로 계속 돌아와 드로우를 방해하지 않는 꾸준한 딜 카드'},
+  {n:'궁극의 타격',c:1,t:'공격',r:'일반',tier:'B',tip:'이벤트산 압축 공격 카드. 타격 2장을 좋은 한 장으로 압축'},
+  {n:'정신 공격',c:1,t:'공격',r:'일반',tier:'B',tip:'덱이 커질수록 강해지는 선천성 딜 카드'},
+  {n:'주먹다짐',c:1,t:'공격',r:'일반',tier:'B',tip:'공격과 방어를 같이 해결하는 무난한 카드'},
+  {n:'탐색 타격',c:1,t:'공격',r:'일반',tier:'B',tip:'딜+서치. 특정 키카드를 찾는 덱에서 고려 가능'},
+  {n:'능숙',c:0,t:'스킬',r:'일반',tier:'A',tip:'0코 방어+드로우. 어느 덱이든 무난하게 좋음'},
+  {n:'미래 예지',c:0,t:'스킬',r:'일반',tier:'B',tip:'손패 정리와 다음 턴 설계용 카드'},
+  {n:'비상 단추',c:0,t:'스킬',r:'일반',tier:'A',tip:'0코로 한 턴을 확실히 버티는 카드'},
+  {n:'생산',c:0,t:'스킬',r:'일반',tier:'S',tip:'지속 에너지 공급. 강화 가치도 매우 큼'},
+  {n:'성급함',c:0,t:'스킬',r:'일반',tier:'B',tip:'공격이 없는 압축 덱에서 강한 드로우 엔진'},
+  {n:'순수',c:0,t:'스킬',r:'일반',tier:'B',tip:'손패 정리·무한덱 보조용 소멸 카드'},
+  {n:'어둠의 족쇄',c:0,t:'스킬',r:'일반',tier:'A',tip:'강력한 힘 감소로 위험한 한 턴을 넘기기 좋음'},
+  {n:'연장',c:0,t:'스킬',r:'일반',tier:'S',tip:'현재 방어도를 다음 턴으로 이월. 방어도 덱 핵심급'},
+  {n:'초조함',c:0,t:'스킬',r:'일반',tier:'B',tip:'손패를 비우는 무한덱에서 큰 리턴'},
+  {n:'팔방미인',c:0,t:'스킬',r:'일반',tier:'C',tip:'무색 카드 편차가 커서 보통 우선순위 낮음'},
+  {n:'궁극의 수비',c:1,t:'스킬',r:'일반',tier:'B',tip:'이벤트산 압축 방어 카드'},
+  {n:'발견',c:1,t:'스킬',r:'일반',tier:'A',tip:'0코로 쓸 카드 선택지를 열어주는 무난한 변수 카드'},
+  {n:'착수',c:1,t:'스킬',r:'일반',tier:'B',tip:'다른 캐릭터 공격을 0코로 빌려오는 변수 카드'},
+  {n:'재난',c:2,t:'스킬',r:'일반',tier:'B',tip:'덱 구성에 따라 강하게 터지는 무작위 사용 카드'},
+  {n:'충격파',c:2,t:'스킬',r:'일반',tier:'A',tip:'광역 취약·약화. 디버프 시너지 덱에서 특히 좋음'},
+  {n:'평형',c:2,t:'스킬',r:'일반',tier:'A',tip:'보존까지 붙은 준수한 방어 카드'},
+  {n:'폭탄',c:2,t:'스킬',r:'일반',tier:'A',tip:'초반 스노우볼용 광역 딜 파워 카드'},
+  {n:'위풍당당',c:0,t:'파워',r:'일반',tier:'A',tip:'카드 다사용 덱에서 광역딜 엔진'},
+  {n:'고정시키기',c:1,t:'파워',r:'일반',tier:'B',tip:'수비 카드 효율을 높여 초중반을 안정화'},
+  {n:'기량',c:1,t:'파워',r:'일반',tier:'B',tip:'힘과 민첩을 동시에 올리는 무난한 성장 카드'},
+  {n:'자동화',c:1,t:'파워',r:'일반',tier:'S',tip:'드로우가 많은 덱에서 에너지 엔진으로 매우 강함'},
+  {n:'준비 시간',c:1,t:'파워',r:'일반',tier:'A',tip:'다단 히트 덱에서 강력한 활력 공급원'},
+  {n:'책략',c:1,t:'파워',r:'일반',tier:'B',tip:'셔플이 자주 나는 덱에서 원하는 카드 회수'},
+  {n:'사냥돌',c:0,t:'공격',r:'희귀',tier:'B',tip:'공짜 짤딜을 매턴 누적하는 성장형 카드'},
+  {n:'집중 포화',c:1,t:'공격',r:'희귀',tier:'B',tip:'보존이 핵심인 카드. 보존 시너지에서 가치 상승'},
+  {n:'황금 도끼',c:1,t:'공격',r:'희귀',tier:'A',tip:'카드 사용이 많은 덱에서 장기전 피니셔'},
+  {n:'쥐어뜯기',c:2,t:'공격',r:'희귀',tier:'B',tip:'해로운 효과 종류가 많을수록 강해짐'},
+  {n:'탐욕의 손',c:2,t:'공격',r:'희귀',tier:'B',tip:'초반 골드 스노우볼용 카드'},
+  {n:'잭팟',c:3,t:'공격',r:'희귀',tier:'A',tip:'직업 0코 카드 풀이 좋은 클래스에서 고점 높음'},
+  {n:'비밀 기술',c:0,t:'스킬',r:'희귀',tier:'A',tip:'스킬 서치. 덱의 키카드를 안정적으로 당겨옴'},
+  {n:'비밀 병기',c:0,t:'스킬',r:'희귀',tier:'B',tip:'핵심 공격 서치용. 범용성은 비밀 기술보다 낮음'},
+  {n:'전략의 천재',c:0,t:'스킬',r:'희귀',tier:'S',tip:'조건 없는 대량 드로우'},
+  {n:'포석',c:0,t:'스킬',r:'희귀',tier:'C',tip:'매턴 완막 구조가 아니면 리스크가 너무 큼'},
+  {n:'숨겨진 보석',c:1,t:'스킬',r:'희귀',tier:'S',tip:'재사용 부여로 카드 밸류를 폭증시키는 강력한 카드'},
+  {n:'연금',c:1,t:'스킬',r:'희귀',tier:'A',tip:'포션 생성. 강화 시 0코로 매우 편해짐'},
+  {n:'임명',c:1,t:'스킬',r:'희귀',tier:'B',tip:'희귀 카드가 많은 덱에서만 선택적으로 강함'},
+  {n:'휘갈김',c:1,t:'스킬',r:'희귀',tier:'A',tip:'패가 찰 때까지 드로우. 한 번에 턴을 크게 늘림'},
+  {n:'두들겨 패기',c:3,t:'스킬',r:'희귀',tier:'B',tip:'버림더미 공격 활용 덱에서 고점 존재'},
+  {n:'엔트로피',c:1,t:'파워',r:'희귀',tier:'B',tip:'상태이상 처리나 변형 활용에 특화'},
+  {n:'향수',c:1,t:'파워',r:'희귀',tier:'A',tip:'매턴 첫 공격/스킬을 다시 쓰게 해주는 강력한 반복 엔진'},
+  {n:'대혼란',c:2,t:'파워',r:'희귀',tier:'B',tip:'덱 탑 조작과 연계할 때 진가를 발휘'},
+  {n:'굴러가는 바위',c:3,t:'파워',r:'희귀',tier:'C',tip:'느린 성장형. 망한 덱의 구원투수 정도'},
+  {n:'영원의 갑옷',c:3,t:'파워',r:'희귀',tier:'C',tip:'비용이 너무 무거워 일반적으로 우선순위 낮음'},
+  {n:'재앙',c:3,t:'파워',r:'희귀',tier:'C',tip:'무작위 공격 생성의 편차가 커 안정성 낮음'},
+  {n:'유성우',c:0,t:'공격',r:'고대',tier:'S',tip:'광역 피해+취약·약화까지 주는 강력한 카드'},
+  {n:'니오우의 격분',c:1,t:'공격',r:'고대',tier:'A',tip:'딜과 버림더미 회수를 동시에 해결'},
+  {n:'할퀴기',c:1,t:'공격',r:'고대',tier:'A',tip:'사용할수록 스스로 성장하는 다단 공격'},
+  {n:'호각 불기',c:3,t:'공격',r:'고대',tier:'A',tip:'기절까지 달린 강력한 한방 카드'},
+  {n:'염원',c:0,t:'스킬',r:'고대',tier:'S',tip:'아무 카드나 서치하는 강력한 범용 카드'},
+  {n:'찬란한 불꽃',c:0,t:'스킬',r:'고대',tier:'A',tip:'드로우와 에너지를 크게 늘려주는 폭발 카드'},
+  {n:'영체화',c:1,t:'스킬',r:'고대',tier:'S',tip:'불가침 획득. 생존을 단번에 해결'},
+  {n:'신성',c:2,t:'스킬',r:'고대',tier:'S',tip:'모든 카드를 강화. 후반 가치 매우 높음'},
+  {n:'안식',c:3,t:'스킬',r:'고대',tier:'A',tip:'방어와 다음 턴 드로우·에너지까지 챙김'},
+  {n:'집단 공격',c:1,t:'공격',r:'멀티',tier:'A',tip:'아군 공격 횟수에 비례해 매우 강해짐'},
+  {n:'태그 팀',c:2,t:'공격',r:'멀티',tier:'B',tip:'소통이 되면 강력하지만 타이밍 의존적'},
+  {n:'너만 믿는다',c:0,t:'스킬',r:'멀티',tier:'A',tip:'아군에게 대량 에너지를 주는 서포트 카드'},
+  {n:'가로막기',c:1,t:'스킬',r:'멀티',tier:'B',tip:'아군 공격을 대신 받아주는 탱커 카드'},
+  {n:'똘똘 뭉치기',c:1,t:'스킬',r:'멀티',tier:'A',tip:'모든 아군 드로우 지원'},
+  {n:'부양',c:1,t:'스킬',r:'멀티',tier:'B',tip:'아군 단일 방어 지원'},
+  {n:'협력',c:1,t:'스킬',r:'멀티',tier:'C',tip:'소통이 안 되면 꼬이기 쉬운 힘 지원 카드'},
+  {n:'때려눕히기',c:3,t:'공격',r:'멀티',tier:'B',tip:'아군 폭딜 타이밍이 맞을 때 큰 고점'},
+  {n:'흉내내기',c:1,t:'스킬',r:'멀티',tier:'B',tip:'아군 방어도 복사'},
+  {n:'단결',c:2,t:'스킬',r:'멀티',tier:'A',tip:'모든 플레이어 방어도 획득'},
+  {n:'희망의 등불',c:1,t:'파워',r:'멀티',tier:'A',tip:'방어도 빌드가 있으면 파티 유지력을 크게 올림'}
+];
 function isSearchableCard(card, charKey=curChar){
   if(!card || typeof card.n!=='string' || !card.n.trim()) return false;
   if(typeof card.t!=='string' || typeof card.tier!=='string') return false;
@@ -2151,26 +2197,70 @@ function isSearchableCard(card, charKey=curChar){
   const inColorless=COLORLESS_CARDS.some(x=>x&&x.n===card.n);
   return inClass || inColorless;
 }
-function isColorlessCard(card){
-  return !!(card && typeof card.n==='string' && COLORLESS_CARDS.some(x=>x&&x.n===card.n));
-}
 function getCurrentCardPool(){
-  const classCards=(ALL[curChar]&&ALL[curChar].cards)?ALL[curChar].cards:[];
-  const seen=new Set();
-  return [...classCards, ...COLORLESS_CARDS].filter(card=>{
-    if(!isSearchableCard(card,curChar)) return false;
-    if(seen.has(card.n)) return false;
-    seen.add(card.n);
-    return true;
-  });
+  return getAllSearchCards();
+}
 
-  // shop: if purchase-end is the best choice, force it to the very top
-  if (isShopMode) {
-    const skipNode = body.querySelector('.res-skip-compact.skip-best');
-    if (skipNode) {
-      body.prepend(skipNode);
-    }
+let searchScope='current';
+function dedupeCards(cards){
+  const seen=new Set();
+  return (cards||[]).filter(card=>card&&card.n&&!seen.has(card.n)&&(seen.add(card.n),true));
+}
+function isColorlessCard(card){
+  return !!(card && COLORLESS_CARDS.some(x=>x && x.n===card.n));
+}
+function isClassCard(card, charKey){
+  const data=ALL[charKey];
+  return !!(card && data && data.cards && data.cards.some(x=>x && x.n===card.n));
+}
+function getOtherClassCards(){
+  const out=[];
+  for(const [key,data] of Object.entries(ALL||{})){
+    if(key===curChar) continue;
+    for(const card of ((data&&data.cards)||[])) out.push(card);
   }
+  return dedupeCards(out.filter(card=>card && !isColorlessCard(card)));
+}
+function getAllSearchCards(){
+  const out=[];
+  for(const data of Object.values(ALL||{})){
+    for(const card of ((data&&data.cards)||[])) out.push(card);
+  }
+  for(const card of (COLORLESS_CARDS||[])) out.push(card);
+  return dedupeCards(out.filter(card=>card && card.n && card.n!=='profile'));
+}
+function applySearchScope(cards){
+  const list=dedupeCards(cards||[]);
+  switch(searchScope){
+    case 'current':
+      return list.filter(card=>isClassCard(card, curChar));
+    case 'colorless':
+      return list.filter(card=>isColorlessCard(card));
+    case 'other':
+      return list.filter(card=>!isColorlessCard(card) && !isClassCard(card, curChar));
+    default:
+      return list;
+  }
+}
+function setSearchScope(scope){
+  searchScope=scope;
+  renderSearchScopeTabs();
+  renderSearchGrid();
+  ensureSearchInputFocus();
+}
+function getSearchScopeTabsHTML(){
+  const current=CHARS[curChar];
+  const mk=(scope,label,hotkey)=>`<button class="search-scope-btn${searchScope===scope?' on':''}" onclick="setSearchScope('${scope}')"><span>${label}</span><span class="search-scope-keycap">ALT+${hotkey}</span></button>`;
+  return [
+    mk('all','전체',1),
+    `<button class="search-scope-char${searchScope==='current'?' on':''}" style="--cc:${current.color}" onclick="setSearchScope('current')"><img src="${profileImgSrc(curChar)}" onerror="this.onerror=null;this.style.display='none'"><span>${current.name}</span><span class="search-scope-keycap">ALT+2</span></button>`,
+    mk('colorless','중립',3),
+    mk('other','다른 직업',4)
+  ].join('');
+}
+function renderSearchScopeTabs(){
+  const row=document.getElementById('searchScopeRow');
+  if(row) row.innerHTML=getSearchScopeTabsHTML();
 }
 function getCardMeta(name, preferredChar=curChar){
   const preferred=ALL[preferredChar];
@@ -2759,7 +2849,7 @@ function scoreCard(name){
 // ═══════════════════════════════════════
 const REPO_API='https://api.github.com/repos/elithelucky/sts2-images/contents/';
 let REPO_LOADED=false;
-let REPO_CARD_NAMES_BY_CHAR={ironclad:[],silent:[],defect:[],necro:[],regent:[]};
+let REPO_CARD_NAMES_BY_CHAR={ironclad:[],silent:[],defect:[],necro:[],regent:[],colorless:[]};
 let REPO_RELIC_NAMES=[];
 let REPO_RELIC_SET=new Set();
 function normalizeCardName(s){return (s||'').replace(/\s+/g,'').replace(/[!'?.,:+\-]/g,'')}
@@ -2771,15 +2861,16 @@ async function enrichCardsFromRepo(){
     const res=await fetch(REPO_API);
     if(!res.ok) return;
     const files=await res.json();
-    const suffixToChar={Ironclad:'ironclad',Silent:'silent',Defect:'defect',Necrobinder:'necro',Regent:'regent'};
-    const byChar={ironclad:IC_CARDS,silent:SI_CARDS,defect:DE_CARDS,necro:NE_CARDS,regent:RE_CARDS};
-    const repoNames={ironclad:[],silent:[],defect:[],necro:[],regent:[]};
+    const suffixToChar={Ironclad:'ironclad',Silent:'silent',Defect:'defect',Necrobinder:'necro',Regent:'regent',Colorless:'colorless'};
+    const byChar={ironclad:IC_CARDS,silent:SI_CARDS,defect:DE_CARDS,necro:NE_CARDS,regent:RE_CARDS,colorless:COLORLESS_CARDS};
+    const repoNames={ironclad:[],silent:[],defect:[],necro:[],regent:[],colorless:[]};
     const relicNames=[];
 
     (files||[]).forEach(f=>{
       if(!f.name || !/\.webp$/i.test(f.name)) return;
       const base=f.name.replace(/\.webp$/i,'');
-      const m=base.match(/^(.+?)_(Ironclad|Silent|Defect|Necrobinder|Regent)$/);
+      if(/^profile_/i.test(base)) return;
+      const m=base.match(/^(.+?)_(Ironclad|Silent|Defect|Necrobinder|Regent|Colorless)$/);
       if(m){
         const rawName=m[1];
         const charKey=suffixToChar[m[2]];
@@ -3061,10 +3152,7 @@ function renderSearchGrid(){
   wrap.innerHTML='<div class="search-grid loading"></div>';
   const pool=deckAddMode?getCurrentCardPool().filter(c=>isSearchableCard(c,curChar)):getSearchPoolForSlot(activeSlot||0);
   let list;if(deckAddMode){list=pool.slice()}else{const ex=picks.filter((p,j)=>p&&j!==activeSlot);const pickable=pool.filter(c=>!BA().includes(c.n));list=pickable.filter(c=>!ex.includes(c.n))}
-  list=list.map(c=>({card:c,rank:getSearchRank(c.n,q)})).filter(x=>{
-    const ownerKey=isColorlessCard(x.card)?'colorless':curChar;
-    return isSearchableCard(x.card,ownerKey) && x.rank>-1;
-  }).sort((a,b)=>b.rank-a.rank || a.card.n.length-b.card.n.length || a.card.n.localeCompare(b.card.n,'ko')).map(x=>x.card);
+  list=applySearchScope(list).map(c=>({card:c,rank:getSearchRank(c.n,q)})).filter(x=>x.rank>-1).sort((a,b)=>b.rank-a.rank || a.card.n.length-b.card.n.length || a.card.n.localeCompare(b.card.n,'ko')).map(x=>x.card);
   searchResultList=list.slice();
   searchResultAction=[];
   if(!list.length){wrap.innerHTML='<div class="search-empty">결과 없음</div>';return}
@@ -3420,9 +3508,9 @@ let buildPanelOpen=true;
 function changeChar(k){curChar=k;buildId=null;deck=[...START_DECKS[k]];deckIds=deck.map(()=>__deckSeq++);upgradedIds = new Set();window.upgradedIds = upgradedIds;picks=freshPicks();hist=[];selectedDeckIdx=-1;historyOpen=false;buildPanelOpen=true;renderAll()}
 function selectBuild(id){buildId=(id==='auto')?null:(buildId===id?null:id);renderAll()}
 function setMode(m){mode=m;picks=freshPicks();renderAll()}
-function openSearch(i){activeSlot=i;deckAddMode=false;document.getElementById('modalTitle').textContent=getSlotLabel(i)+' 선택';document.getElementById('modalInput').value='';document.getElementById('searchModal').classList.add('open');updateBodyLock();renderSearchGrid();ensureSearchInputFocus()}
-function openDeckAdd(){deckAddMode=true;activeSlot=-1;document.getElementById('modalTitle').textContent='덱에 카드 추가';document.getElementById('modalInput').value='';document.getElementById('searchModal').classList.add('open');updateBodyLock();renderSearchGrid();ensureSearchInputFocus()}
-function closeSearch(){document.getElementById('searchModal').classList.remove('open');activeSlot=-1;deckAddMode=false;updateBodyLock()}
+function openSearch(i){activeSlot=i;deckAddMode=false;searchScope='current';document.getElementById('modalTitle').textContent=getSlotLabel(i)+' 선택';document.getElementById('modalInput').value='';document.getElementById('searchModal').classList.add('open');updateBodyLock();renderSearchScopeTabs();renderSearchGrid();ensureSearchInputFocus()}
+function openDeckAdd(){deckAddMode=true;activeSlot=-1;searchScope='current';document.getElementById('modalTitle').textContent='덱에 카드 추가';document.getElementById('modalInput').value='';document.getElementById('searchModal').classList.add('open');updateBodyLock();renderSearchScopeTabs();renderSearchGrid();ensureSearchInputFocus()}
+function closeSearch(){document.getElementById('searchModal').classList.remove('open');activeSlot=-1;deckAddMode=false;searchScope='current';updateBodyLock()}
 function showDetail(name){
   const d=D();const c=getCardMeta(name);const body=document.getElementById('detailBody');const srcs=imgSrcs(name);
   const modal=document.getElementById('detailModal');
@@ -3539,10 +3627,11 @@ const SHOP_SLOT_COUNT=SHOP_CLASS_COUNT+SHOP_COLORLESS_COUNT;
 function isShopColorlessSlot(idx){return idx>=SHOP_CLASS_COUNT}
 function getNeedCount(){return mode==='shop'?SHOP_SLOT_COUNT:3}
 function getSearchPoolForSlot(idx){
-  const base=(ALL[curChar]&&ALL[curChar].cards?ALL[curChar].cards:[]).filter(c=>isSearchableCard(c,curChar));
-  const colorless=(typeof COLORLESS_CARDS!=='undefined'?COLORLESS_CARDS:[]).filter(c=>isSearchableCard(c,'colorless'));
-  if(mode==='shop' && isShopColorlessSlot(idx)) return colorless.slice();
-  return mode==='shop' ? [...base] : [...base,...colorless];
+  const base=(ALL[curChar]&&ALL[curChar].cards?ALL[curChar].cards:[]);
+  const colorless=(typeof COLORLESS_CARDS!=='undefined'?COLORLESS_CARDS:[]);
+  if(mode==='shop' && isShopColorlessSlot(idx)) return dedupeCards(colorless.slice());
+  if(mode==='shop') return dedupeCards([...base]);
+  return getAllSearchCards();
 }
 function getSlotLabel(idx){
   if(mode!=='shop') return `카드 ${idx+1}`;
@@ -3653,6 +3742,28 @@ function handleGlobalHotkeys(e){
     }
   }
 }
+
+document.addEventListener('keydown', function(e){
+  if(!e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+  if(!isSearchModalOpen()) return;
+  const key=String(e.key||'');
+  const map={'1':'all','2':'current','3':'colorless','4':'other'};
+  const next=map[key];
+  if(!next) return;
+  // 한글 IME 조합 중에도 ALT+숫자 범위 전환은 먹어야 함
+  e.preventDefault();
+  e.stopPropagation();
+  if(typeof e.stopImmediatePropagation==='function') e.stopImmediatePropagation();
+  const modalInput=document.getElementById('modalInput');
+  if(modalInput && document.activeElement===modalInput){
+    const value=modalInput.value;
+    requestAnimationFrame(()=>{
+      if(modalInput.value!==value) modalInput.value=value;
+    });
+  }
+  setSearchScope(next);
+  return false;
+}, true);
 
 document.addEventListener('keydown', handleGlobalHotkeys, true);
 
@@ -4289,10 +4400,7 @@ window.renderSearchGrid = function(){
   wrap.innerHTML='<div class="search-grid loading"></div>';
   const pool=deckAddMode?getCurrentCardPool().filter(c=>isSearchableCard(c,curChar)):getSearchPoolForSlot(activeSlot||0);
   let list;if(deckAddMode){list=pool.slice()}else{const ex=picks.filter((p,j)=>p&&j!==activeSlot);const pickable=pool.filter(c=>!BA().includes(c.n));list=pickable.filter(c=>!ex.includes(c.n))}
-  list=list.map(c=>({card:c,rank:getSearchRank(c.n,q)})).filter(x=>{
-    const ownerKey=isColorlessCard(x.card)?'colorless':curChar;
-    return isSearchableCard(x.card,ownerKey) && x.rank>-1;
-  }).sort((a,b)=>b.rank-a.rank || a.card.n.length-b.card.n.length || a.card.n.localeCompare(b.card.n,'ko')).map(x=>x.card);
+  list=applySearchScope(list).map(c=>({card:c,rank:getSearchRank(c.n,q)})).filter(x=>x.rank>-1).sort((a,b)=>b.rank-a.rank || a.card.n.length-b.card.n.length || a.card.n.localeCompare(b.card.n,'ko')).map(x=>x.card);
   searchResultList=list.slice();
   searchResultAction=[];
   if(!list.length){wrap.innerHTML='<div class="search-empty">결과 없음</div>';return}
@@ -5128,187 +5236,6 @@ window.renderResult = function(scored,skipScore){
       return native.apply(this, arguments);
     };
   }
-})();
-</script>
-
-
-<style>
-.search-tabs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:10px 0 2px}
-.search-tabs::-webkit-scrollbar{display:none}
-.search-tab{flex:0 0 auto;padding:8px 12px;border-radius:999px;border:1px solid var(--bd2);background:var(--s2);color:var(--sub);font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap}
-.search-tab.on{color:#fff;border-color:#60a5fa;background:linear-gradient(180deg,#1a2538,#121826);box-shadow:0 0 0 1px rgba(96,165,250,.18),0 8px 20px rgba(59,130,246,.10)}
-.search-tab.search-tab-char{display:inline-flex;align-items:center;gap:6px;padding:7px 12px}
-.search-tab.search-tab-char img{width:16px;height:16px;object-fit:contain;display:block}
-.search-tab.search-tab-char.on{border-color:color-mix(in srgb,var(--cc) 70%, #000);background:linear-gradient(180deg,color-mix(in srgb,var(--cc) 34%, #0e1016),color-mix(in srgb,var(--cc) 18%, #0b0d12));box-shadow:0 0 0 1px color-mix(in srgb,var(--cc) 24%, transparent),0 8px 20px color-mix(in srgb,var(--cc) 18%, transparent)}
-.search-tab-hint{margin-top:8px;font-size:12px;color:var(--dim);font-weight:700}
-</style>
-<script>
-(function(){
-  window.searchModalTab = 'all';
-
-  function ensureSearchTabs(){
-    const top = document.querySelector('#searchModal .modal-top');
-    if(!top) return;
-    let host = document.getElementById('searchTabsHost');
-    if(!host){
-      host = document.createElement('div');
-      host.id = 'searchTabsHost';
-      const input = document.getElementById('modalInput');
-      if(input && input.parentNode===top) top.insertBefore(host, input.nextSibling);
-      else top.appendChild(host);
-    }
-    renderSearchTabs();
-  }
-
-  function getCurrentClassCardNames(){
-    return new Set(((ALL[curChar]&&ALL[curChar].cards)||[]).map(c=>c.n));
-  }
-  function getOtherClassCardNames(){
-    const set = new Set();
-    Object.keys(ALL).forEach(k=>{
-      if(k===curChar) return;
-      (ALL[k].cards||[]).forEach(c=>set.add(c.n));
-    });
-    return set;
-  }
-  function isSpecialColorlessCard(card){
-    if(!card) return false;
-    return card.r==='상태이상' || card.r==='저주' || card.t==='상태이상' || card.t==='저주';
-  }
-  function getSearchTabHint(tab){
-    if(tab==='all') return '전체 카드에서 검색합니다.';
-    if(tab==='current') return '현재 선택한 직업 카드만 검색합니다.';
-    if(tab==='colorless') return '중립 카드만 검색합니다.';
-    if(tab==='special') return '상태이상 및 저주 카드만 검색합니다.';
-    if(tab==='other') return '현재 직업을 제외한 다른 직업 카드만 검색합니다.';
-    return '';
-  }
-  function renderSearchTabs(){
-    const host = document.getElementById('searchTabsHost');
-    if(!host) return;
-    const current = CHARS[curChar] || {name:'현재 직업', color:'#60a5fa'};
-    host.innerHTML = `
-      <div class="search-tabs">
-        <button type="button" class="search-tab${window.searchModalTab==='all'?' on':''}" data-tab="all">전체</button>
-        <button type="button" class="search-tab search-tab-char${window.searchModalTab==='current'?' on':''}" style="--cc:${current.color}" data-tab="current"><img src="${typeof profileImgSrc==='function'?profileImgSrc(curChar):''}" onerror="this.onerror=null;this.style.display='none'"><span>${current.name}</span></button>
-        <button type="button" class="search-tab${window.searchModalTab==='colorless'?' on':''}" data-tab="colorless">중립</button>
-        <button type="button" class="search-tab${window.searchModalTab==='special'?' on':''}" data-tab="special">특수</button>
-        <button type="button" class="search-tab${window.searchModalTab==='other'?' on':''}" data-tab="other">다른 직업</button>
-      </div>
-      <div class="search-tab-hint">${getSearchTabHint(window.searchModalTab)}</div>`;
-    host.querySelectorAll('[data-tab]').forEach(btn=>{
-      btn.onclick = ()=>{
-        window.searchModalTab = btn.dataset.tab;
-        renderSearchTabs();
-        if(typeof window.renderSearchGrid==='function') window.renderSearchGrid();
-      };
-    });
-  }
-
-  function getTabbedPool(basePool){
-    const currentNames = getCurrentClassCardNames();
-    const otherNames = getOtherClassCardNames();
-    const dedup = []; const seen = new Set();
-    (basePool||[]).forEach(card=>{ if(card && !seen.has(card.n)){ seen.add(card.n); dedup.push(card); } });
-    if(window.searchModalTab==='current') return dedup.filter(card=>currentNames.has(card.n));
-    if(window.searchModalTab==='colorless') return dedup.filter(card=>isColorlessCard(card) && !isSpecialColorlessCard(card));
-    if(window.searchModalTab==='special') return dedup.filter(card=>isColorlessCard(card) && isSpecialColorlessCard(card));
-    if(window.searchModalTab==='other') return dedup.filter(card=>otherNames.has(card.n) && !currentNames.has(card.n));
-    return dedup;
-  }
-
-  function getFullSearchPool(){
-    const merged=[]; const seen=new Set();
-    Object.keys(ALL).forEach(k=>{ (ALL[k].cards||[]).forEach(card=>{ if(card && !seen.has(card.n)){ seen.add(card.n); merged.push(card); } }); });
-    (COLORLESS_CARDS||[]).forEach(card=>{ if(card && !seen.has(card.n)){ seen.add(card.n); merged.push(card); } });
-    return merged;
-  }
-
-  const originalOpenSearch = window.openSearch;
-  window.openSearch = function(i){
-    window.searchModalTab = 'all';
-    if(typeof originalOpenSearch==='function') originalOpenSearch(i);
-    ensureSearchTabs();
-  };
-  const originalOpenDeckAdd = window.openDeckAdd;
-  window.openDeckAdd = function(){
-    window.searchModalTab = 'all';
-    if(typeof originalOpenDeckAdd==='function') originalOpenDeckAdd();
-    ensureSearchTabs();
-  };
-  const originalChangeChar = window.changeChar;
-  window.changeChar = function(k){
-    const wasOpen = !!document.getElementById('searchModal')?.classList.contains('open');
-    if(typeof originalChangeChar==='function') originalChangeChar(k);
-    if(wasOpen) ensureSearchTabs();
-  };
-  const originalCloseSearch = window.closeSearch;
-  window.closeSearch = function(){
-    if(typeof originalCloseSearch==='function') originalCloseSearch();
-  };
-
-  window.renderSearchGrid = function(){
-    ensureSearchTabs();
-    const wrap=document.getElementById('searchGridWrap');const q=document.getElementById('modalInput').value;const d=D();
-    wrap.innerHTML='<div class="search-grid loading"></div>';
-    let pool;
-    if(deckAddMode){
-      pool = getTabbedPool(getFullSearchPool());
-    }else{
-      const base = (mode==='shop') ? getSearchPoolForSlot(activeSlot||0) : getFullSearchPool();
-      pool = getTabbedPool(base);
-    }
-    let list;
-    if(deckAddMode){
-      list = pool.slice();
-    }else{
-      const ex=picks.filter((p,j)=>p&&j!==activeSlot);
-      const pickable=pool.filter(c=>!BA().includes(c.n));
-      list=pickable.filter(c=>!ex.includes(c.n));
-    }
-    list=list.map(c=>({card:c,rank:getSearchRank(c.n,q)})).filter(x=>x.rank>-1)
-      .sort((a,b)=>b.rank-a.rank || a.card.n.length-b.card.n.length || a.card.n.localeCompare(b.card.n,'ko')).map(x=>x.card);
-    window.searchResultList=list.slice();
-    window.searchResultAction=[];
-    if(!list.length){wrap.innerHTML='<div class="search-empty">결과 없음</div>';return}
-    let prog='';
-    if(!deckAddMode){
-      const need=getNeedCount();
-      prog='<div class="slot-progress">'+Array.from({length:need},(_,i)=>`<span class="slot-dot ${i===activeSlot?'on':''} ${mode==='shop'&&isShopColorlessSlot(i)?'colorless':''}"></span>`).join('')+`<span class="slot-text">${getSlotLabel(activeSlot)} 선택</span></div>`;
-      if(mode==='shop'){
-        prog+=`<div class="slot-hint">${isShopColorlessSlot(activeSlot)?'이 슬롯은 중립 카드만 검색됩니다.':'이 슬롯은 현재 클래스 카드만 검색됩니다.'}</div>`;
-      }
-    }
-    const grid=document.createElement('div');grid.className='search-grid';
-    list.forEach((card,idx)=>{
-      const el=document.createElement('div');el.className='sg-card';
-      const choose=()=>{
-        if(deckAddMode){ pushDeckCard(card.n); closeSearch(); renderAll(); return; }
-        picks[activeSlot]=card.n;
-        const need=getNeedCount();
-        const next=Array.from({length:need},(_,i)=>i).find(i=>!picks[i]);
-        if(next!==undefined){
-          activeSlot=next;
-          document.getElementById('modalTitle').textContent=getSlotLabel(next)+' 선택';
-          document.getElementById('modalInput').value='';
-          renderRewardRow(); renderSearchGrid(); ensureSearchInputFocus();
-        } else {
-          closeSearch(); renderAll('to-result');
-        }
-      };
-      window.searchResultAction[idx]=choose;
-      el.onclick=choose;
-      const img=makeImg(card.n,'sg');el.appendChild(img);
-      const showKeycaps=(window.innerWidth>768) && q.trim().length>0;
-      if(showKeycaps && idx<9) el.innerHTML+=`<span class="search-keycap">${idx+1}</span>`;
-      el.innerHTML+=`<div class="sg-name">${card.n}</div><span class="sg-tier tier-${card.tier}">${card.tier}</span>${UNLOCK[card.n]?'<div class="lock-corner">🔒</div>':''}`;
-      grid.appendChild(el)
-    });
-    wrap.innerHTML=prog;wrap.appendChild(grid)
-  };
-
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', ensureSearchTabs);
-  else ensureSearchTabs();
 })();
 </script>
 
