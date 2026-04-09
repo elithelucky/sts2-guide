@@ -5228,3 +5228,55 @@ document.addEventListener('keydown',function(e){
   renderSearchScopeTabs(); renderSearchGrid(); ensureSearchInputFocus();
 }, true);
 </script>
+
+
+<script>
+(function(){
+  // v14: stabilize shop-buy scroll + numeric shortcuts during onboarding/search modal
+  function topOnce(){
+    try{ window.scrollTo({top:0, behavior:'auto'}); }
+    catch(_e){ window.scrollTo(0,0); }
+    try{ document.documentElement.scrollTop = 0; }catch(_e){}
+    try{ document.body.scrollTop = 0; }catch(_e){}
+  }
+
+  // Re-implement shop buy directly so old burst-scroll wrappers stop firing.
+  // IMPORTANT: shop purchase must keep the shop flow alive until all remaining shop cards are handled.
+  window.buyShopCard = function(name){
+    const from = picks.filter(Boolean);
+    pushDeckCard(name);
+    hist.push({p:`구매:${name}`, f:from});
+    if(typeof shopRemoveCard === 'function') shopRemoveCard(name);
+    deckAddMode = false;
+    activeSlot = -1;
+    const remain = (typeof remainingShopCards === 'function') ? remainingShopCards() : picks.filter(Boolean);
+    if(remain.length){
+      setLastAction(`${name} 카드를 현재 덱에 추가했습니다.`, 'success');
+      renderAll('to-result');
+    }else{
+      setLastAction(`${name} 카드를 구매하고 상점 선택을 마쳤습니다.`, 'success');
+      if(typeof finalizeShopCycle === 'function') finalizeShopCycle('구매 종료');
+      else {
+        picks = freshPicks();
+        renderAll('to-picker');
+      }
+    }
+    requestAnimationFrame(function(){ requestAnimationFrame(topOnce); });
+  };
+
+  // When search modal is open, allow 1~9 shortcut selection even if onboarding overlay/button has focus.
+  document.addEventListener('keydown', function(e){
+    const modal = document.getElementById('searchModal');
+    if(!modal || !modal.classList.contains('open')) return;
+    if(e.defaultPrevented) return;
+    if(e.ctrlKey || e.metaKey || e.altKey) return;
+    if(!/^[1-9]$/.test(e.key)) return;
+    if(!window.searchResultList || window.searchResultList.length < Number(e.key)) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if(typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+    try{ selectSearchResultByIndex(Number(e.key)-1); }catch(_e){}
+    return false;
+  }, true);
+})();
+</script>
