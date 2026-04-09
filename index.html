@@ -3752,12 +3752,14 @@ document.addEventListener('pointerup', function(e){
 }, true);
 
 document.getElementById('modalInput').addEventListener('keydown',function(e){
-  if(e.isComposing||e.ctrlKey||e.metaKey||e.altKey) return;
+  if(e.ctrlKey||e.metaKey||e.altKey) return;
   if(!document.getElementById('searchModal').classList.contains('open')) return;
   if(!/^[1-9]$/.test(e.key)) return;
   const idx=Number(e.key)-1;
   if(searchResultList.length<=idx) return;
   e.preventDefault();
+  e.stopPropagation();
+  if(typeof e.stopImmediatePropagation==='function') e.stopImmediatePropagation();
   selectSearchResultByIndex(idx);
 });
 document.getElementById('searchModal').addEventListener('click',function(e){if(e.target===this)closeSearch()});
@@ -5271,7 +5273,7 @@ document.addEventListener('keydown',function(e){
     if(e.defaultPrevented) return;
     if(e.ctrlKey || e.metaKey || e.altKey) return;
     if(!/^[1-9]$/.test(e.key)) return;
-    if(!window.searchResultList || window.searchResultList.length < Number(e.key)) return;
+    if(typeof searchResultList==='undefined' || !searchResultList || searchResultList.length < Number(e.key)) return;
     e.preventDefault();
     e.stopPropagation();
     if(typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
