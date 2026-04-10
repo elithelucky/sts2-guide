@@ -1776,8 +1776,23 @@ function getCardOwner(name, preferredChar=curChar){
   return preferredChar||'ironclad';
 }
 function imgSrcs(name){
-  const owner=getCardOwner(name,curChar);
   const base=imgBaseName(name);
+  try{
+    if(typeof REPO_POOLS!=='undefined' && REPO_POOLS){
+      const nn = (typeof norm==='function') ? norm(name) : String(name||'').replace(/\s+/g,'').trim().toLowerCase();
+      const exactColorless = (REPO_POOLS.colorless||[]).find(c => (c && (c.__norm===nn || ((c.n||'').replace(/\s+/g,'').toLowerCase()===nn))));
+      if(exactColorless && exactColorless.filename){
+        return [IMG + encodeURIComponent(exactColorless.filename)];
+      }
+      for(const k of ['ironclad','silent','defect','necro','regent']){
+        const exactClass = (REPO_POOLS[k]||[]).find(c => (c && (c.__norm===nn || ((c.n||'').replace(/\s+/g,'').toLowerCase()===nn))));
+        if(exactClass && exactClass.filename){
+          return [IMG + encodeURIComponent(exactClass.filename), IMG+encodeURIComponent(base+'_Colorless')+'.webp'];
+        }
+      }
+    }
+  }catch(e){}
+  const owner=getCardOwner(name,curChar);
   if(owner==='colorless'){
     return [IMG+encodeURIComponent(base+'_Colorless')+'.webp'];
   }
@@ -3351,7 +3366,7 @@ function renderDeck(){
     const rb=document.createElement('button');rb.className='dk-ov-btn dk-ov-del';rb.textContent='제거하기';rb.onclick=e=>{e.preventDefault();e.stopPropagation();removeDeckCardAt(i);selectedDeckIdx=-1;renderAll()};
     const ub=document.createElement('button');ub.className='dk-ov-btn dk-ov-up';ub.textContent=upgradedNow?'강화취소':'강화하기';ub.onclick=e=>{e.preventDefault();e.stopPropagation(); if(!(upgradedIds instanceof Set)){ upgradedIds = new Set(Array.isArray(upgradedIds) ? upgradedIds : []); } window.upgradedIds = upgradedIds; if(upgradedIds.has(i)){ upgradedIds.delete(i); } else { upgradedIds.add(i); } window.upgradedIds = upgradedIds; selectedDeckIdx=-1; renderDeck();};
     btns.appendChild(xb);btns.appendChild(ib);btns.appendChild(rb);btns.appendChild(ub);ov.appendChild(btns);el.appendChild(ov);wrap.appendChild(el);grid.appendChild(wrap)});
-  const add=document.createElement('div');add.className='dk-add';add.innerHTML='<span>+</span><small>추가</small>';add.onclick=(e)=>{e.stopPropagation();openDeckAdd()};grid.appendChild(add)
+  const add=document.createElement('div');add.className='dk-add';add.innerHTML='<div class="dk-add-keycap">R</div><span>+</span><small>추가</small>';add.onclick=(e)=>{e.stopPropagation();openDeckAdd()};grid.appendChild(add)
 }
 function renderDirection(){
   const sec=document.getElementById('dirSection');const d=D();const ba=BA();const nonBasic=deck.filter(n=>!ba.includes(n));
@@ -3681,6 +3696,12 @@ function handleGlobalHotkeys(e){
     if(isSearchModalOpen()) return;
     e.preventDefault();
     openPrimaryCardSearch();
+    return;
+  }
+  if(e.code==='KeyR'){
+    if(isSearchModalOpen()) return;
+    e.preventDefault();
+    openDeckAdd();
     return;
   }
   if(e.code==='Escape'){
@@ -5236,7 +5257,7 @@ window.renderResult = function(scored,skipScore){
     });
     return pools;
   }
-  let REPO_POOLS = buildRepoPools();
+  let REPO_POOLS = buildRepoPools(); window.REPO_POOLS = REPO_POOLS;
 
   function getAllClassCards(){
     return CLASS_ORDER.flatMap(k => REPO_POOLS[k] || []);
