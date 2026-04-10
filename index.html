@@ -5695,5 +5695,44 @@ window.renderResult = function(scored,skipScore){
 }
 </style>
 
+
+<script id="initial-hotkey-focus-fix">
+(function(){
+  function shouldStealFocus(){
+    const ae = document.activeElement;
+    if(!ae) return true;
+    const tag = (ae.tagName||'').toUpperCase();
+    if(tag==='INPUT' || tag==='TEXTAREA' || tag==='SELECT') return false;
+    if(ae.isContentEditable) return false;
+    return true;
+  }
+  function ensureHotkeyFocus(){
+    try{ window.focus(); }catch(e){}
+    if(!shouldStealFocus()) return;
+    try{
+      if(!document.body.hasAttribute('tabindex')) document.body.setAttribute('tabindex','-1');
+      document.body.focus({preventScroll:true});
+    }catch(e){}
+    try{
+      const live = document.getElementById('liveTab');
+      if(live){
+        if(!live.hasAttribute('tabindex')) live.setAttribute('tabindex','-1');
+        live.focus({preventScroll:true});
+      }
+    }catch(e){}
+  }
+  window.addEventListener('load', function(){
+    ensureHotkeyFocus();
+    setTimeout(ensureHotkeyFocus, 30);
+    setTimeout(ensureHotkeyFocus, 180);
+    setTimeout(ensureHotkeyFocus, 500);
+  });
+  window.addEventListener('pageshow', function(){
+    ensureHotkeyFocus();
+    setTimeout(ensureHotkeyFocus, 50);
+  });
+})();
+</script>
+
 </body>
 </html>
