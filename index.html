@@ -1775,37 +1775,40 @@ function getCardOwner(name, preferredChar=curChar){
   }
   return preferredChar||'ironclad';
 }
-function imgSrcs(name){
-  const base=imgBaseName(name);
+function findRepoCardByName(name, preferredChar=curChar){
   try{
-    if(typeof REPO_POOLS!=='undefined' && REPO_POOLS){
-      const nn = (typeof norm==='function') ? norm(name) : String(name||'').replace(/\s+/g,'').trim().toLowerCase();
-      const exactColorless = (REPO_POOLS.colorless||[]).find(c => (c && (c.__norm===nn || ((c.n||'').replace(/\s+/g,'').toLowerCase()===nn))));
-      if(exactColorless && exactColorless.filename){
-        return [IMG + encodeURIComponent(exactColorless.filename)];
-      }
-      for(const k of ['ironclad','silent','defect','necro','regent']){
-        const exactClass = (REPO_POOLS[k]||[]).find(c => (c && (c.__norm===nn || ((c.n||'').replace(/\s+/g,'').toLowerCase()===nn))));
-        if(exactClass && exactClass.filename){
-          return [IMG + encodeURIComponent(exactClass.filename), IMG+encodeURIComponent(base+'_Colorless')+'.webp'];
-        }
-      }
+    if(!(typeof REPO_POOLS!=='undefined' && REPO_POOLS)) return null;
+    const nn = (typeof norm==='function') ? norm(name) : String(name||'').replace(/\s+/g,'').trim().toLowerCase();
+    const same = (c) => (c && (c.__norm===nn || ((c.n||'').replace(/\s+/g,'').toLowerCase()===nn)));
+    const preferredOrder = [];
+    if(preferredChar && preferredChar !== 'colorless') preferredOrder.push(preferredChar);
+    preferredOrder.push('ironclad','silent','defect','necro','regent');
+    const classOrder = [...new Set(preferredOrder)];
+    for(const k of classOrder){
+      const exactClass = (REPO_POOLS[k]||[]).find(same);
+      if(exactClass && exactClass.filename) return exactClass;
     }
+    const exactColorless = (REPO_POOLS.colorless||[]).find(same);
+    if(exactColorless && exactColorless.filename) return exactColorless;
   }catch(e){}
-  const owner=getCardOwner(name,curChar);
+  return null;
+}
+function imgSrcs(name, preferredChar=curChar){
+  const base=imgBaseName(name);
+  const exact = findRepoCardByName(name, preferredChar);
+  if(exact && exact.filename){
+    if(exact.__kind==='colorless') return [IMG + encodeURIComponent(exact.filename)];
+    return [IMG + encodeURIComponent(exact.filename), IMG+encodeURIComponent(base+'_Colorless')+'.webp'];
+  }
+  const owner=getCardOwner(name,preferredChar);
   if(owner==='colorless'){
     return [IMG+encodeURIComponent(base+'_Colorless')+'.webp'];
   }
-  const suf=SUFFIX_MAP[owner]||SUFFIX_MAP[curChar]||'Ironclad';
+  const suf=SUFFIX_MAP[owner]||SUFFIX_MAP[preferredChar]||SUFFIX_MAP[curChar]||'Ironclad';
   return [IMG+encodeURIComponent(base+'_'+suf)+'.webp', IMG+encodeURIComponent(base+'_Colorless')+'.webp'];
 }
 function imgSrcsForChar(name,charKey){
-  const base=imgBaseName(name);
-  if(charKey==='colorless'){
-    return [IMG+encodeURIComponent(base+'_Colorless')+'.webp'];
-  }
-  const suf=SUFFIX_MAP[charKey]||SUFFIX_MAP[curChar]||'Ironclad';
-  return [IMG+encodeURIComponent(base+'_'+suf)+'.webp', IMG+encodeURIComponent(base+'_Colorless')+'.webp'];
+  return imgSrcs(name, charKey);
 }
 function getCardByChar(charKey,name){
   if(charKey==='colorless') return (typeof COLORLESS_CARDS!=='undefined'?COLORLESS_CARDS:[]).find(x=>x.n===name)||null;
@@ -1847,7 +1850,7 @@ function showAnyCardDetail(name,charKey){
   showDetail(name);
   curChar=prev;
 }
-function makeImg(name,el){const srcs=imgSrcs(name);const img=document.createElement('img');img.loading='lazy';img.classList.add('img-loading');img.dataset.tries='0';img.onload=function(){this.classList.remove('img-loading')};img.onerror=function(){const t=parseInt(this.dataset.tries)+1;if(t<srcs.length){this.dataset.tries=t;this.src=srcs[t]}else{const ph=document.createElement('div');ph.className=el==='sg'?'sg-ph':el==='dk'?'dk-ph':'';ph.textContent=name.slice(0,2);this.replaceWith(ph)}};img.src=srcs[0];return img}
+function makeImg(name,el,preferredChar=curChar){const srcs=imgSrcs(name, preferredChar);const img=document.createElement('img');img.loading='lazy';img.classList.add('img-loading');img.dataset.tries='0';img.onload=function(){this.classList.remove('img-loading')};img.onerror=function(){const t=parseInt(this.dataset.tries)+1;if(t<srcs.length){this.dataset.tries=t;this.src=srcs[t]}else{const ph=document.createElement('div');ph.className=el==='sg'?'sg-ph':el==='dk'?'dk-ph':'';ph.textContent=name.slice(0,2);this.replaceWith(ph)}};img.src=srcs[0];return img}
 function profileImgSrc(charKey){const f=(CHARS[charKey]&&CHARS[charKey].profile)||'';return IMG+encodeURIComponent(f)}
 function getCoopChars(guide){const seen=[];[...(guide.must||[]),...(guide.rec||[])].forEach(item=>{if(item&&item.char&&!seen.includes(item.char))seen.push(item.char)});return seen}
 function renderCoopTitleButtons(guide){const keys=getCoopChars(guide);if(!keys.length) return `<div class="coop-title">${guide.name}</div>`;return `<div class="coop-title-bar">`+keys.map((key,idx)=>{const v=CHARS[key]||{name:key,color:'#888'};return `<div class="coop-pill" style="--cc:${v.color}"><img src="${profileImgSrc(key)}" onerror="this.onerror=null;this.style.display='none'"><span>${v.name}</span></div>`+(idx<keys.length-1?`<span class="coop-title-plus">+</span>`:'')}).join('')+`</div>`}
@@ -3340,7 +3343,7 @@ function renderDeck(){
     const wrap=document.createElement('div');wrap.className='dk-wrap'+(selectedDeckIdx===i?' selected':'');
     const el=document.createElement('div');const addedNow=(deckIds[i]===recentAddedDeckId);el.className='dk-card'+(iM?' must':iR?' rec':'')+(upgradedNow?' upgraded':'')+(addedNow?' card-added':'');
     el.onclick=(e)=>{e.stopPropagation();selectedDeckIdx=selectedDeckIdx===i?-1:i;renderDeck()};
-    const img=makeImg(name,'dk');el.appendChild(img); if(addedNow){ const confettiSpec=[
+    const img=makeImg(name,'dk',curChar);el.appendChild(img); if(addedNow){ const confettiSpec=[
       {l:'12%',t:'18%',dx:'-56px',dy:'-76px',bg:'#22c55e',delay:'0s'},
       {l:'24%',t:'10%',dx:'-22px',dy:'-92px',bg:'#fbbf24',delay:'.02s'},
       {l:'42%',t:'4%',dx:'-4px',dy:'-108px',bg:'#60a5fa',delay:'.04s'},
@@ -5283,17 +5286,9 @@ window.renderResult = function(scored,skipScore){
   }
   function matchInitials(name,q){
     if(!q) return true;
-    q=String(q||'').trim();
     name=String(name||'');
-    if(!q) return true;
-    const n = norm(name), qq = norm(q);
-    if(n.includes(qq)) return true;
-    const initials = Array.from(name).map(ch => {
-      const code = ch.charCodeAt(0)-44032;
-      if(code<0 || code>11171) return ch.toLowerCase();
-      return 'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ'[Math.floor(code/588)] || ch;
-    }).join('');
-    return initials.includes(q);
+    q=String(q||'');
+    return getSearchRank(name, q) > -1;
   }
   function uniqueByNorm(list){
     const seen=new Set(); const out=[];
@@ -5362,8 +5357,11 @@ window.renderResult = function(scored,skipScore){
       const ex = Array.isArray(picks) ? picks.filter((p,j)=>p && j!==activeSlot) : [];
       pool = pool.filter(c => !ex.includes(c.n));
     }
-    let list = pool.filter(c => matchInitials(c.n, q));
-    list.sort((a,b)=> (a.n.length - b.n.length) || a.n.localeCompare(b.n,'ko'));
+    let list = pool
+      .map(c => ({ card:c, rank:getSearchRank(c.n, q) }))
+      .filter(x => x.rank > -1)
+      .sort((a,b)=> (b.rank - a.rank) || (a.card.n.length - b.card.n.length) || a.card.n.localeCompare(b.card.n,'ko'))
+      .map(x => x.card);
     searchResultList = list.slice();
     window.searchResultList = searchResultList;
     searchResultAction = [];
@@ -5543,17 +5541,7 @@ window.renderResult = function(scored,skipScore){
   }
   function matchInitials(name,q){
     if(!q) return true;
-    q=String(q||'').trim(); name=String(name||'');
-    if(!q) return true;
-    const n = name.replace(/\s+/g,'').toLowerCase();
-    const qq = q.replace(/\s+/g,'').toLowerCase();
-    if(n.includes(qq)) return true;
-    const initials = Array.from(name).map(ch => {
-      const code = ch.charCodeAt(0)-44032;
-      if(code<0 || code>11171) return ch.toLowerCase();
-      return 'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ'[Math.floor(code/588)] || ch;
-    }).join('');
-    return initials.includes(q);
+    return getSearchRank(String(name||''), String(q||'')) > -1;
   }
 
   const oldRender = window.renderSearchGrid;
@@ -5624,7 +5612,11 @@ window.renderResult = function(scored,skipScore){
     let filtered = list.filter(shouldIncludeInCurrentContext);
     if(input){
       const q=input.value||'';
-      filtered = filtered.filter(c=>matchInitials(c.n,q));
+      filtered = filtered
+        .map(c=>({card:c, rank:getSearchRank(c.n, q)}))
+        .filter(x=>x.rank > -1)
+        .sort((a,b)=> (b.rank - a.rank) || (a.card.n.length - b.card.n.length) || a.card.n.localeCompare(b.card.n,'ko'))
+        .map(x=>x.card);
     }
     rebuildFromFiltered(filtered);
   };
@@ -5731,6 +5723,158 @@ window.renderResult = function(scored,skipScore){
     ensureHotkeyFocus();
     setTimeout(ensureHotkeyFocus, 50);
   });
+})();
+</script>
+
+
+<script id="search-logic-hotfix-20260411">
+(function(){
+  const SPACELESS = s => String(s||'').replace(/\s+/g,'').trim();
+  const LOWER = s => SPACELESS(s).toLowerCase();
+
+  function decomposeCompat(s){
+    const map = {'ㄳ':'ㄱㅅ','ㄵ':'ㄴㅈ','ㄶ':'ㄴㅎ','ㄺ':'ㄹㄱ','ㄻ':'ㄹㅁ','ㄼ':'ㄹㅂ','ㄽ':'ㄹㅅ','ㄾ':'ㄹㅌ','ㄿ':'ㄹㅍ','ㅀ':'ㄹㅎ','ㅄ':'ㅂㅅ'};
+    return Array.from(String(s||'')).map(ch => map[ch] || ch).join('');
+  }
+  function getInitialsLoose(name){
+    return decomposeCompat(Array.from(String(name||'')).map(ch => {
+      const code = ch.charCodeAt(0) - 44032;
+      if(code < 0 || code > 11171) return ch.toLowerCase();
+      return 'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ'[Math.floor(code/588)] || ch;
+    }).join(''));
+  }
+  function matchesLoose(name, q){
+    const qq = LOWER(q);
+    if(!qq) return true;
+    const nn = LOWER(name);
+    if(nn.includes(qq)) return true;
+
+    const dq = decomposeCompat(qq);
+    if(decomposeCompat(nn).includes(dq)) return true;
+
+    const initials = getInitialsLoose(name);
+    if(initials.includes(dq)) return true;
+
+    return false;
+  }
+
+  // earlier search logic override
+  window.getSearchRank = getSearchRank = function(name, q){
+    const qq = LOWER(q);
+    if(!qq) return 0;
+    const nn = LOWER(name);
+    const idx = nn.indexOf(qq);
+    if(idx === 0) return 1000 - qq.length;
+    if(idx > 0) return 700 - idx;
+
+    const dq = decomposeCompat(qq);
+    const dn = decomposeCompat(nn);
+    const dIdx = dn.indexOf(dq);
+    if(dIdx === 0) return 980 - dq.length;
+    if(dIdx > 0) return 680 - dIdx;
+
+    const initials = getInitialsLoose(name);
+    const iIdx = initials.indexOf(dq);
+    if(iIdx === 0) return 950 - dq.length;
+    if(iIdx > 0) return 650 - iIdx;
+
+    return -1;
+  };
+  window.matchSearch = matchSearch = function(name, q){ return window.getSearchRank(name, q) > -1; };
+
+  // final rebuilt search override
+  if(typeof window.renderSearchGrid === 'function'){
+    const oldRenderSearchGrid = window.renderSearchGrid;
+    window.renderSearchGrid = function(){
+      const result = oldRenderSearchGrid.apply(this, arguments);
+      try{
+        const input = document.getElementById('modalInput');
+        const wrap = document.getElementById('searchGridWrap');
+        if(!input || !wrap) return result;
+
+        const list = Array.isArray(window.searchResultList) ? window.searchResultList.slice() : [];
+        const q = input.value || '';
+        if(!q) return result;
+
+        const filtered = list.filter(card => matchesLoose(card && card.n, q));
+
+        // rebuild only when filtering actually changes
+        if(filtered.length === list.length) return result;
+
+        window.searchResultList = filtered.slice();
+        if(typeof searchResultList !== 'undefined') searchResultList = filtered.slice();
+
+        const prog = wrap.querySelector('.slot-progress') ? wrap.querySelector('.slot-progress').outerHTML + (wrap.querySelector('.slot-hint') ? wrap.querySelector('.slot-hint').outerHTML : '') : '';
+        wrap.innerHTML = prog;
+
+        if(!filtered.length){
+          wrap.innerHTML = prog + '<div class="search-empty">결과 없음</div>';
+          return result;
+        }
+
+        const grid = document.createElement('div');
+        grid.className = 'search-grid';
+        filtered.forEach((card, idx) => {
+          const el = document.createElement('div');
+          el.className = 'sg-card';
+
+          const choose = () => {
+            if(window.searchResultAction && window.searchResultAction[idx]) return window.searchResultAction[idx]();
+          };
+          el.onclick = choose;
+
+          const img = document.createElement('img');
+          img.src = 'https://cdn.jsdelivr.net/gh/elithelucky/sts2-images@main/' + (card.filename || (encodeURIComponent(SPACELESS(card.n)) + '.webp'));
+          img.className = 'img-loading';
+          img.onload = () => img.classList.remove('img-loading');
+          img.onerror = () => {
+            img.onerror = null;
+            img.replaceWith(Object.assign(document.createElement('div'), {className:'sg-ph', textContent:card.n || ''}));
+          };
+          el.appendChild(img);
+
+          if(window.innerWidth > 768 && String(q).trim().length > 0 && idx < 9){
+            const kc = document.createElement('span');
+            kc.className = 'search-keycap';
+            kc.textContent = String(idx + 1);
+            el.appendChild(kc);
+          }
+
+          el.insertAdjacentHTML('beforeend', `<div class="sg-name">${card.n}</div><span class="sg-tier tier-${card.tier||'C'}">${card.tier||'C'}</span>`);
+          grid.appendChild(el);
+        });
+        wrap.appendChild(grid);
+      }catch(e){}
+      return result;
+    };
+  }
+
+  // recommendation guard: 때가 되었다 should not be pushed without doom package
+  if(typeof scoreCard === 'function'){
+    const oldScoreCard = scoreCard;
+    const norm = s => SPACELESS(s);
+    const doomSetupCards = ['역병 타격','비관적인 맥박','도망칠 수 없다','종말의 날','카운트다운','죽음 인도자','망각','사신의 형상'];
+    const doomCard = '때가 되었다';
+    window.scoreCard = scoreCard = function(name){
+      const out = oldScoreCard.apply(this, arguments);
+      try{
+        if((typeof curChar !== 'undefined' && curChar === 'necro') && norm(name) === norm(doomCard)){
+          const doomPieces = Array.isArray(deck) ? deck.filter(x => doomSetupCards.some(d => norm(d) === norm(x))) : [];
+          const hasDoomSetup = doomPieces.length > 0;
+          if(!hasDoomSetup){
+            const next = Object.assign({}, out);
+            next.score = Math.min(next.score || 0, -8);
+            next.warn = true;
+            next.summary = '종말 파츠가 없으면 효율이 낮습니다';
+            next.reasons = [...(next.reasons || []), '직접 종말을 쌓는 카드가 아직 없습니다'];
+            next.chips = [...(next.chips || []), ['bad','선행 파츠 부족']];
+            return next;
+          }
+        }
+      }catch(e){}
+      return out;
+    };
+  }
 })();
 </script>
 
