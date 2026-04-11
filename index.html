@@ -5411,14 +5411,14 @@ window.renderResult = function(scored,skipScore){
 
   function resetScopeForContext(){
     const isShop = (typeof mode!=='undefined' && mode==='shop');
-    if(deckAddMode){ window.searchScope='current'; return; }
+    if(deckAddMode){ window.searchScope='all'; return; }
     if(isShop && typeof isShopColorlessSlot==='function' && isShopColorlessSlot(activeSlot)){ window.searchScope='colorless'; return; }
     window.searchScope='current';
   }
   const _openSearch = window.openSearch || (typeof openSearch==='function'?openSearch:null);
   window.openSearch = function(i){ activeSlot=i; deckAddMode=false; resetScopeForContext(); document.getElementById('modalTitle').textContent=(typeof getSlotLabel==='function'?getSlotLabel(i):'카드')+' 선택'; document.getElementById('modalInput').value=''; document.getElementById('searchModal').classList.add('open'); if(typeof updateBodyLock==='function') updateBodyLock(); window.renderSearchGrid(); if(typeof ensureSearchInputFocus==='function') ensureSearchInputFocus(); };
   const _openDeckAdd = window.openDeckAdd || (typeof openDeckAdd==='function'?openDeckAdd:null);
-  window.openDeckAdd = function(){ deckAddMode=true; activeSlot=-1; window.searchScope='current'; document.getElementById('modalTitle').textContent='덱에 카드 추가'; document.getElementById('modalInput').value=''; document.getElementById('searchModal').classList.add('open'); if(typeof updateBodyLock==='function') updateBodyLock(); window.renderSearchGrid(); if(typeof ensureSearchInputFocus==='function') ensureSearchInputFocus(); };
+  window.openDeckAdd = function(){ deckAddMode=true; activeSlot=-1; window.searchScope='all'; document.getElementById('modalTitle').textContent='덱에 카드 추가'; document.getElementById('modalInput').value=''; document.getElementById('searchModal').classList.add('open'); if(typeof updateBodyLock==='function') updateBodyLock(); window.renderSearchGrid(); if(typeof ensureSearchInputFocus==='function') ensureSearchInputFocus(); };
 
   document.addEventListener('keydown', function(e){
     const modal=document.getElementById('searchModal');
@@ -5483,7 +5483,7 @@ window.renderResult = function(scored,skipScore){
   const _resetScopeForContext = (typeof resetScopeForContext==='function') ? resetScopeForContext : null;
   resetScopeForContext = function(){
     const isShop = (typeof mode!=='undefined' && mode==='shop');
-    if(deckAddMode){ window.searchScope='current'; return; }
+    if(deckAddMode){ window.searchScope='all'; return; }
     if(isShop && typeof isShopColorlessSlot==='function' && isShopColorlessSlot(activeSlot)){ window.searchScope='colorless'; return; }
     window.searchScope='current';
   };
@@ -5528,8 +5528,15 @@ window.renderResult = function(scored,skipScore){
   }
   function shouldIncludeInCurrentContext(card){
     if(typeof deckAddMode !== 'undefined' && deckAddMode) return true;
-    if(card && card.__kind === 'colorless') return isPurchasableColorlessCard(card);
-    return true;
+    const inRewardOrShop = (typeof mode !== 'undefined') && (mode === 'reward' || mode === 'shop');
+    if(!inRewardOrShop) return true;
+    if(!card) return false;
+    const kind = String(card.__kind || '').toLowerCase();
+    const owner = String(card.owner || card.__owner || '').toLowerCase();
+    const filename = String(card.filename || '');
+    const isClassCard = ['ironclad','silent','defect','necro','necrobinder','regent'].includes(kind) || ['ironclad','silent','defect','necro','necrobinder','regent'].includes(owner) || /_(Ironclad|Silent|Defect|Necrobinder|Regent)\.webp$/i.test(filename);
+    if(isClassCard) return true;
+    return isPurchasableColorlessCard(card);
   }
   function makeImg(card){
     const img=document.createElement('img');
@@ -5786,23 +5793,39 @@ window.renderResult = function(scored,skipScore){
   if(typeof window.renderSearchGrid === 'function'){
     const oldRenderSearchGrid = window.renderSearchGrid;
     window.renderSearchGrid = function(){
-      const result = oldRenderSearchGrid.apply(this, arguments);
       try{
         const input = document.getElementById('modalInput');
         const wrap = document.getElementById('searchGridWrap');
-        if(!input || !wrap) return result;
+        if(!input || !wrap) return oldRenderSearchGrid.apply(this, arguments);
 
-        const list = Array.isArray(window.searchResultList) ? window.searchResultList.slice() : [];
         const q = input.value || '';
-        if(!q) return result;
 
-        const filtered = list.filter(card => matchesLoose(card && card.n, q));
+        // Always rebuild from the full list for the current context first.
+        // This avoids query-on-query narrowing where long 초성 like ㅂㄱㄱㅊ / ㅌㅅㄹㅋㅇ
+        // can disappear because an earlier filtered list gets reused.
+        input.value = '';
+        const result = oldRenderSearchGrid.apply(this, arguments);
 
-        // rebuild only when filtering actually changes
-        if(filtered.length === list.length) return result;
+        const fullList = Array.isArray(window.searchResultList) ? window.searchResultList.slice() : [];
+        const fullActions = Array.isArray(window.searchResultAction) ? window.searchResultAction.slice() : [];
+        input.value = q;
+
+        if(!q){
+          return result;
+        }
+
+        const ranked = fullList
+          .map((card, idx) => ({ card, idx, rank: window.getSearchRank(card && card.n, q) }))
+          .filter(x => x.rank > -1)
+          .sort((a,b) => (b.rank - a.rank) || (String(a.card.n||'').length - String(b.card.n||'').length) || String(a.card.n||'').localeCompare(String(b.card.n||''), 'ko'));
+
+        const filtered = ranked.map(x => x.card);
+        const filteredActions = ranked.map(x => fullActions[x.idx]);
 
         window.searchResultList = filtered.slice();
         if(typeof searchResultList !== 'undefined') searchResultList = filtered.slice();
+        window.searchResultAction = filteredActions.slice();
+        if(typeof searchResultAction !== 'undefined') searchResultAction = filteredActions.slice();
 
         const prog = wrap.querySelector('.slot-progress') ? wrap.querySelector('.slot-progress').outerHTML + (wrap.querySelector('.slot-hint') ? wrap.querySelector('.slot-hint').outerHTML : '') : '';
         wrap.innerHTML = prog;
@@ -5818,10 +5841,8 @@ window.renderResult = function(scored,skipScore){
           const el = document.createElement('div');
           el.className = 'sg-card';
 
-          const choose = () => {
-            if(window.searchResultAction && window.searchResultAction[idx]) return window.searchResultAction[idx]();
-          };
-          el.onclick = choose;
+          const choose = filteredActions[idx];
+          if(typeof choose === 'function') el.onclick = choose;
 
           const img = document.createElement('img');
           img.src = 'https://cdn.jsdelivr.net/gh/elithelucky/sts2-images@main/' + (card.filename || (encodeURIComponent(SPACELESS(card.n)) + '.webp'));
@@ -5844,8 +5865,10 @@ window.renderResult = function(scored,skipScore){
           grid.appendChild(el);
         });
         wrap.appendChild(grid);
-      }catch(e){}
-      return result;
+        return result;
+      }catch(e){
+        return oldRenderSearchGrid.apply(this, arguments);
+      }
     };
   }
 
@@ -5878,5 +5901,461 @@ window.renderResult = function(scored,skipScore){
 })();
 </script>
 
+
+<script id="search-ui-restore-and-pick-guard">
+(function(){
+  const oldRender = window.renderSearchGrid;
+  const oldOpenSearch = window.openSearch;
+  const oldOpenDeckAdd = window.openDeckAdd;
+  let pickBusy = false;
+
+  function buildProgressHtml(){
+    if(typeof deckAddMode !== 'undefined' && deckAddMode) return '';
+    if(typeof getNeedCount !== 'function') return '';
+    const need = getNeedCount();
+    if(!need) return '';
+    let prog = '<div class="slot-progress">' + Array.from({length:need}, (_,i)=>{
+      const colorless = (typeof mode!=='undefined' && mode==='shop' && typeof isShopColorlessSlot==='function' && isShopColorlessSlot(i)) ? ' colorless' : '';
+      const on = i===activeSlot ? ' on' : '';
+      return `<span class="slot-dot${on}${colorless}"></span>`;
+    }).join('') + `<span class="slot-text">${(typeof getSlotLabel==='function' ? getSlotLabel(activeSlot) : '카드 선택').replace(/"/g,'&quot;')} 선택</span></div>`;
+    if(typeof mode!=='undefined' && mode==='shop' && typeof isShopColorlessSlot==='function'){
+      prog += `<div class="slot-hint">${isShopColorlessSlot(activeSlot)?'이 슬롯은 구매 가능한 중립 카드만 검색됩니다.':'이 슬롯은 현재 클래스 카드만 검색됩니다.'}</div>`;
+    }
+    return prog;
+  }
+
+  function ensureChrome(){
+    if(typeof window.renderSearchScopeTabs === 'function') window.renderSearchScopeTabs();
+    const wrap = document.getElementById('searchGridWrap');
+    if(!wrap) return;
+    if(typeof deckAddMode !== 'undefined' && !deckAddMode && !wrap.querySelector('.slot-progress')){
+      const first = wrap.firstChild;
+      const holder = document.createElement('div');
+      holder.innerHTML = buildProgressHtml();
+      while(holder.firstChild){ wrap.insertBefore(holder.firstChild, first); }
+    }
+  }
+
+  function guarded(fn){
+    if(typeof fn !== 'function') return fn;
+    if(fn.__pickGuardWrapped) return fn;
+    const wrapped = function(){
+      if(pickBusy) return;
+      pickBusy = true;
+      try { return fn.apply(this, arguments); }
+      finally { setTimeout(()=>{ pickBusy = false; }, 0); }
+    };
+    wrapped.__pickGuardWrapped = true;
+    return wrapped;
+  }
+
+  function wrapPickActions(){
+    if(Array.isArray(window.searchResultAction)){
+      window.searchResultAction = window.searchResultAction.map(guarded);
+      if(typeof searchResultAction !== 'undefined') searchResultAction = window.searchResultAction;
+    }
+    document.querySelectorAll('#searchGridWrap .sg-card').forEach((el, idx)=>{
+      const fn = Array.isArray(window.searchResultAction) ? window.searchResultAction[idx] : null;
+      if(fn) el.onclick = fn;
+    });
+  }
+
+  window.renderSearchGrid = function(){
+    if(typeof oldRender === 'function') oldRender.apply(this, arguments);
+    ensureChrome();
+    wrapPickActions();
+  };
+
+  window.openSearch = function(){
+    if(typeof oldOpenSearch === 'function') oldOpenSearch.apply(this, arguments);
+    ensureChrome();
+    wrapPickActions();
+  };
+
+  window.openDeckAdd = function(){
+    if(typeof oldOpenDeckAdd === 'function') oldOpenDeckAdd.apply(this, arguments);
+    ensureChrome();
+    wrapPickActions();
+  };
+})();
+</script>
+
 </body>
 </html>
+
+
+<script id="search-unify-hotfix-20260411-b">
+(function(){
+  const COMPAT_MAP = {'ㄳ':'ㄱㅅ','ㄵ':'ㄴㅈ','ㄶ':'ㄴㅎ','ㄺ':'ㄹㄱ','ㄻ':'ㄹㅁ','ㄼ':'ㄹㅂ','ㄽ':'ㄹㅅ','ㄾ':'ㄹㅌ','ㄿ':'ㄹㅍ','ㅀ':'ㄹㅎ','ㅄ':'ㅂㅅ'};
+  const INITIALS = 'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ';
+  const clean = s => String(s||'').replace(/\s+/g,'').toLowerCase();
+  function decomposeCompatFinal(s){
+    return Array.from(String(s||'')).map(ch => COMPAT_MAP[ch] || ch).join('');
+  }
+  function normalizeLoose(s){
+    return clean(decomposeCompatFinal(s));
+  }
+  function initialsLooseFinal(name){
+    const raw = Array.from(String(name||'')).map(ch => {
+      const code = ch.charCodeAt(0) - 44032;
+      if(code < 0 || code > 11171) return ch.toLowerCase();
+      return INITIALS[Math.floor(code/588)] || ch;
+    }).join('');
+    return normalizeLoose(raw);
+  }
+  function getSearchRankFinal(name, q){
+    const qq = normalizeLoose(q);
+    if(!qq) return 0;
+    const nn = normalizeLoose(name);
+    const idx = nn.indexOf(qq);
+    if(idx === 0) return 1000 - qq.length;
+    if(idx > 0) return 700 - idx;
+    const initials = initialsLooseFinal(name);
+    const iIdx = initials.indexOf(qq);
+    if(iIdx === 0) return 950 - qq.length;
+    if(iIdx > 0) return 650 - iIdx;
+    return -1;
+  }
+  function matchSearchFinal(name, q){
+    return getSearchRankFinal(name, q) > -1;
+  }
+  window.decomposeCompat = decomposeCompatFinal;
+  window.getInitialsLoose = initialsLooseFinal;
+  window.getSearchRank = getSearchRankFinal;
+  window.matchSearch = matchSearchFinal;
+  window.matchesLoose = matchSearchFinal;
+
+  function bindCompositionGuards(){
+    const input = document.getElementById('modalInput');
+    if(!input || input.__searchComposeBound) return;
+    input.__searchComposeBound = true;
+    input.__isComposingSearch = false;
+    input.addEventListener('compositionstart', function(){ input.__isComposingSearch = true; });
+    input.addEventListener('compositionend', function(){
+      input.__isComposingSearch = false;
+      if(typeof window.renderSearchGrid === 'function') window.renderSearchGrid();
+    });
+  }
+
+  window.__searchPickLock = false;
+  window.pickSearchCard = function(card, idx){
+    if(window.__searchPickLock) return;
+    window.__searchPickLock = true;
+    const release = () => setTimeout(() => { window.__searchPickLock = false; }, 0);
+    try{
+      if(typeof deckAddMode !== 'undefined' && deckAddMode){
+        if(typeof pushDeckCard === 'function') pushDeckCard(card.n);
+        else if(Array.isArray(window.deck)) window.deck.push(card.n);
+        if(typeof closeSearch === 'function') closeSearch();
+        if(typeof renderAll === 'function') renderAll();
+        release();
+        return;
+      }
+      if(Array.isArray(window.picks)) window.picks[window.activeSlot] = card.n;
+      else if(typeof picks !== 'undefined' && Array.isArray(picks)) picks[activeSlot] = card.n;
+      const need = (typeof getNeedCount === 'function') ? getNeedCount() : 0;
+      const currentPicks = Array.isArray(window.picks) ? window.picks : (typeof picks !== 'undefined' && Array.isArray(picks) ? picks : []);
+      const next = Array.from({length:need}, (_,i)=>i).find(i => !currentPicks[i]);
+      if(next !== undefined){
+        window.activeSlot = next;
+        try{ activeSlot = next; }catch(e){}
+        const title = document.getElementById('modalTitle');
+        if(title) title.textContent = ((typeof getSlotLabel === 'function') ? getSlotLabel(next) : '카드') + ' 선택';
+        const input = document.getElementById('modalInput');
+        if(input) input.value = '';
+        if(typeof renderRewardRow === 'function') renderRewardRow();
+        if(typeof window.renderSearchGrid === 'function') window.renderSearchGrid();
+        if(typeof ensureSearchInputFocus === 'function') ensureSearchInputFocus();
+      } else {
+        if(typeof closeSearch === 'function') closeSearch();
+        if(typeof renderAll === 'function') renderAll('to-result');
+      }
+    } finally {
+      release();
+    }
+  };
+
+  function buildProgressHtmlFinal(){
+    if(typeof deckAddMode !== 'undefined' && deckAddMode) return '';
+    if(typeof getNeedCount !== 'function') return '';
+    const need = getNeedCount();
+    if(!need) return '';
+    let prog = '<div class="slot-progress">' + Array.from({length:need}, (_,i)=>{
+      const on = i===activeSlot ? ' on' : '';
+      const colorless = (typeof mode!=='undefined' && mode==='shop' && typeof isShopColorlessSlot==='function' && isShopColorlessSlot(i)) ? ' colorless' : '';
+      return `<span class="slot-dot${on}${colorless}"></span>`;
+    }).join('') + `<span class="slot-text">${(typeof getSlotLabel==='function' ? getSlotLabel(activeSlot) : '카드').replace(/"/g,'&quot;')} 선택</span></div>`;
+    if(typeof mode!=='undefined' && mode==='shop' && typeof isShopColorlessSlot==='function'){
+      prog += `<div class="slot-hint">${isShopColorlessSlot(activeSlot)?'이 슬롯은 구매 가능한 중립 카드만 검색됩니다.':'이 슬롯은 클래스 카드만 검색됩니다.'}</div>`;
+    }
+    return prog;
+  }
+
+  function rebuildFinal(filtered){
+    const wrap = document.getElementById('searchGridWrap');
+    const input = document.getElementById('modalInput');
+    if(!wrap) return;
+    if(typeof window.renderSearchScopeTabs === 'function') window.renderSearchScopeTabs();
+    const prog = buildProgressHtmlFinal();
+    if(!filtered.length){
+      wrap.innerHTML = prog + '<div class="search-empty">결과 없음</div>';
+      return;
+    }
+    const grid = document.createElement('div');
+    grid.className = 'search-grid';
+    window.searchResultList = filtered.slice();
+    try{ searchResultList = filtered.slice(); }catch(e){}
+    window.searchResultAction = [];
+    try{ searchResultAction = []; }catch(e){}
+
+    filtered.forEach((card, idx) => {
+      const el = document.createElement('div');
+      el.className = 'sg-card';
+      const choose = function(){ return window.pickSearchCard(card, idx); };
+      window.searchResultAction[idx] = choose;
+      try{ searchResultAction[idx] = choose; }catch(e){}
+      el.onclick = choose;
+
+      const img = document.createElement('img');
+      img.src = 'https://cdn.jsdelivr.net/gh/elithelucky/sts2-images@main/' + (card.filename || (encodeURIComponent(String(card.n||'').replace(/\s+/g,'')) + '.webp'));
+      img.className = 'img-loading';
+      img.onload = () => img.classList.remove('img-loading');
+      img.onerror = () => {
+        img.onerror = null;
+        const ph = document.createElement('div');
+        ph.className = 'sg-ph';
+        ph.textContent = card.n || '';
+        img.replaceWith(ph);
+      };
+      el.appendChild(img);
+
+      if(window.innerWidth > 768 && String(input && input.value || '').trim().length > 0 && idx < 9){
+        const kc = document.createElement('span');
+        kc.className = 'search-keycap';
+        kc.textContent = String(idx + 1);
+        el.appendChild(kc);
+      }
+      el.insertAdjacentHTML('beforeend', `<div class="sg-name">${card.n||''}</div><span class="sg-tier tier-${card.tier||'C'}">${card.tier||'C'}</span>`);
+      grid.appendChild(el);
+    });
+    wrap.innerHTML = prog;
+    wrap.appendChild(grid);
+  }
+
+  function getBasePoolFinal(){
+    if(typeof window.getActiveBasePool === 'function'){
+      const base = window.getActiveBasePool();
+      if(Array.isArray(base)) return base.slice();
+    }
+    return [];
+  }
+
+  function renderSearchGridFinal(){
+    bindCompositionGuards();
+    const input = document.getElementById('modalInput');
+    const q = input ? (input.value || '') : '';
+    if(input && input.__isComposingSearch) return;
+    let filtered = getBasePoolFinal();
+    if(typeof window.shouldIncludeInCurrentContext === 'function') filtered = filtered.filter(window.shouldIncludeInCurrentContext);
+    filtered = filtered
+      .map(card => ({card, rank: getSearchRankFinal(card && card.n, q)}))
+      .filter(x => x.rank > -1)
+      .sort((a,b) => (b.rank - a.rank) || ((a.card.n||'').length - (b.card.n||'').length) || String(a.card.n||'').localeCompare(String(b.card.n||''),'ko'))
+      .map(x => x.card);
+    rebuildFinal(filtered);
+  }
+
+  window.renderSearchGrid = renderSearchGridFinal;
+  bindCompositionGuards();
+})();
+</script>
+
+<script id="digit-hotkey-fix-20260411">
+(function(){
+  function isSearchOpen(){
+    const modal = document.getElementById('searchModal');
+    return !!(modal && modal.classList.contains('open'));
+  }
+  function pickByDigit(idx){
+    const acts = Array.isArray(window.searchResultAction) ? window.searchResultAction : [];
+    if(typeof acts[idx] === 'function') return acts[idx]();
+    if(typeof window.selectSearchResultByIndex === 'function') return window.selectSearchResultByIndex(idx);
+  }
+  document.addEventListener('keydown', function(e){
+    if(e.ctrlKey || e.metaKey || e.altKey) return;
+    if(!isSearchOpen()) return;
+    if(!/^[1-9]$/.test(e.key)) return;
+    const idx = Number(e.key) - 1;
+    const list = Array.isArray(window.searchResultList) ? window.searchResultList : [];
+    if(idx < 0 || idx >= list.length) return;
+    e.preventDefault();
+    e.stopPropagation();
+    pickByDigit(idx);
+  }, true);
+})();
+</script>
+
+<script id="search-scope-stale-fix-20260411b">
+(function(){
+  const CDN='https://cdn.jsdelivr.net/gh/elithelucky/sts2-images@main/';
+  let renderSeq = 0;
+  let rafId = 0;
+
+  function norm(v){ return String(v||'').replace(/\s+/g,''); }
+  function esc(v){ return String(v==null?'':v).replace(/[&<>\"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s])); }
+  function getAllClassCards(){
+    const order = Array.isArray(window.CLASS_ORDER) ? window.CLASS_ORDER : ['ironclad','silent','defect','necro','regent'];
+    const pools = window.REPO_POOLS || {};
+    return order.flatMap(k => Array.isArray(pools[k]) ? pools[k] : []);
+  }
+  function getContextColorless(){
+    const pools = window.REPO_POOLS || {};
+    const arr = Array.isArray(pools.colorless) ? pools.colorless.slice() : [];
+    if(deckAddMode) return arr;
+    const inRewardOrShop = (typeof mode !== 'undefined') && (mode === 'reward' || mode === 'shop');
+    if(inRewardOrShop && typeof window.isPurchasableColorlessCard === 'function'){
+      return arr.filter(window.isPurchasableColorlessCard);
+    }
+    return arr;
+  }
+  function uniqueByFilename(list){
+    const seen = new Set();
+    const out = [];
+    for(const c of (Array.isArray(list)?list:[])){
+      const key = String((c && (c.filename || c.n)) || '');
+      if(seen.has(key)) continue;
+      seen.add(key);
+      out.push(c);
+    }
+    return out;
+  }
+  function getBasePool(){
+    const pools = window.REPO_POOLS || {};
+    const current = (typeof curChar !== 'undefined' && curChar) ? curChar : 'ironclad';
+    const isShop = (typeof mode !== 'undefined' && mode === 'shop');
+    const forceColorless = !deckAddMode && isShop && typeof isShopColorlessSlot === 'function' && isShopColorlessSlot(activeSlot);
+    const scope = forceColorless ? 'colorless' : (window.searchScope || (deckAddMode ? 'all' : 'current'));
+
+    if(scope === 'current') return Array.isArray(pools[current]) ? pools[current].slice() : [];
+    if(scope === 'other'){
+      const order = Array.isArray(window.CLASS_ORDER) ? window.CLASS_ORDER : ['ironclad','silent','defect','necro','regent'];
+      return order.filter(k => k !== current).flatMap(k => Array.isArray(pools[k]) ? pools[k] : []);
+    }
+    const colorless = getContextColorless();
+    if(scope === 'colorless') return colorless;
+    return [...getAllClassCards(), ...colorless];
+  }
+  function getProgressHtml(){
+    if(deckAddMode) return '';
+    const need = (typeof getNeedCount === 'function') ? getNeedCount() : ((Array.isArray(picks) && picks.length) ? picks.length : 0);
+    const label = (typeof getSlotLabel === 'function') ? getSlotLabel(activeSlot) : '카드';
+    let html = '<div class="slot-progress">';
+    for(let i=0;i<need;i++){
+      const on = i===activeSlot ? ' on' : '';
+      const colorless = (typeof mode!=='undefined' && mode==='shop' && typeof isShopColorlessSlot==='function' && isShopColorlessSlot(i)) ? ' colorless' : '';
+      html += `<span class="slot-dot${on}${colorless}"></span>`;
+    }
+    html += `<span class="slot-text">${esc(label)} 선택</span></div>`;
+    if(typeof mode!=='undefined' && mode==='shop' && typeof isShopColorlessSlot==='function' && activeSlot > -1){
+      html += `<div class="slot-hint">${isShopColorlessSlot(activeSlot)?'이 슬롯은 구매 가능한 중립 카드만 검색됩니다.':'이 슬롯은 현재 클래스 카드만 검색됩니다.'}</div>`;
+    }
+    return html;
+  }
+  function renderNow(seq){
+    const wrap = document.getElementById('searchGridWrap');
+    const input = document.getElementById('modalInput');
+    if(!wrap || !input) return;
+    if(input.__isComposingSearch) return;
+    const q = input.value || '';
+    const prog = getProgressHtml();
+    const rankFn = (typeof window.getSearchRankFinal === 'function') ? window.getSearchRankFinal : (typeof getSearchRank === 'function' ? getSearchRank : null);
+    let pool = uniqueByFilename(getBasePool());
+    if(!deckAddMode && Array.isArray(picks)){
+      const ex = picks.filter((p,j)=>p && j!==activeSlot);
+      pool = pool.filter(c => !ex.includes(c.n));
+    }
+    if(!deckAddMode && typeof window.shouldIncludeInCurrentContext === 'function'){
+      pool = pool.filter(window.shouldIncludeInCurrentContext);
+    }
+    let filtered = pool;
+    if(rankFn){
+      filtered = pool
+        .map(card => ({card, rank: rankFn(card && card.n, q)}))
+        .filter(x => x.rank > -1)
+        .sort((a,b)=>(b.rank-a.rank)||((a.card.n||'').length-(b.card.n||'').length)||String(a.card.n||'').localeCompare(String(b.card.n||''),'ko'))
+        .map(x => x.card);
+    }
+    if(seq !== renderSeq) return;
+    window.searchResultList = filtered.slice();
+    try{ searchResultList = filtered.slice(); }catch(e){}
+    window.searchResultAction = [];
+    try{ searchResultAction = []; }catch(e){}
+    wrap.innerHTML = prog;
+    if(!filtered.length){
+      wrap.innerHTML = prog + '<div class="search-empty">결과 없음</div>';
+      return;
+    }
+    const grid = document.createElement('div');
+    grid.className='search-grid';
+    filtered.forEach((card, idx) => {
+      const el = document.createElement('div');
+      el.className='sg-card';
+      const choose = function(){ return window.pickSearchCard(card, idx); };
+      el.onclick = choose;
+      window.searchResultAction[idx] = choose;
+      try{ searchResultAction[idx] = choose; }catch(e){}
+      const img = document.createElement('img');
+      img.loading='lazy';
+      img.decoding='async';
+      img.src = CDN + (card.filename || (encodeURIComponent(norm(card.n)) + '.webp'));
+      img.className='img-loading';
+      img.onload=()=>img.classList.remove('img-loading');
+      img.onerror=()=>{ img.onerror=null; const ph=document.createElement('div'); ph.className='sg-ph'; ph.textContent=card.n||''; img.replaceWith(ph); };
+      el.appendChild(img);
+      if(window.innerWidth > 768 && norm(q).length > 0 && idx < 9){
+        const kc=document.createElement('span'); kc.className='search-keycap'; kc.textContent=String(idx+1); el.appendChild(kc);
+      }
+      el.insertAdjacentHTML('beforeend', `<div class="sg-name">${esc(card.n||'')}</div><span class="sg-tier tier-${esc(card.tier||'C')}">${esc(card.tier||'C')}</span>`);
+      grid.appendChild(el);
+    });
+    wrap.appendChild(grid);
+  }
+  function scheduleRender(){
+    renderSeq += 1;
+    const seq = renderSeq;
+    if(rafId){ cancelAnimationFrame(rafId); rafId = 0; }
+    renderNow(seq);
+  }
+
+  window.renderSearchGrid = function(){
+    if(typeof window.renderSearchScopeTabs === 'function') window.renderSearchScopeTabs();
+    scheduleRender();
+  };
+
+  const input = document.getElementById('modalInput');
+  if(input){
+    input.addEventListener('compositionstart', function(){ input.__isComposingSearch = true; }, true);
+    input.addEventListener('compositionend', function(){ input.__isComposingSearch = false; window.renderSearchGrid(); }, true);
+    input.oninput = function(){ if(!input.__isComposingSearch) window.renderSearchGrid(); };
+  }
+})();
+</script>
+
+<script id="reward-shop-colorless-filter-fix-v2">
+(function(){
+  const PURCHASABLE_COLORLESS = new Set([
+    '강철의섬광','극적인입장','난사','만물절단','고동치는도끼','궁극의타격','정신공격','주먹다짐','탐색타격',
+    '능숙','미래예지','비상단추','생산','성급함','순수','어둠의족쇄','연장','초조함','팔방미인','궁극의수비','발견','착수','재난','충격파','평형','폭탄',
+    '위풍당당','고정시키기','기량','자동화','준비시간','책략',
+    '사냥돌','집중포화','황금도끼','쥐어뜯기','탐욕의손','잭팟',
+    '비밀기술','비밀병기','전략의천재','포석','숨겨진보석','연금','임명','휘갈김','두들겨패기',
+    '엔트로피','향수','대혼란','굴러가는바위','영원의갑옷','재앙'
+  ].map(v => String(v).replace(/\s+/g,'')));
+  window.isPurchasableColorlessCard = function(card){
+    if(!card) return false;
+    const key = String(card.n || '').replace(/\s+/g,'');
+    return PURCHASABLE_COLORLESS.has(key);
+  };
+})();
+</script>
