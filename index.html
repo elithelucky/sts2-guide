@@ -3761,10 +3761,14 @@ document.addEventListener('keydown', function(e){
   const idx='123456789'.indexOf(e.key);
   if(idx===-1) return;
   const visible=(el)=>{ if(!el) return false; const r=el.getBoundingClientRect(); const cs=getComputedStyle(el); return r.width>0 && r.height>0 && cs.display!=='none' && cs.visibility!=='hidden'; };
-  const actions=[...document.querySelectorAll('.res-item:not(.res-skip-compact) .res-compact-btn')].filter(visible);
+  const actions=[...document.querySelectorAll('.res-item:not(.res-skip-compact)')]
+    .filter(visible)
+    .map(card => card.querySelector('.res-compact-btn:not(.shop-skip-btn), .res-select-btn'))
+    .filter(visible);
   if(actions.length && idx<actions.length){
     e.preventDefault();
     e.stopPropagation();
+    if(typeof e.stopImmediatePropagation==='function') e.stopImmediatePropagation();
     actions[idx].click();
   }
 }, true);
@@ -5981,6 +5985,41 @@ window.renderResult = function(scored,skipScore){
 })();
 </script>
 
+
+<script id="search-modal-digit-authoritative-fix-20260411">
+(function(){
+  function isSearchOpen(){
+    const modal = document.getElementById('searchModal');
+    return !!(modal && modal.classList.contains('open'));
+  }
+  function isTypingInSearch(){
+    const el = document.activeElement;
+    const input = document.getElementById('modalInput');
+    return !!(input && el === input);
+  }
+  function pickRenderedCard(idx){
+    const cards = Array.from(document.querySelectorAll('#searchGridWrap .sg-card'));
+    const el = cards[idx];
+    if(!el) return false;
+    el.click();
+    return true;
+  }
+  document.addEventListener('keydown', function(e){
+    if(e.ctrlKey || e.metaKey || e.altKey) return;
+    if(e.isComposing) return;
+    if(!isSearchOpen()) return;
+    const key = e.code && /^Digit[1-9]$/.test(e.code) ? e.code.replace('Digit','') : (e.code && /^Numpad[1-9]$/.test(e.code) ? e.code.replace('Numpad','') : (String(e.key||'').match(/^[1-9]$/) ? String(e.key) : ''));
+    if(!key) return;
+    const idx = Number(key) - 1;
+    const cards = document.querySelectorAll('#searchGridWrap .sg-card');
+    if(idx < 0 || idx >= cards.length) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if(typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+    pickRenderedCard(idx);
+  }, true);
+})();
+</script>
 </body>
 </html>
 
@@ -6266,7 +6305,6 @@ window.renderResult = function(scored,skipScore){
     const wrap = document.getElementById('searchGridWrap');
     const input = document.getElementById('modalInput');
     if(!wrap || !input) return;
-    if(input.__isComposingSearch) return;
     const q = input.value || '';
     const prog = getProgressHtml();
     const rankFn = (typeof window.getSearchRankFinal === 'function') ? window.getSearchRankFinal : (typeof getSearchRank === 'function' ? getSearchRank : null);
@@ -6335,9 +6373,10 @@ window.renderResult = function(scored,skipScore){
 
   const input = document.getElementById('modalInput');
   if(input){
-    input.addEventListener('compositionstart', function(){ input.__isComposingSearch = true; }, true);
+    input.addEventListener('compositionstart', function(){ input.__isComposingSearch = true; window.renderSearchGrid(); }, true);
+    input.addEventListener('compositionupdate', function(){ window.renderSearchGrid(); }, true);
     input.addEventListener('compositionend', function(){ input.__isComposingSearch = false; window.renderSearchGrid(); }, true);
-    input.oninput = function(){ if(!input.__isComposingSearch) window.renderSearchGrid(); };
+    input.oninput = function(){ window.renderSearchGrid(); };
   }
 })();
 </script>
