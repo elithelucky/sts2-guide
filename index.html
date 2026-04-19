@@ -3158,7 +3158,7 @@ function renderSearchGrid(){
     searchResultAction[idx]=choose;
     el.onclick=choose;
     const img=makeImg(card.n,'sg');el.appendChild(img);
-    const showKeycaps = (window.innerWidth>768) && q.trim().length>0;
+    const showKeycaps = (window.innerWidth>768);
     if(showKeycaps && idx<9) el.innerHTML+=`<span class="search-keycap">${idx+1}</span>`;
     el.innerHTML+=`<div class="sg-name">${card.n}</div><span class="sg-tier tier-${card.tier}">${card.tier}</span><span class="sg-info">${card.t}</span>${UNLOCK[card.n]?'<div class="lock-corner">🔒</div>':''}`;grid.appendChild(el)});
   wrap.innerHTML=prog;wrap.appendChild(grid)
@@ -4410,7 +4410,7 @@ window.renderSearchGrid = function(){
     searchResultAction[idx]=choose;
     el.onclick=choose;
     const img=makeImg(card.n,'sg');el.appendChild(img);
-    const showKeycaps=(window.innerWidth>768) && q.trim().length>0;
+    const showKeycaps=(window.innerWidth>768);
     if(showKeycaps && idx<9) el.innerHTML+=`<span class="search-keycap">${idx+1}</span>`;
     el.innerHTML+=`<div class="sg-name">${card.n}</div><span class="sg-tier tier-${card.tier}">${card.tier}</span>${UNLOCK[card.n]?'<div class="lock-corner">🔒</div>':''}`;
     grid.appendChild(el)
@@ -5425,7 +5425,7 @@ window.renderResult = function(scored,skipScore){
       searchResultAction[idx]=choose;
       el.onclick=choose;
       el.appendChild(makeSearchImgFromFile(card));
-      if(window.innerWidth>768 && q.trim().length>0 && idx<9){ const kc=document.createElement('span'); kc.className='search-keycap'; kc.textContent=String(idx+1); el.appendChild(kc); }
+      if(window.innerWidth>768 && idx<9){ const kc=document.createElement('span'); kc.className='search-keycap'; kc.textContent=String(idx+1); el.appendChild(kc); }
       el.insertAdjacentHTML('beforeend', `<div class="sg-name">${card.n}</div><span class="sg-tier tier-${card.tier||'C'}">${card.tier||'C'}</span>`);
       grid.appendChild(el);
     });
@@ -5628,7 +5628,7 @@ window.renderResult = function(scored,skipScore){
       window.searchResultAction[idx]=choose;
       el.onclick=choose;
       el.appendChild(makeImg(card));
-      if(window.innerWidth>768 && String(input.value||'').trim().length>0 && idx<9){ const kc=document.createElement('span'); kc.className='search-keycap'; kc.textContent=String(idx+1); el.appendChild(kc); }
+      if(window.innerWidth>768 && idx<9){ const kc=document.createElement('span'); kc.className='search-keycap'; kc.textContent=String(idx+1); el.appendChild(kc); }
       el.insertAdjacentHTML('beforeend', `<div class="sg-name">${card.n}</div><span class="sg-tier tier-${card.tier||'C'}">${card.tier||'C'}</span>`);
       grid.appendChild(el);
     });
@@ -5877,7 +5877,7 @@ window.renderResult = function(scored,skipScore){
           };
           el.appendChild(img);
 
-          if(window.innerWidth > 768 && String(q).trim().length > 0 && idx < 9){
+          if(window.innerWidth > 768 && idx < 9){
             const kc = document.createElement('span');
             kc.className = 'search-keycap';
             kc.textContent = String(idx + 1);
@@ -6207,7 +6207,7 @@ window.renderResult = function(scored,skipScore){
       wrap.innerHTML=this.progressHtml();
       if(!list.length){ wrap.innerHTML += '<div class="search-empty">결과 없음</div>'; return; }
       const grid=document.createElement('div'); grid.className='search-grid';
-      const input=document.getElementById(inputId); const hasQuery=!!String(input && input.value || '').trim();
+      const input=document.getElementById(inputId);
       list.forEach((card, idx)=>{
         const el=document.createElement('div'); el.className='sg-card';
         const choose=()=>this.pick(card, idx);
@@ -6215,7 +6215,7 @@ window.renderResult = function(scored,skipScore){
         window.searchResultAction[idx]=choose;
         try{ searchResultAction[idx]=choose; }catch(e){}
         el.appendChild(this.makeCardImage(card));
-        if(window.innerWidth>768 && hasQuery && idx<9){ const kc=document.createElement('span'); kc.className='search-keycap'; kc.textContent=String(idx+1); el.appendChild(kc); }
+        if(window.innerWidth>768 && idx<9){ const kc=document.createElement('span'); kc.className='search-keycap'; kc.textContent=String(idx+1); el.appendChild(kc); }
         const tier=document.createElement('span'); tier.className='sg-tier tier-'+(card.tier || 'C'); tier.textContent=card.tier || 'C'; el.appendChild(tier);
         const nameBox=document.createElement('div'); nameBox.className='sg-name'; nameBox.textContent=displayName(card)||'';
         el.appendChild(nameBox);
@@ -6808,45 +6808,7 @@ window.renderResult = function(scored,skipScore){
     });
   }
   function renderFallbackListWhenNoMatch(){
-    if(!isDesktop() || !isModalOpen()) return;
-    const wrap = getWrap();
-    const input = getInput();
-    if(!wrap || !input) return;
-    const q = String(input.value || '').trim();
-    if(!q) return;
-
-    const empty = wrap.querySelector('.search-empty');
-    const grid = wrap.querySelector('.search-grid');
-    if(!empty || grid) return;
-
-    const progHtml = (wrap.querySelector('.slot-progress') ? wrap.querySelector('.slot-progress').outerHTML : '') +
-      (wrap.querySelector('.slot-hint') ? wrap.querySelector('.slot-hint').outerHTML : '');
-
-    const fullList = getCurrentSearchPool();
-    if(!Array.isArray(fullList) || !fullList.length) return;
-
-    const stableActions = fullList.map((card) => function(ev){
-      if(ev){
-        ev.preventDefault();
-        ev.stopPropagation();
-        if(typeof ev.stopImmediatePropagation === 'function') ev.stopImmediatePropagation();
-      }
-      if(typeof window.pickSearchCard === 'function') return window.pickSearchCard(card);
-      if(typeof window.searchResultAction !== 'undefined') return;
-    });
-
-    window.searchResultList = fullList.slice();
-    try{ searchResultList = fullList.slice(); }catch(e){}
-    window.searchResultAction = stableActions.slice();
-    try{ searchResultAction = stableActions.slice(); }catch(e){}
-
-    wrap.innerHTML = progHtml + '<div class="search-empty" style="padding-bottom:14px">검색 결과 없음 · 전체 리스트 표시</div>';
-    const newGrid = document.createElement('div');
-    newGrid.className = 'search-grid';
-    fullList.forEach((card, idx) => {
-      newGrid.appendChild(makeCardEl(card, idx, stableActions[idx]));
-    });
-    wrap.appendChild(newGrid);
+    return;
   }
 
   const original = window.renderSearchGrid;
@@ -6881,6 +6843,81 @@ window.renderResult = function(scored,skipScore){
     renderFallbackListWhenNoMatch();
     ensureVisibleKeycaps();
   }, 0);
+})();
+</script>
+
+
+<script id="search-empty-hardfix-20260420-v1">
+(function(){
+  function getWrap(){ return document.getElementById('searchGridWrap'); }
+  function getInput(){ return document.getElementById('modalInput'); }
+  function isModalOpen(){
+    const modal = document.getElementById('searchModal');
+    return !!(modal && modal.classList.contains('open'));
+  }
+  function cleanupEmptyState(){
+    const wrap = getWrap();
+    const input = getInput();
+    if(!wrap || !input || !isModalOpen()) return;
+    const q = String(input.value || '').trim();
+    const empty = wrap.querySelector('.search-empty');
+    if(!q){
+      return;
+    }
+    if(empty){
+      const grids = wrap.querySelectorAll('.search-grid');
+      grids.forEach(function(grid){ grid.remove(); });
+      window.searchResultList = [];
+      try{ searchResultList = []; }catch(e){}
+      window.searchResultAction = [];
+      try{ searchResultAction = []; }catch(e){}
+    }
+  }
+
+  const originalRender = window.renderSearchGrid;
+  if(typeof originalRender === 'function' && !originalRender.__searchEmptyHardFixed){
+    window.renderSearchGrid = function(){
+      const ret = originalRender.apply(this, arguments);
+      cleanupEmptyState();
+      requestAnimationFrame(cleanupEmptyState);
+      setTimeout(cleanupEmptyState, 0);
+      return ret;
+    };
+    window.renderSearchGrid.__searchEmptyHardFixed = true;
+  }
+
+  document.addEventListener('input', function(e){
+    if(e.target && e.target.id === 'modalInput'){
+      cleanupEmptyState();
+      requestAnimationFrame(cleanupEmptyState);
+      setTimeout(cleanupEmptyState, 0);
+    }
+  }, true);
+
+  document.addEventListener('click', function(){
+    cleanupEmptyState();
+  }, true);
+
+  const wrap = getWrap();
+  if(wrap && !wrap.__searchEmptyHardFixObserved){
+    wrap.__searchEmptyHardFixObserved = true;
+    const mo = new MutationObserver(function(){ cleanupEmptyState(); });
+    mo.observe(wrap, { childList:true, subtree:true });
+  } else {
+    const boot = function(){
+      const w = getWrap();
+      if(!w || w.__searchEmptyHardFixObserved) return;
+      w.__searchEmptyHardFixObserved = true;
+      const mo = new MutationObserver(function(){ cleanupEmptyState(); });
+      mo.observe(w, { childList:true, subtree:true });
+    };
+    if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, {once:true});
+    else boot();
+  }
+
+  cleanupEmptyState();
+  requestAnimationFrame(cleanupEmptyState);
+  setTimeout(cleanupEmptyState, 0);
 })();
 </script>
 
@@ -7082,7 +7119,7 @@ window.renderResult = function(scored,skipScore){
       };
       el.appendChild(img);
 
-      if(window.innerWidth > 768 && String(input && input.value || '').trim().length > 0 && idx < 9){
+      if(window.innerWidth > 768 && idx < 9){
         const kc = document.createElement('span');
         kc.className = 'search-keycap';
         kc.textContent = String(idx + 1);
@@ -7614,7 +7651,7 @@ window.renderResult = function(scored,skipScore){
         window.searchResultAction[idx] = choose;
         try{ searchResultAction[idx] = choose; }catch(e){}
         el.appendChild(this.makeCardImage(card));
-        if(window.innerWidth > 768 && q.trim().length > 0 && idx < 9){
+        if(window.innerWidth > 768 && idx < 9){
           const kc = document.createElement('span');
           kc.className = 'search-keycap';
           kc.textContent = String(idx + 1);
@@ -8966,5 +9003,98 @@ window.renderResult = function(scored,skipScore){
     state.lastEventStamp = null;
     state.dispatchLockUntil = 0;
   }, true);
+})();
+</script>
+
+<script id="search-keycap-persist-all-slots-20260420-v2">
+(function(){
+  function isModalOpen(){
+    const modal = document.getElementById('searchModal');
+    return !!(modal && modal.classList.contains('open'));
+  }
+  function isDesktop(){ return window.innerWidth > 768; }
+  function getWrap(){ return document.getElementById('searchGridWrap'); }
+  function ensureKeycaps(){
+    if(!isModalOpen() || !isDesktop()) return;
+    const wrap = getWrap();
+    if(!wrap) return;
+    const cards = wrap.querySelectorAll('.search-grid .sg-card');
+    cards.forEach((el, idx) => {
+      const old = el.querySelector('.search-keycap');
+      if(old) old.remove();
+      if(idx < 9){
+        const kc = document.createElement('span');
+        kc.className = 'search-keycap';
+        kc.textContent = String(idx + 1);
+        el.appendChild(kc);
+      }
+    });
+  }
+  let scheduled = false;
+  function schedule(){
+    if(scheduled) return;
+    scheduled = true;
+    requestAnimationFrame(() => {
+      scheduled = false;
+      ensureKeycaps();
+    });
+  }
+  function bindObserver(){
+    const wrap = getWrap();
+    if(!wrap || wrap.__keycapPersistObserverBound) return;
+    wrap.__keycapPersistObserverBound = true;
+    const mo = new MutationObserver(schedule);
+    mo.observe(wrap, { childList:true, subtree:true });
+  }
+  const oldRender = window.renderSearchGrid;
+  if(typeof oldRender === 'function' && !oldRender.__keycapPersistWrapped){
+    const wrapped = function(){
+      const ret = oldRender.apply(this, arguments);
+      bindObserver();
+      schedule();
+      setTimeout(schedule, 0);
+      return ret;
+    };
+    wrapped.__keycapPersistWrapped = true;
+    window.renderSearchGrid = wrapped;
+  }
+  const oldOpenSearch = window.openSearch;
+  if(typeof oldOpenSearch === 'function' && !oldOpenSearch.__keycapPersistWrapped){
+    const wrappedOpen = function(){
+      const ret = oldOpenSearch.apply(this, arguments);
+      bindObserver();
+      schedule();
+      setTimeout(schedule, 0);
+      return ret;
+    };
+    wrappedOpen.__keycapPersistWrapped = true;
+    window.openSearch = wrappedOpen;
+  }
+  const oldOpenDeckAdd = window.openDeckAdd;
+  if(typeof oldOpenDeckAdd === 'function' && !oldOpenDeckAdd.__keycapPersistWrapped){
+    const wrappedDeck = function(){
+      const ret = oldOpenDeckAdd.apply(this, arguments);
+      bindObserver();
+      schedule();
+      setTimeout(schedule, 0);
+      return ret;
+    };
+    wrappedDeck.__keycapPersistWrapped = true;
+    window.openDeckAdd = wrappedDeck;
+  }
+  document.addEventListener('input', function(e){
+    if(e.target && e.target.id === 'modalInput') schedule();
+  }, true);
+  document.addEventListener('compositionend', function(e){
+    if(e.target && e.target.id === 'modalInput') schedule();
+  }, true);
+  window.addEventListener('resize', schedule);
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){ bindObserver(); schedule(); });
+  } else {
+    bindObserver();
+    schedule();
+    setTimeout(schedule, 0);
+  }
 })();
 </script>
