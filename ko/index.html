@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title data-i18n="app.title">카드 뭐 뽑지?</title>
+
+<link rel="stylesheet" href="../style.css">
+<script src="../i18n.js"></script>
+</head>
+<body>
+<div class="hdr">
+  <h1 data-i18n="app.heading">실시간추천</h1>
+  <p id="hdrSub" data-i18n="app.subtitle">카드 선택 도우미</p>
+</div>
+<div class="gnb-wrap"><div class="gnb-shell"><div class="char-row" id="charRow"></div></div></div>
+<div class="app-tabs" id="appTabs"></div>
+<div class="card" id="liveTab">
+  <div class="deck-head"><span id="deckLabel" data-i18n="deck.current">현재 덱</span><div><button class="deck-reset" onclick="resetAll()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15.55-6.36L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15.55 6.36L3 16"/></svg><span data-i18n="deck.reset">초기화</span></button></div></div>
+  <div class="deck-summary" id="deckSummary"></div>
+  <div class="build-panel" id="buildPanel"><div class="builds" id="buildBtns"></div><div class="build-info" id="buildInfo"></div></div>
+  <div class="inline-picker" id="pickerSection">
+    <div class="mode-tabs">
+      <button class="mode-tab on" id="modeReward" onclick="setMode('reward')"><span data-i18n="mode.reward">보상 카드</span><span class="mode-tab-keycap">Q</span></button>
+      <button class="mode-tab" id="modeShop" onclick="setMode('shop')"><span data-i18n="mode.shop">상점 구매</span><span class="mode-tab-keycap">W</span></button>
+    </div>
+    <div class="reward-row" id="rewardRow"></div>
+    <div class="inline-result" id="resultSection" style="display:none"><div class="recommend-hint pc-result-desc" data-i18n="mode.hint">보상 또는 상점 카드 선택.</div><div id="resultBody"></div></div>
+  </div>
+  <div class="deck-divider"></div>
+  <div class="deck-count-row"><div class="deck-count-note" id="deckCountNote" data-i18n-html="deck.countWithNum">현재 덱 <strong>0장</strong></div><button class="deck-reset" onclick="resetAll()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15.55-6.36L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15.55 6.36L3 16"/></svg><span data-i18n="deck.reset">초기화</span></button></div>
+  <div class="deck-grid" id="deckGrid"></div>
+  <div class="hist-toggle-wrap" id="histSection"><div id="histBody"></div></div>
+</div>
+<div class="card guide-tab" id="guideTab">
+  <div class="card-label" data-i18n="guide.title">빌드모음</div>
+  <div id="guideIntro"></div>
+  <div class="guide-list" id="guideList"></div>
+  <div id="coopSection"></div>
+</div>
+<div class="modal-bg" id="searchModal">
+  <div class="modal-box"><div class="modal-top"><div class="modal-top-row"><h2 id="modalTitle" data-i18n="search.title">카드 선택</h2><button class="modal-close" onclick="closeSearch()">✕</button></div><input id="modalInput" data-i18n-attr="placeholder:search.placeholder" placeholder="이름 또는 초성 (폼멜타격 : ㅍㅁㅌㄱ)" oninput="renderSearchGrid()"></div><div class="modal-body"><div id="searchGridWrap"></div></div></div>
+</div>
+<div class="modal-bg" id="detailModal" onclick="if(event.target===this)closeDetail()"><div class="detail-box" id="detailBody"></div></div>
+
+<div class="hailot-guide-overlay" id="hailotGuideOverlay">
+  <div class="hailot-guide-dim" id="hailotDimTop"></div>
+  <div class="hailot-guide-dim" id="hailotDimLeft"></div>
+  <div class="hailot-guide-dim" id="hailotDimRight"></div>
+  <div class="hailot-guide-dim" id="hailotDimBottom"></div>
+  <div class="hailot-guide-spot" id="hailotGuideSpot"></div>
+  <div class="hailot-guide-bubble" id="hailotGuideBubble">
+    <div class="hailot-guide-step" id="hailotGuideStep">STEP 1 / 4</div>
+    <div class="hailot-guide-text" id="hailotGuideText"></div>
+    <div class="hailot-guide-actions">
+      <button class="hailot-guide-skip" id="hailotGuideSkip" type="button" data-i18n="onboard.skip">건너뛰기</button>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="hailot-guide-skip" id="hailotGuidePrev" type="button" data-i18n="onboard.prev">이전</button>
+        <button class="hailot-guide-next" id="hailotGuideNext" type="button" data-i18n="onboard.next">다음</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="hx-onboard-overlay" id="hxOverlay">
+  <div class="hx-dim" id="hxDimTop"></div>
+  <div class="hx-dim" id="hxDimLeft"></div>
+  <div class="hx-dim" id="hxDimRight"></div>
+  <div class="hx-dim" id="hxDimBottom"></div>
+  <div class="hx-spot" id="hxSpot"></div>
+  <div class="hx-bubble" id="hxBubble">
+    <div class="hx-step" id="hxStep"></div>
+    <div class="hx-text" id="hxText"></div>
+    <div class="hx-actions">
+      <button class="hx-skip" id="hxSkip" type="button" data-i18n="onboard.skip">건너뛰기</button>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="hx-ghost" id="hxPrev" type="button" data-i18n="onboard.prev">이전</button>
+        <button class="hx-next" id="hxNext" type="button" data-i18n="onboard.next">다음</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../js/11-manifest.js"></script>
+<script src="../js/01-search.js" defer></script>
+<script src="../js/02-images.js" defer></script>
+<script src="../js/03-data.js" defer></script>
+<script src="../js/04-state.js" defer></script>
+<script src="../js/05-score.js" defer></script>
+<script src="../js/06-repo.js" defer></script>
+<script src="../js/07-render.js" defer></script>
+<script src="../js/08-actions.js" defer></script>
+<script src="../js/09-patches.js" defer></script>
+</body>
+</html>
