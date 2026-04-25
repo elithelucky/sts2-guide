@@ -2882,6 +2882,7 @@ window.renderResult = function(scored,skipScore){
     },
 
     openModal(title){
+      this._pickClearPending = false;
       const modal = document.getElementById(modalId);
       const input = document.getElementById(inputId);
       const titleEl = document.getElementById(titleId);
@@ -3156,10 +3157,10 @@ window.renderResult = function(scored,skipScore){
           this.close();
           if(typeof renderAll === 'function') renderAll('to-result');
         }
+      } finally {
         // 200ms 동안 compositionend/oninput이 텍스트를 되살려도 render()가 다시 클리어
         const self = this;
         setTimeout(function(){ self._pickClearPending = false; }, 200);
-      } finally {
         release();
       }
     },
