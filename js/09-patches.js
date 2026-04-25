@@ -42,7 +42,7 @@
     const t=e.target;
     if(!t) return;
     const txt=(t.textContent||'').trim();
-    if(txt.includes('카드 1') || txt.includes('카드 2') || txt.includes('카드 3') || txt.includes('카드 4') || txt.includes('카드 5') || txt.includes('추가')){
+    if(/카드 [1-5]|Card [1-5]|추가|Add/.test(txt)){
       setTimeout(setLoadingState, 0);
     }
   }, true);
@@ -234,10 +234,15 @@
         try{ localStorage.setItem(SEARCH_INPUT_KEY, '1'); }catch(e){}
         const input = $('modalInput');
         if(input && !input.value){
-          input.value = 'ㅌㄱ';
+          input.value = t('hint.searchExample');
           if(typeof renderSearchGrid === 'function') renderSearchGrid();
         }
-        showHint(SEARCH_RESULT_KEY, '#searchGridWrap .sg-card', isPCOnboard() ? t('hint.searchResultPC') : t('hint.searchResultMobile'));
+        if(q('#searchGridWrap .sg-card')){
+          showHint(SEARCH_RESULT_KEY, '#searchGridWrap .sg-card', isPCOnboard() ? t('hint.searchResultPC') : t('hint.searchResultMobile'));
+        } else {
+          try{ localStorage.setItem(SEARCH_RESULT_KEY, '1'); }catch(e){}
+          closeOverlay();
+        }
         return;
       }
       try{ localStorage.setItem(currentHint.key, '1'); }catch(e){}
@@ -297,7 +302,7 @@
       if(mode === 'hint' && currentHint && (currentHint.key === SEARCH_INPUT_KEY || currentHint.key === SEARCH_RESULT_KEY)) return;
 
       if(!searchInput.value){
-        searchInput.value = 'ㅌㄱ';
+        searchInput.value = t('hint.searchExample');
         if(typeof renderSearchGrid === 'function') renderSearchGrid();
       }
       showHint(SEARCH_INPUT_KEY, '#modalInput', t('hint.searchInput'));
@@ -527,7 +532,7 @@ window.renderSearchGrid = function(){
   let prog='';
   if(!deckAddMode){
     const need=getNeedCount();
-    prog='<div class="slot-progress">'+Array.from({length:need},(_,i)=>`<span class="slot-dot ${i===activeSlot?'on':''} ${mode==='shop'&&isShopColorlessSlot(i)?'colorless':''}"></span>`).join('')+`<span class="slot-text">${getSlotLabel(activeSlot)} 선택</span></div>`;
+    prog='<div class="slot-progress">'+Array.from({length:need},(_,i)=>`<span class="slot-dot ${i===activeSlot?'on':''} ${mode==='shop'&&isShopColorlessSlot(i)?'colorless':''}"></span>`).join('')+`<span class="slot-text">${getSlotLabel(activeSlot)} ${t('slot.selecting')}</span></div>`;
     if(mode==='shop'){
       prog+=`<div class="slot-hint">${isShopColorlessSlot(activeSlot)?t('search.colorlessOnly'):t('search.classOnly')}</div>`;
     }
@@ -582,8 +587,8 @@ window.buyShopCard = function(name){
     setLastAction(t('toast.addedToDeck',{name:tn(name)}), 'success');
     renderAll('to-result');
   }else{
-    setLastAction(`${name} 카드를 구매하고 상점 선택을 마쳤습니다.`, 'success');
-    finalizeShopCycle('구매 종료');
+    setLastAction(t('toast.shopComplete',{name:tn(name)}), 'success');
+    finalizeShopCycle(t('action.buyEnd'));
   }
 };
 
@@ -595,8 +600,8 @@ window.shopSkipCard = function(name){
     clearLastAction();
     renderAll('to-result');
   }else{
-    setLastAction('남은 상점 카드가 없어 구매를 종료했습니다.', 'info');
-    finalizeShopCycle('구매 종료');
+    setLastAction(t('toast.shopAllBought'), 'info');
+    finalizeShopCycle(t('action.buyEnd'));
   }
 };
 
@@ -610,7 +615,7 @@ window.pickCard = function(name){
 window.doSkip = function(){
   const from=picks.filter(Boolean);
   if(mode==='shop'){
-    setLastAction('상점 구매를 종료했습니다.', 'info');
+    setLastAction(t('toast.shopEnded'), 'info');
     if(from.length) hist.push({p:'구매 종료',f:from});
     deckAddMode=false;
     activeSlot=-1;
@@ -618,7 +623,7 @@ window.doSkip = function(){
     renderAll('to-picker');
     return;
   }
-  setLastAction('현재 보상 카드를 스킵했습니다.', 'info');
+  setLastAction(t('toast.skipReward'), 'info');
   if(from.length) hist.push({p:'스킵',f:from});
   deckAddMode=false;
   activeSlot=-1;
@@ -703,8 +708,8 @@ window.renderResult = function(scored,skipScore){
   action.className='res-item res-skip-compact'+(skipBest?' best skip-best is-top-recommend':'');
   action.dataset.rank='skip';
   const skipSummary = isShopMode
-    ? (skipBest ? tn('지금은 더 사기보다 여기서 구매를 끝내는 쪽이 낫습니다') : tn('상점 구매를 끝내려면 구매 종료를 누르세요'))
-    : (skipBest ? tn('지금은 집기보다 스킵하는 쪽이 낫습니다') : t('skipSummary.pickBetter'));
+    ? (skipBest ? t('skipSummary.shopEndBetter') : t('skipSummary.shopEndHint'))
+    : (skipBest ? t('skipSummary.skipBetter') : t('skipSummary.pickBetter'));
   action.innerHTML=`<div class="res-title-row">${skipBest?`<span class="res-badge" style="background:#22c55e;color:#fff">${t('common.recommend')}</span>`:''}<span class="res-title">${isShopMode?t('action.shopEnd'):t('action.skip')}</span></div><div class="res-summary">${skipSummary}</div><button type="button" data-action="do-skip" class="res-compact-btn${skipBest?' is-recommended':''}" onclick="doSkip()"><span class="res-skip-keycap">\`</span>${isShopMode?t('action.buyEnd'):t('action.skipDo')}</button>`;
   body.appendChild(action);
 };
@@ -1968,7 +1973,7 @@ window.renderResult = function(scored,skipScore){
       const colorless = (typeof mode!=='undefined' && mode==='shop' && typeof isShopColorlessSlot==='function' && isShopColorlessSlot(i)) ? ' colorless' : '';
       const on = i===activeSlot ? ' on' : '';
       return `<span class="slot-dot${on}${colorless}"></span>`;
-    }).join('') + `<span class="slot-text">${(typeof getSlotLabel==='function' ? getSlotLabel(activeSlot) : t('search.title')).replace(/"/g,'&quot;')} 선택</span></div>`;
+    }).join('') + `<span class="slot-text">${(typeof getSlotLabel==='function' ? getSlotLabel(activeSlot) : t('search.title')).replace(/"/g,'&quot;')} ${t('slot.selecting')}</span></div>`;
     if(typeof mode!=='undefined' && mode==='shop' && typeof isShopColorlessSlot==='function'){
       prog += `<div class="slot-hint">${isShopColorlessSlot(activeSlot)?t('search.shopColorlessOnly'):t('search.classOnly')}</div>`;
     }
@@ -2169,7 +2174,7 @@ window.renderResult = function(scored,skipScore){
       if(this.isDeckAdd() || typeof getNeedCount!=='function') return '';
       const need=getNeedCount();
       if(!need) return '';
-      let html='<div class="slot-progress">'+Array.from({length:need},(_,i)=>`<span class="slot-dot${i===this.state.slotIndex?' on':''}${(this.isShop()&&typeof isShopColorlessSlot==='function'&&isShopColorlessSlot(i))?' colorless':''}"></span>`).join('')+`<span class="slot-text">${(typeof getSlotLabel==='function'?getSlotLabel(this.state.slotIndex):t('search.title'))} 선택</span></div>`;
+      let html='<div class="slot-progress">'+Array.from({length:need},(_,i)=>`<span class="slot-dot${i===this.state.slotIndex?' on':''}${(this.isShop()&&typeof isShopColorlessSlot==='function'&&isShopColorlessSlot(i))?' colorless':''}"></span>`).join('')+`<span class="slot-text">${(typeof getSlotLabel==='function'?getSlotLabel(this.state.slotIndex):t('search.title'))} ${t('slot.selecting')}</span></div>`;
       if(this.isShop()) html += `<div class="slot-hint">${this.isColorlessOnlySlot() ? t('search.shopColorlessOnly') : t('search.classOnly')}</div>`;
       return html;
     },
@@ -2564,7 +2569,7 @@ window.renderResult = function(scored,skipScore){
       const on = i===activeSlot ? ' on' : '';
       const colorless = (typeof mode!=='undefined' && mode==='shop' && typeof isShopColorlessSlot==='function' && isShopColorlessSlot(i)) ? ' colorless' : '';
       return `<span class="slot-dot${on}${colorless}"></span>`;
-    }).join('') + `<span class="slot-text">${(typeof getSlotLabel==='function' ? getSlotLabel(activeSlot) : '카드').replace(/"/g,'&quot;')} 선택</span></div>`;
+    }).join('') + `<span class="slot-text">${(typeof getSlotLabel==='function' ? getSlotLabel(activeSlot) : t('search.title')).replace(/"/g,'&quot;')} ${t('slot.selecting')}</span></div>`;
     if(typeof mode!=='undefined' && mode==='shop' && typeof isShopColorlessSlot==='function'){
       prog += `<div class="slot-hint">${isShopColorlessSlot(activeSlot)?t('search.shopColorlessOnly'):t('search.shopClassOnly')}</div>`;
     }
@@ -2733,14 +2738,14 @@ window.renderResult = function(scored,skipScore){
   function getProgressHtml(){
     if(deckAddMode) return '';
     const need = (typeof getNeedCount === 'function') ? getNeedCount() : ((Array.isArray(picks) && picks.length) ? picks.length : 0);
-    const label = (typeof getSlotLabel === 'function') ? getSlotLabel(activeSlot) : '카드';
+    const label = (typeof getSlotLabel === 'function') ? getSlotLabel(activeSlot) : t('search.title');
     let html = '<div class="slot-progress">';
     for(let i=0;i<need;i++){
       const on = i===activeSlot ? ' on' : '';
       const colorless = (typeof mode!=='undefined' && mode==='shop' && typeof isShopColorlessSlot==='function' && isShopColorlessSlot(i)) ? ' colorless' : '';
       html += `<span class="slot-dot${on}${colorless}"></span>`;
     }
-    html += `<span class="slot-text">${esc(label)} 선택</span></div>`;
+    html += `<span class="slot-text">${esc(label)} ${t('slot.selecting')}</span></div>`;
     if(typeof mode!=='undefined' && mode==='shop' && typeof isShopColorlessSlot==='function' && activeSlot > -1){
       html += `<div class="slot-hint">${isShopColorlessSlot(activeSlot)?t('search.shopColorlessOnly'):t('search.classOnly')}</div>`;
     }
@@ -3026,7 +3031,7 @@ window.renderResult = function(scored,skipScore){
         const on = i === this.state.slotIndex ? ' on' : '';
         const colorless = this.isShop() && this.isColorlessOnlySlot(i) ? ' colorless' : '';
         return `<span class="slot-dot${on}${colorless}"></span>`;
-      }).join('') + `<span class="slot-text">${(typeof getSlotLabel === 'function' ? getSlotLabel(this.state.slotIndex) : t('search.title'))} 선택</span></div>`;
+      }).join('') + `<span class="slot-text">${(typeof getSlotLabel === 'function' ? getSlotLabel(this.state.slotIndex) : t('search.title'))} ${t('slot.selecting')}</span></div>`;
       if(this.isShop()) {
         prog += `<div class="slot-hint">${this.isColorlessOnlySlot() ? t('search.shopColorlessOnly') : t('search.classOnly')}</div>`;
       }
