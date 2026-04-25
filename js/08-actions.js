@@ -263,15 +263,6 @@ document.addEventListener('pointerup', function(e){
   doSkip();
 }, true);
 
-document.getElementById('modalInput').addEventListener('keydown',function(e){
-  if(e.isComposing||e.ctrlKey||e.metaKey||e.altKey) return;
-  if(!document.getElementById('searchModal').classList.contains('open')) return;
-  if(!/^[1-9]$/.test(e.key)) return;
-  const idx=Number(e.key)-1;
-  if(searchResultList.length<=idx) return;
-  e.preventDefault();
-  selectSearchResultByIndex(idx);
-});
 document.getElementById('searchModal').addEventListener('click',function(e){if(e.target===this)closeSearch()});
 document.addEventListener('click',function(e){if(selectedDeckIdx===-1) return; if(e.target.closest('.dk-wrap.selected')||e.target.closest('.dk-add')) return; selectedDeckIdx=-1; renderDeck();});
 (async function init(){await enrichCardsFromRepo();renderAll()})();

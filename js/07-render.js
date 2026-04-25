@@ -152,13 +152,15 @@ function ensureSearchInputFocus(){
   const input=document.getElementById('modalInput');
   if(!input) return;
   const doFocus=()=>{
+    const modal=document.getElementById('searchModal');
+    if(!modal || !modal.classList.contains('open')) return;
+    if(document.activeElement===input) return;
     input.focus({preventScroll:true});
     try{input.setSelectionRange(input.value.length,input.value.length)}catch(e){}
   };
   doFocus();
-  requestAnimationFrame(doFocus);
-  setTimeout(doFocus,40);
-  setTimeout(doFocus,120);
+  requestAnimationFrame(()=>{doFocus();requestAnimationFrame(doFocus)});
+  [40,120,250,400].forEach(d=>setTimeout(doFocus,d));
 }
 
 function selectSearchResultByIndex(idx){

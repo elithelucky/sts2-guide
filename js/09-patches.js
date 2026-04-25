@@ -1378,6 +1378,8 @@ window.renderResult = function(scored,skipScore){
         }
       }
       if(!kind || !rawName) return;
+      const isEn = (typeof I18N !== 'undefined' && I18N.lang === 'en');
+      if(isEn && (rawName === '랜턴열쇠' || rawName === '보물지도')) return;
       const key = norm(rawName);
       if(byName[kind].has(key)) return;
       byName[kind].add(key);
@@ -1554,24 +1556,6 @@ window.renderResult = function(scored,skipScore){
   const _openDeckAdd = window.openDeckAdd || (typeof openDeckAdd==='function'?openDeckAdd:null);
   window.openDeckAdd = function(){ deckAddMode=true; activeSlot=-1; window.searchScope='all'; document.getElementById('modalTitle').textContent=t('search.addToDeck'); document.getElementById('modalInput').value=''; document.getElementById('searchModal').classList.add('open'); if(typeof updateBodyLock==='function') updateBodyLock(); window.renderSearchGrid(); if(typeof ensureSearchInputFocus==='function') ensureSearchInputFocus(); };
 
-  document.addEventListener('keydown', function(e){
-    const modal=document.getElementById('searchModal');
-    if(!modal || !modal.classList.contains('open')) return;
-    if(e.altKey){
-      const k=e.key;
-      if(k==='1'||k==='2'||k==='3'||k==='4'){
-        e.preventDefault(); e.stopPropagation();
-        window.searchScope = ({'1':'all','2':'current','3':'colorless','4':'other'})[k];
-        window.renderSearchGrid();
-        return;
-      }
-    }
-    if(/^[1-9]$/.test(e.key)){
-      const idx = Number(e.key)-1;
-      const fn = (searchResultAction||[])[idx];
-      if(fn){ e.preventDefault(); e.stopPropagation(); fn(); }
-    }
-  }, true);
 })();
 /* === script: reward-shop-colorless-filter-fix === */
 (function(){
@@ -1795,7 +1779,7 @@ window.renderResult = function(scored,skipScore){
       const code = ch.charCodeAt(0) - 44032;
       if(code < 0 || code > 11171) return ch.toLowerCase();
       return 'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ'[Math.floor(code/588)] || ch;
-    }).join(''));
+    }).join('')).replace(/\s/g,'');
   }
   function matchesLoose(name, q){
     const qq = LOWER(q);
@@ -2034,39 +2018,6 @@ window.renderResult = function(scored,skipScore){
     wrapPickActions();
   };
 })();
-/* === script: search-modal-digit-authoritative-fix-20260411 === */
-(function(){
-  function isSearchOpen(){
-    const modal = document.getElementById('searchModal');
-    return !!(modal && modal.classList.contains('open'));
-  }
-  function isTypingInSearch(){
-    const el = document.activeElement;
-    const input = document.getElementById('modalInput');
-    return !!(input && el === input);
-  }
-  function pickRenderedCard(idx){
-    const cards = Array.from(document.querySelectorAll('#searchGridWrap .sg-card'));
-    const el = cards[idx];
-    if(!el) return false;
-    el.click();
-    return true;
-  }
-  document.addEventListener('keydown', function(e){
-    if(e.ctrlKey || e.metaKey || e.altKey) return;
-    if(e.isComposing) return;
-    if(!isSearchOpen()) return;
-    const key = e.code && /^Digit[1-9]$/.test(e.code) ? e.code.replace('Digit','') : (e.code && /^Numpad[1-9]$/.test(e.code) ? e.code.replace('Numpad','') : (String(e.key||'').match(/^[1-9]$/) ? String(e.key) : ''));
-    if(!key) return;
-    const idx = Number(key) - 1;
-    const cards = document.querySelectorAll('#searchGridWrap .sg-card');
-    if(idx < 0 || idx >= cards.length) return;
-    e.preventDefault();
-    e.stopPropagation();
-    if(typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
-    pickRenderedCard(idx);
-  }, true);
-})();
 /* === script: search-flow-stable-v4-20260414 === */
 (function(){
   const modalId='searchModal', titleId='modalTitle', inputId='modalInput', wrapId='searchGridWrap';
@@ -2291,26 +2242,7 @@ window.renderResult = function(scored,skipScore){
       input.oninput=()=>this.render();
     },
     bindKeys(){
-      if(window.__searchFlowStableKeysBound) return;
-      window.__searchFlowStableKeysBound=true;
-      document.addEventListener('keydown',(e)=>{
-        const modal=document.getElementById(modalId);
-        if(!modal || !modal.classList.contains('open')) return;
-        if(e.altKey){
-          const nextScope=({'1':'all','2':'current','3':'colorless','4':'other'})[e.key];
-          if(nextScope){
-            e.preventDefault(); e.stopPropagation(); if(typeof e.stopImmediatePropagation==='function') e.stopImmediatePropagation();
-            if(this.isColorlessOnlySlot() && nextScope!=='colorless') return;
-            this.state.scope=nextScope; this.syncGlobals(); this.render();
-            return;
-          }
-        }
-        const key = e.code && /^Digit[1-9]$/.test(e.code) ? e.code.replace('Digit','') : (e.code && /^Numpad[1-9]$/.test(e.code) ? e.code.replace('Numpad','') : (/^[1-9]$/.test(String(e.key || '')) ? String(e.key) : ''));
-        if(!key || e.ctrlKey || e.metaKey) return;
-        e.preventDefault(); e.stopPropagation(); if(typeof e.stopImmediatePropagation==='function') e.stopImmediatePropagation();
-        const fn=(window.searchResultAction || [])[Number(key)-1];
-        if(fn) fn();
-      }, true);
+      // 숫자키/Alt+숫자 단축키는 js/12-hotkeys.js에서 통합 처리
     },
     init(){ this.syncGlobals(); this.bindInput(); this.bindKeys(); }
   };
@@ -2333,41 +2265,34 @@ window.renderResult = function(scored,skipScore){
        * input works natively. Alt/Meta/Ctrl keys are ignored.
        */
       function initAggregator(){
-        // This helper stores a running query string (romanization or otherwise) on the input element itself
-        // and restores it after each keydown. It only activates when the search modal is open and the
-        // input is focused. Composition events (Korean IME) bypass this handler so that multi‑stroke Hangul
-        // input works natively. Alt/Meta/Ctrl keys are ignored. Digits are *not* aggregated so that they
-        // can be used for card selection without polluting the search query.
         const input = document.getElementById('modalInput');
         if(!input || input.__aggrBound) return;
         input.__aggrBound = true;
-        // initialise the saved query
         input.__searchQuery = '';
-        input.addEventListener('keydown', (e) => {
-          // only handle when search modal is open
+
+        function isSearchOpen(){
           const modal = document.getElementById('searchModal');
-          if(!modal || !modal.classList.contains('open')) return;
-          // skip if using an IME composition
+          return !!(modal && modal.classList.contains('open'));
+        }
+
+        // ── 타이핑 핸들러: 검색어 텍스트 입력 전용 ──
+        // Backspace, 일반 문자 입력, IME 바이패스 등 순수 텍스트 입력만 처리.
+        // 단축키(숫자, Alt 등)는 관여하지 않음.
+        function onSearchTyping(e){
+          if(!isSearchOpen()) return;
           if(e.isComposing) return;
-          // ignore modifier keys (but let the native handler work, then sync __searchQuery via the input event listener below)
-          if(e.ctrlKey || e.metaKey) return;
-          // ignore Alt combos – handled elsewhere for scope switching
-          if(e.altKey) return;
+          if(e.ctrlKey || e.metaKey || e.altKey) return;
           const key = e.key;
-          // backspace — respect current selection range so that selecting all
-          // text and pressing Backspace deletes the entire selection, not just
-          // the last character.
+          // Backspace: 선택 영역 or 커서 앞 한 글자 삭제
           if(key === 'Backspace'){
             const cur = input.value || '';
             const start = input.selectionStart;
             const end = input.selectionEnd;
             let next, newPos;
             if(start !== end){
-              // There is a selection — delete the selected text
               next = cur.substring(0, start) + cur.substring(end);
               newPos = start;
             } else {
-              // No selection — delete one character before the cursor
               next = cur.substring(0, Math.max(0, start - 1)) + cur.substring(start);
               newPos = Math.max(0, start - 1);
             }
@@ -2377,47 +2302,51 @@ window.renderResult = function(scored,skipScore){
             if(typeof window.renderSearchGrid === 'function')
               setTimeout(() => window.renderSearchGrid(), 0);
             e.preventDefault();
-            // stop propagation so no global hotkeys trigger card actions
             e.stopPropagation();
-            if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+            if(typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
             return;
           }
-          // handle single printable characters
+          // 단일 인쇄 가능 문자
           if(key && key.length === 1){
-            // Only aggregate ASCII printable characters. Non-ASCII keys (e.g. Hangul jamo from
-            // the Korean IME) must be left to the native composition pipeline; otherwise the
-            // aggregator prepends the jamo to the value before compositionend also commits it,
-            // producing duplicates like "ㄱ" → "ㄱㄱ".
+            // 비-ASCII(한글 자모 등)는 네이티브 IME에 맡김
             if(key.charCodeAt(0) > 0x7F) return;
-            // If the key is a digit (0-9), do not append it to the query. Let the key propagate so
-            // that number key shortcuts can select a card when the input is blurred. Even if the input
-            // remains focused, the final-search-fix listeners will block propagation to avoid unwanted
-            // actions.
-            if(/^[0-9]$/.test(key)){
-              return;
-            }
-            // append to query buffer and update visible value
+            // 숫자(0-9)는 타이핑하지 않음 → 단축키 핸들러에서 처리
+            if(/^[0-9]$/.test(key)) return;
+            // 검색어 버퍼에 추가
             input.__searchQuery = (input.__searchQuery || '') + key;
             input.value = input.__searchQuery;
-            // schedule render
             if(typeof window.renderSearchGrid === 'function')
               setTimeout(() => window.renderSearchGrid(), 0);
             e.preventDefault();
-            // stop propagation so global hotkeys do not trigger
             e.stopPropagation();
-            if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+            if(typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
             return;
           }
-        }, true);
-        // Sync __searchQuery with the actual input value after any native
-        // modification (e.g. Command+Backspace, Ctrl+Backspace, selecting text
-        // and deleting via context menu, etc.).  The aggregator's own keydown
-        // handler calls e.preventDefault() so this listener only fires for
-        // changes that were NOT handled by the aggregator.
+        }
+
+        // ── 단축키 핸들러: input 내 단축키 제어 전용 ──
+        // Alt+숫자 스코프 전환 차단, 숫자키 카드 선택 전파 허용 등
+        // 타이핑 로직에는 관여하지 않음.
+        function onSearchShortcut(e){
+          if(!isSearchOpen()) return;
+          if(e.isComposing) return;
+          // Alt+키: input 내에서는 스코프 전환 차단 (전파 중단)
+          if(e.altKey){
+            e.stopPropagation();
+            if(typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+            return;
+          }
+          // 숫자키(1-9): 타이핑 핸들러에서 이미 무시하므로
+          // 여기서 별도 처리 없이 document의 카드 선택 핸들러로 전파됨.
+        }
+
+        input.addEventListener('keydown', onSearchTyping, true);
+        input.addEventListener('keydown', onSearchShortcut, true);
+
+        // __searchQuery 동기화: 네이티브 수정(Cmd+Backspace 등) 반영
         input.addEventListener('input', () => {
           input.__searchQuery = input.value || '';
         });
-        // when input gains focus reset the saved query to the current value
         input.addEventListener('focus', () => {
           input.__searchQuery = input.value || '';
         });
@@ -2681,29 +2610,6 @@ window.renderResult = function(scored,skipScore){
 
   window.renderSearchGrid = renderSearchGridFinal;
   bindCompositionGuards();
-})();
-/* === script: digit-hotkey-fix-20260411 === */
-(function(){
-  function isSearchOpen(){
-    const modal = document.getElementById('searchModal');
-    return !!(modal && modal.classList.contains('open'));
-  }
-  function pickByDigit(idx){
-    const acts = Array.isArray(window.searchResultAction) ? window.searchResultAction : [];
-    if(typeof acts[idx] === 'function') return acts[idx]();
-    if(typeof window.selectSearchResultByIndex === 'function') return window.selectSearchResultByIndex(idx);
-  }
-  document.addEventListener('keydown', function(e){
-    if(e.ctrlKey || e.metaKey || e.altKey) return;
-    if(!isSearchOpen()) return;
-    if(!/^[1-9]$/.test(e.key)) return;
-    const idx = Number(e.key) - 1;
-    const list = Array.isArray(window.searchResultList) ? window.searchResultList : [];
-    if(idx < 0 || idx >= list.length) return;
-    e.preventDefault();
-    e.stopPropagation();
-    pickByDigit(idx);
-  }, true);
 })();
 /* === script: search-scope-stale-fix-20260411b === */
 (function(){
@@ -3014,6 +2920,29 @@ window.renderResult = function(scored,skipScore){
         this.syncToGlobals();
       }
       let pool = this.getPoolByScope(this.state.scope);
+      const current = (typeof curChar !== 'undefined' && curChar) ? curChar : 'ironclad';
+      // scope 'all'/'other'일 때 동명 카드(예: Strike)를 이름 기준으로 dedup,
+      // 현재 클래스 카드 우선
+      const multiClass = (this.state.scope === 'all' || this.state.scope === 'other');
+      if(multiClass){
+        const nameMap = new Map();
+        pool.forEach(card => {
+          if(!card || !card.n) return;
+          const nKey = String(card.n).replace(/\s+/g,'').toLowerCase();
+          const existing = nameMap.get(nKey);
+          if(!existing){
+            nameMap.set(nKey, card);
+          } else {
+            // 현재 클래스 카드를 우선
+            const existingClass = (existing.__kind || existing.cls || '').toLowerCase();
+            const thisClass = (card.__kind || card.cls || '').toLowerCase();
+            if(thisClass === current && existingClass !== current){
+              nameMap.set(nKey, card);
+            }
+          }
+        });
+        pool = Array.from(nameMap.values());
+      }
       const seen = new Set();
       pool = pool.filter(card => {
         if(!card || !card.n) return false;
@@ -3087,21 +3016,33 @@ window.renderResult = function(scored,skipScore){
       const top = document.querySelector('#' + modalId + ' .modal-top');
       if(!top) return;
       let box = document.getElementById('searchScopeTabs');
+      const forceColorless = this.isColorlessOnlySlot();
+      if(forceColorless && this.state.scope !== 'colorless'){
+        this.state.scope = 'colorless';
+        this.syncToGlobals();
+      }
+      // 이미 탭이 존재하면 active 상태만 업데이트 (DOM 재생성 방지)
+      if(box && box.children.length > 0 && box.__scopeBuilt){
+        const btns = box.querySelectorAll('.search-scope-chip');
+        btns.forEach(btn => {
+          const key = btn.dataset.scopeKey;
+          btn.classList.toggle('on', this.state.scope === key);
+          btn.disabled = forceColorless && key !== 'colorless';
+          btn.style.opacity = btn.disabled ? '.55' : '1';
+        });
+        return;
+      }
       if(!box){
         box = document.createElement('div');
         box.id = 'searchScopeTabs';
         box.className = 'search-scope-tabs';
         top.appendChild(box);
       }
-      const forceColorless = this.isColorlessOnlySlot();
-      if(forceColorless && this.state.scope !== 'colorless'){
-        this.state.scope = 'colorless';
-        this.syncToGlobals();
-      }
       box.innerHTML = '';
       this.getScopeConfig().forEach(item => {
         const btn = document.createElement('button');
         btn.type = 'button';
+        btn.dataset.scopeKey = item.key;
         btn.className = 'search-scope-chip' + (this.state.scope === item.key ? ' on' : '');
         btn.disabled = forceColorless && item.key !== 'colorless';
         btn.style.opacity = btn.disabled ? '.55' : '1';
@@ -3126,11 +3067,17 @@ window.renderResult = function(scored,skipScore){
         btn.appendChild(keycap);
         box.appendChild(btn);
       });
+      box.__scopeBuilt = true;
     },
 
     render(){
       const wrap = document.getElementById(wrapId);
       if(!wrap) return;
+      // pick 직후 compositionend가 비동기로 input에 텍스트를 되살릴 수 있음 → 강제 클리어
+      if(this._pickClearPending){
+        const inp = document.getElementById(inputId);
+        if(inp){ inp.value = ''; inp.__isComposingSearch = false; }
+      }
       const list = this.getFilteredList();
       const progressHtml = this.buildProgressHtml();
       this.renderScopeTabs();
@@ -3155,7 +3102,7 @@ window.renderResult = function(scored,skipScore){
         window.searchResultAction[idx] = choose;
         try{ searchResultAction[idx] = choose; }catch(e){}
         el.appendChild(this.makeCardImage(card));
-        if(window.innerWidth > 768 && q.trim().length > 0 && idx < 9){
+        if(window.innerWidth > 768 && idx < 9){
           const kc = document.createElement('span');
           kc.className = 'search-keycap';
           kc.textContent = String(idx + 1);
@@ -3172,24 +3119,15 @@ window.renderResult = function(scored,skipScore){
       window.__searchFlowPickLock = true;
       const release = () => setTimeout(() => { window.__searchFlowPickLock = false; }, 0);
       try{
-        // Clear search input on card selection to prevent leftover characters. Do this both immediately and after a microtask
-        try {
-          const __input__ = document.getElementById('modalInput');
-          if(__input__){
-            __input__.value = '';
-            if(typeof __input__.__searchQuery === 'string') __input__.__searchQuery = '';
-          }
-        } catch(__err__2){ }
-        // Schedule a second clear on the next event loop tick to override any asynchronous updates (e.g. from composition or delayed renders)
-        setTimeout(() => {
-          try {
-            const __input2__ = document.getElementById('modalInput');
-            if(__input2__){
-              __input2__.value = '';
-              if(typeof __input2__.__searchQuery === 'string') __input2__.__searchQuery = '';
-            }
-          } catch(__e__){ /* no-op */ }
-        }, 0);
+        // pick 후 compositionend가 비동기로 input에 텍스트를 되살리는 것 방지
+        // render() 진입 시 이 플래그를 보고 input을 강제 클리어
+        this._pickClearPending = true;
+        const __input__ = document.getElementById('modalInput');
+        if(__input__){
+          __input__.__isComposingSearch = false;
+          __input__.value = '';
+          if(typeof __input__.__searchQuery === 'string') __input__.__searchQuery = '';
+        }
         if(this.isDeckAdd()){
           if(typeof pushDeckCard === 'function') pushDeckCard(card.n);
           else if(Array.isArray(window.deck)) window.deck.push(card.n);
@@ -3210,7 +3148,7 @@ window.renderResult = function(scored,skipScore){
           const titleEl = document.getElementById(titleId);
           if(titleEl) titleEl.textContent = t('search.slotLabel',{label:((typeof getSlotLabel === 'function') ? getSlotLabel(next) : t('search.fallbackLabel'))});
           const input = document.getElementById(inputId);
-          if(input) input.value = '';
+          if(input){ input.value = ''; input.__isComposingSearch = false; }
           if(typeof renderRewardRow === 'function') renderRewardRow();
           this.render();
           if(typeof ensureSearchInputFocus === 'function') ensureSearchInputFocus();
@@ -3218,6 +3156,9 @@ window.renderResult = function(scored,skipScore){
           this.close();
           if(typeof renderAll === 'function') renderAll('to-result');
         }
+        // 200ms 동안 compositionend/oninput이 텍스트를 되살려도 render()가 다시 클리어
+        const self = this;
+        setTimeout(function(){ self._pickClearPending = false; }, 200);
       } finally {
         release();
       }
@@ -3234,35 +3175,7 @@ window.renderResult = function(scored,skipScore){
     },
 
     bindKeys(){
-      if(window.__searchFlowKeyBound) return;
-      window.__searchFlowKeyBound = true;
-      document.addEventListener('keydown', (e) => {
-        const modal = document.getElementById(modalId);
-        if(!modal || !modal.classList.contains('open')) return;
-        if(e.altKey){
-          const nextScope = ({'1':'all','2':'current','3':'colorless','4':'other'})[e.key];
-          if(nextScope){
-            e.preventDefault();
-            e.stopPropagation();
-            if(typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
-            if(this.isColorlessOnlySlot() && nextScope !== 'colorless') return;
-            this.state.scope = nextScope;
-            this.syncToGlobals();
-            this.render();
-            return;
-          }
-        }
-        const key = e.code && /^Digit[1-9]$/.test(e.code) ? e.code.replace('Digit','') : (e.code && /^Numpad[1-9]$/.test(e.code) ? e.code.replace('Numpad','') : (/^[1-9]$/.test(String(e.key || '')) ? String(e.key) : ''));
-        // ignore digit shortcuts when Alt is held or other modifiers are pressed
-        if(!key || e.ctrlKey || e.metaKey || e.altKey) return;
-        e.preventDefault();
-        e.stopPropagation();
-        if(typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
-        const idx = Number(key) - 1;
-        const fn = (window.searchResultAction || [])[idx];
-        if(!fn) return;
-        fn();
-      }, true);
+      // 숫자키/Alt+숫자 단축키는 js/12-hotkeys.js에서 통합 처리
     },
 
     init(){
@@ -3351,27 +3264,7 @@ window.renderResult = function(scored,skipScore){
       return origPick.call(this, card, idx);
     };
   }
-  // block Alt+key and digit hotkeys inside the search input to prevent accidental scope changes or card picks
-  function attachStabilityListeners(el){
-    if(!el || el.__finalFixBound) return;
-    el.__finalFixBound = true;
-    el.addEventListener('keydown', (e) => {
-      // Prevent Alt+number combinations in the search input from changing the scope while typing.
-      if(e.altKey){
-        e.stopPropagation();
-        if(typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
-        return;
-      }
-      // Do not block plain number keys; aggregator ignores digits and allows them to propagate so the
-      // global key handler can select cards via number shortcuts.
-    }, true);
-  }
-  document.addEventListener('focusin', (ev) => {
-    const tgt = ev.target;
-    if(tgt && tgt.id === 'modalInput'){
-      attachStabilityListeners(tgt);
-    }
-  }, true);
+  // Alt+key 차단 및 숫자키 전파는 aggregator의 onSearchShortcut에서 처리됨.
 })();
 /* === script: ime-leftover-fix-20260419-v5 === */
 (function(){
@@ -3609,77 +3502,6 @@ window.renderResult = function(scored,skipScore){
     updateExistingImages();
   }
   [200, 800, 2000].forEach(function(t){ setTimeout(updateExistingImages, t); });
-})();
-/* === script: keyboard-pick-reset-fix-20260419 === */
-(function(){
-  function clearQuery(input){
-    if(!input) return;
-    try{
-      const desc = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
-      if(desc && desc.set) desc.set.call(input, '');
-      else input.value = '';
-    }catch(_){ input.value = ''; }
-    if(typeof input.__searchQuery === 'string') input.__searchQuery = '';
-    input.__isComposingSearch = false;
-  }
-  window.addEventListener('keydown', function(e){
-    if(e.isComposing) return;
-    if(e.ctrlKey || e.metaKey || e.altKey) return;
-    if(!/^[1-9]$/.test(e.key)) return;
-    const modal = document.getElementById('searchModal');
-    if(!modal || !modal.classList.contains('open')) return;
-    const idx = Number(e.key) - 1;
-    if(idx < 0) return;
-    // Resolve card name from current render state
-    const list = Array.isArray(window.searchResultList)
-      ? window.searchResultList
-      : (typeof searchResultList !== 'undefined' && Array.isArray(searchResultList) ? searchResultList : []);
-    const cards = document.querySelectorAll('#searchGridWrap .sg-card');
-    let cardName = null;
-    if(list[idx] && list[idx].n) cardName = list[idx].n;
-    else if(cards[idx]){
-      const nameEl = cards[idx].querySelector('.sg-name');
-      if(nameEl) cardName = nameEl.textContent.trim();
-    }
-    if(!cardName) return;
-    e.preventDefault();
-    e.stopPropagation();
-    if(typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
-
-    // Deck-add mode
-    if(typeof deckAddMode !== 'undefined' && deckAddMode){
-      if(typeof pushDeckCard === 'function') pushDeckCard(cardName);
-      if(typeof closeSearch === 'function') closeSearch();
-      if(typeof renderAll === 'function') renderAll();
-      return;
-    }
-
-    // Reward / shop reward-slot mode: commit pick, then re-initialize modal for next slot
-    if(typeof picks === 'undefined' || !Array.isArray(picks)) return;
-    const curSlot = (typeof activeSlot !== 'undefined' ? activeSlot : 0);
-    picks[curSlot] = cardName;
-    const need = (typeof getNeedCount === 'function') ? getNeedCount() : 3;
-    const next = Array.from({length: need}, (_, i) => i).find(i => !picks[i]);
-
-    clearQuery(document.getElementById('modalInput'));
-    if(typeof renderRewardRow === 'function') renderRewardRow();
-
-    if(next === undefined){
-      if(typeof closeSearch === 'function') closeSearch();
-      if(typeof renderAll === 'function') renderAll('to-result');
-      return;
-    }
-
-    // Re-open modal for next slot — fresh scope, empty query, full pool.
-    // openSearch is the same entry point used when the user clicks a reward slot.
-    if(typeof window.openSearch === 'function'){
-      window.openSearch(next);
-    } else {
-      try{ activeSlot = next; }catch(_){}
-      window.activeSlot = next;
-      if(typeof window.renderSearchGrid === 'function') window.renderSearchGrid();
-    }
-  }, true);
 })();
 /* === script: pick-compositionend-clear-20260419-v2 === */
 (function(){
