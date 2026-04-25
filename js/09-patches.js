@@ -2349,19 +2349,31 @@ window.renderResult = function(scored,skipScore){
           if(!modal || !modal.classList.contains('open')) return;
           // skip if using an IME composition
           if(e.isComposing) return;
-          // ignore modifier keys
+          // ignore modifier keys (but let the native handler work, then sync __searchQuery via the input event listener below)
           if(e.ctrlKey || e.metaKey) return;
           // ignore Alt combos – handled elsewhere for scope switching
           if(e.altKey) return;
           const key = e.key;
-          // backspace removes last character — use input.value as source of truth
-          // so Korean IME input (which bypasses the aggregator via composition events)
-          // still deletes one character at a time instead of wiping the whole value.
+          // backspace — respect current selection range so that selecting all
+          // text and pressing Backspace deletes the entire selection, not just
+          // the last character.
           if(key === 'Backspace'){
             const cur = input.value || '';
-            const next = Array.from(cur).slice(0, -1).join('');
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            let next, newPos;
+            if(start !== end){
+              // There is a selection — delete the selected text
+              next = cur.substring(0, start) + cur.substring(end);
+              newPos = start;
+            } else {
+              // No selection — delete one character before the cursor
+              next = cur.substring(0, Math.max(0, start - 1)) + cur.substring(start);
+              newPos = Math.max(0, start - 1);
+            }
             input.value = next;
             input.__searchQuery = next;
+            try { input.setSelectionRange(newPos, newPos); } catch(_){}
             if(typeof window.renderSearchGrid === 'function')
               setTimeout(() => window.renderSearchGrid(), 0);
             e.preventDefault();
@@ -2397,6 +2409,14 @@ window.renderResult = function(scored,skipScore){
             return;
           }
         }, true);
+        // Sync __searchQuery with the actual input value after any native
+        // modification (e.g. Command+Backspace, Ctrl+Backspace, selecting text
+        // and deleting via context menu, etc.).  The aggregator's own keydown
+        // handler calls e.preventDefault() so this listener only fires for
+        // changes that were NOT handled by the aggregator.
+        input.addEventListener('input', () => {
+          input.__searchQuery = input.value || '';
+        });
         // when input gains focus reset the saved query to the current value
         input.addEventListener('focus', () => {
           input.__searchQuery = input.value || '';

@@ -12268,28 +12268,28 @@ function _normalizeKorean(name) {
 // EN 이미지 교정 맵: 한글 카드명 → 올바른 영문 이미지 경로
 // (한국어 이미지 기준 name_ko 스왑으로 인해 영문판에서 틀어진 매핑 교정)
 var _EN_CORRECT_MAP = {
-  '강행돌파':'defect/card_defect_fightthrough.png',
-  '공중제비':'silent/card_silent_backflip.png',
-  '뇌우':'defect/card_defect_tempest.png',
-  '반복':'defect/card_defect_loop.png',
-  '발화':'ironclad/card_ironclad_inflame.png',
-  '벼락':'defect/card_defect_thunder.png',
-  '불쾌':'silent/card_silent_malaise.png',
-  '순회':'defect/card_defect_iteration.png',
-  '압도':'silent/card_silent_outmaneuver.png',
-  '연마':'silent/card_silent_abrasive.png',
-  '재난':'colorless_playable/card_colorless_catastrophe.png',
-  '재앙':'colorless_playable/card_colorless_calamity.png',
-  '재주넘기':'silent/card_silent_flick-flack.png',
-  '정밀':'silent/card_silent_accuracy.png',
-  '정밀사격':'silent/card_silent_pinpoint.png',
-  '정밀한베기':'silent/card_silent_precisecut.png',
-  '틀어막기':'defect/card_defect_gunkup.png',
-  '파지직':'defect/card_defect_zap.png',
-  '폭풍':'defect/card_defect_storm.png',
-  '불굴':'ironclad/card_ironclad_notyet.png',
-  '화력증폭':'ironclad/card_ironclad_stoke.png',
-  '후벼파기':'defect/card_defect_claw.png',
+  '강행돌파':'defect/card_defect_fightthrough.webp',
+  '공중제비':'silent/card_silent_backflip.webp',
+  '뇌우':'defect/card_defect_tempest.webp',
+  '반복':'defect/card_defect_loop.webp',
+  '발화':'ironclad/card_ironclad_inflame.webp',
+  '벼락':'defect/card_defect_thunder.webp',
+  '불쾌':'silent/card_silent_malaise.webp',
+  '순회':'defect/card_defect_iteration.webp',
+  '압도':'silent/card_silent_outmaneuver.webp',
+  '연마':'silent/card_silent_abrasive.webp',
+  '재난':'colorless_playable/card_colorless_catastrophe.webp',
+  '재앙':'colorless_playable/card_colorless_calamity.webp',
+  '재주넘기':'silent/card_silent_flick-flack.webp',
+  '정밀':'silent/card_silent_accuracy.webp',
+  '정밀사격':'silent/card_silent_pinpoint.webp',
+  '정밀한베기':'silent/card_silent_precisecut.webp',
+  '틀어막기':'defect/card_defect_gunkup.webp',
+  '파지직':'defect/card_defect_zap.webp',
+  '폭풍':'defect/card_defect_storm.webp',
+  '불굴':'ironclad/card_ironclad_notyet.webp',
+  '화력증폭':'ironclad/card_ironclad_stoke.webp',
+  '후벼파기':'defect/card_defect_claw.webp',
 };
 
 function _buildCardImageMap(){
@@ -12303,7 +12303,7 @@ function _buildCardImageMap(){
       entries.push({
         normalized: _normalizeKorean(c.name_ko),
         char: c.char,
-        filename: (typeof currentLang !== 'undefined' && currentLang === 'en') ? c.final_filename : c.final_filename.replace(/\.png$/, '.webp')
+        filename: c.final_filename.replace(/\.png$/, '.webp')
       });
     }
   });
@@ -12371,8 +12371,7 @@ function findManifestByName(name, charKey) {
 
   // folder 정보 찾기
   if(typeof MANIFEST !== 'undefined'){
-    const ext = (typeof currentLang !== 'undefined' && currentLang === 'en');
-    const item = MANIFEST.find(m => (ext ? m.final_filename : m.final_filename.replace(/\.png$/, '.webp')) === filename);
+    const item = MANIFEST.find(m => m.final_filename.replace(/\.png$/, '.webp') === filename);
     if(item) return item;
   }
   return null;

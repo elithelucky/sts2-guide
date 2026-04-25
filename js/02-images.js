@@ -98,7 +98,7 @@ function findLocalFilename(name, charKey){
   if(typeof findManifestByName === 'function'){
     const manifest = findManifestByName(name, charKey);
     if(manifest && manifest.final_filename){
-      const filename = currentLang === 'en' ? manifest.final_filename : manifest.final_filename.replace(/\.png$/, '.webp');
+      const filename = manifest.final_filename.replace(/\.png$/, '.webp');
       return manifest.folder + '/' + filename;
     }
   }
@@ -117,7 +117,7 @@ function findLocalFilename(name, charKey){
   for(const filename of charFiles){
     const filepart = filename.replace('card_'+charKey+'_', '').toLowerCase();
     if(filepart === normalized || filename.toLowerCase().includes(normalized)){
-      const fallbackExt = currentLang === 'en' ? '.png' : '.webp';
+      const fallbackExt = '.webp';
       return charFolder + '/' + filename + fallbackExt;
     }
   }
