@@ -3188,6 +3188,14 @@ window.renderResult = function(scored,skipScore){
 
   SearchFlow.init();
   window.__searchFlow = SearchFlow;
+  // 이전 SearchFlow(V4)가 composition 이벤트에서 scope를 'current'로 리셋하는 버그 방지
+  // 두 SearchFlow 모두 addEventListener로 composition 핸들러를 등록하므로
+  // 이전 것의 render/syncGlobals를 no-op으로 만들어 간섭 차단
+  if(window.__searchFlowStableV4){
+    window.__searchFlowStableV4.render = function(){};
+    window.__searchFlowStableV4.renderScopeTabs = function(){};
+    window.__searchFlowStableV4.syncGlobals = function(){};
+  }
   window.openSearch = function(i){ SearchFlow.openReward(i); };
   window.openDeckAdd = function(){ SearchFlow.openDeckAdd(); };
   window.closeSearch = function(){ SearchFlow.close(); };
